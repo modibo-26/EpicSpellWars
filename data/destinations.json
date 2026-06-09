@@ -1,0 +1,182 @@
+[
+  {
+    "id": "EP2-082",
+    "nom": "Cubengelus",
+    "type": "Destination",
+    "glyphe": "Arcane",
+    "initiative": 12,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire de gauche.\nJet de puissance\n1-4  2 dégâts.\n5-9  3 dégâts.\n10+  4 dégâts et gagnez 1 Trésor. GARDEZ."
+  },
+  {
+    "id": "EP2-084",
+    "nom": "Barbaryaga",
+    "type": "Destination",
+    "glyphe": "Arcane",
+    "initiative": 14,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire avec le plus de 🩸.\nJet de puissance\n1-4  1 dégât.\n5-9  2 dégâts et la cible perd 1 🩸.\n10+  3 dégâts et la cible perd 2 🩸. GARDEZ."
+  },
+  {
+    "id": "EP2-086",
+    "nom": "Écrabouillax",
+    "type": "Destination",
+    "glyphe": "Arcane",
+    "initiative": 1,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire avec le plus de Trésors.\nJet de puissance\n1-4  1 dégât.\n5-9  3 dégâts et la cible doit défausser 1 de ses Trésors.\n10+  7 dégâts."
+  },
+  {
+    "id": "EP2-087",
+    "nom": "Ouististyx",
+    "type": "Destination",
+    "glyphe": "Arcane",
+    "initiative": 17,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire de droite.\nJet de puissance\n1-4  1 dégât.\n5-9  2 dégâts.\n10+  4 dégâts et gagnez 1 🩸. GARDEZ."
+  },
+  {
+    "id": "EP2-090",
+    "nom": "Gracula",
+    "type": "Destination",
+    "glyphe": "Ténèbres",
+    "initiative": 13,
+    "exemplaires": 2,
+    "texte": "Payez 1 🩸 : GARDEZ.\nCible : Adversaire le plus fort.\nJet de puissance\n1-4  1 dégât.\n5-9  2 dégâts.\n10+  4 dégâts."
+  },
+  {
+    "id": "EP2-091",
+    "nom": "Canibalocircus",
+    "type": "Destination",
+    "glyphe": "Ténèbres",
+    "initiative": 16,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire avec le plus de Créatures en jeu.\nJet de puissance\n1-4  Vous subissez 1 dégât.\n5-9  Tuez une de ses Créatures puis infligez-lui 3 dégâts.\n10+  4 dégâts. GARDEZ."
+  },
+  {
+    "id": "EP2-093",
+    "nom": "Shub-Niggurath",
+    "type": "Destination",
+    "glyphe": "Ténèbres",
+    "initiative": 6,
+    "exemplaires": 2,
+    "texte": "Payez 1 🩸 : Ajoutez 1 dé à chacun de vos Jets de puissance pour une Créature ce tour.\nCible : Adversaire qui a déjà joué ce tour.\nJet de puissance\n1-4  Aucun effet.\n5-9  1 dégât.\n10+  2 dégâts et jouez une autre Créature de votre main. GARDEZ."
+  },
+  {
+    "id": "EP2-096",
+    "nom": "Mecha-Satana",
+    "type": "Destination",
+    "glyphe": "Ténèbres",
+    "initiative": 3,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire le plus faible.\nJet de puissance\n1-4  1 dégât.\n5-9  2 dégâts et subissez 1 dégât.\n10+  4 dégâts puis 2 dégâts à votre adversaire le plus fort. GARDEZ."
+  },
+  {
+    "id": "EP2-097",
+    "nom": "Bruleculus",
+    "type": "Destination",
+    "glyphe": "Élémentaire",
+    "initiative": 9,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire avec le plus de 🩸.\nJet de puissance\n1-4  2 dégâts.\n5-9  3 dégâts.\n10+  4 dégâts. GARDEZ."
+  },
+  {
+    "id": "EP2-099",
+    "nom": "Beeeh-zerker!",
+    "type": "Destination",
+    "glyphe": "Élémentaire",
+    "initiative": 11,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire qui n'a pas le Donjon.\nJet de puissance\n1-4  1 dégât.\n5-9  2 dégâts.\n10+  3 dégâts ou 6 si c'est votre dernier adversaire. GARDEZ."
+  },
+  {
+    "id": "EP2-102",
+    "nom": "Tabapassif",
+    "type": "Destination",
+    "glyphe": "Élémentaire",
+    "initiative": 2,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire qui a déjà joué ce tour.\nJet de puissance\n1-4  1 dégât.\n5-9  3 dégâts.\n10+  3 dégâts et 3 dégâts à chaque adversaire qui a un jeton Dernier Survivant. GARDEZ."
+  },
+  {
+    "id": "EP2-103",
+    "nom": "Golemacifas",
+    "type": "Destination",
+    "glyphe": "Élémentaire",
+    "initiative": 7,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire le plus fort.\nJet de puissance\n1-4  1 dégât.\n5-9  2 dégâts.\n10+  1 dé de dégâts. GARDEZ."
+  },
+  {
+    "id": "EP2-106",
+    "nom": "Gaztoxicus",
+    "type": "Destination",
+    "glyphe": "Illusion",
+    "initiative": 20,
+    "exemplaires": 2,
+    "texte": "Payez 2 🩸 : Vous pouvez résoudre chaque dé de ce Jet individuellement contre des adversaires différents.\nCible : Adversaire qui a déjà joué ce tour.\nJet de puissance\n1-4  1 dégât. GARDEZ.\n5-9  2 dégâts.\n10+  4 dégâts."
+  },
+  {
+    "id": "EP2-107",
+    "nom": "Tentaculax",
+    "type": "Destination",
+    "glyphe": "Illusion",
+    "initiative": 16,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire sans Créature en jeu.\nJet de puissance\n1-4  1 dégât.\n5-9  2 dégâts. GARDEZ.\n10+  3 dégâts et volez 1 Trésor à la cible."
+  },
+  {
+    "id": "EP2-110",
+    "nom": "Logocrypto",
+    "type": "Destination",
+    "glyphe": "Illusion",
+    "initiative": 5,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire avec le plus de 🩸.\nJet de puissance\n1-4  Volez 1 🩸 à la cible.\n5-9  1 dégât et volez 1 🩸 à la cible.\n10+  4 dégâts et volez 1 🩸 à la cible. GARDEZ."
+  },
+  {
+    "id": "EP2-112",
+    "nom": "Ignôminus",
+    "type": "Destination",
+    "glyphe": "Illusion",
+    "initiative": 19,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire le plus faible.\nJet de puissance\n1-4  Chaque adversaire se soigne de 1 PV.\n5-9  3 dégâts. GARDEZ.\n10+  5 dégâts et chaque autre adversaire se soigne de 1 PV."
+  },
+  {
+    "id": "EP2-113",
+    "nom": "Coco-Cocoricus",
+    "type": "Destination",
+    "glyphe": "Primaire",
+    "initiative": 10,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire le plus fort.\nJet de puissance\n1-4  GARDEZ.\n5-9  2 dégâts.\n10+  4 dégâts."
+  },
+  {
+    "id": "EP2-116",
+    "nom": "Tropintimus",
+    "type": "Destination",
+    "glyphe": "Primaire",
+    "initiative": 8,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire qui a déjà joué ce tour.\nJet de puissance\n1-4  2 dégâts.\n5-9  3 dégâts.\n10+  4 dégâts et 1 dégât à chaque autre adversaire. GARDEZ."
+  },
+  {
+    "id": "EP2-118",
+    "nom": "Sauvéwillix",
+    "type": "Destination",
+    "glyphe": "Primaire",
+    "initiative": 13,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire qui a le Donjon.\nJet de puissance\n1-4  1 dégât.\n5-9  2 dégâts et prenez le Donjon.\n10+  5 dégâts et prenez le Donjon. GARDEZ."
+  },
+  {
+    "id": "EP2-119",
+    "nom": "Crassdépargnus",
+    "type": "Destination",
+    "glyphe": "Primaire",
+    "initiative": 18,
+    "exemplaires": 2,
+    "texte": "Cible : Adversaire avec le plus de 🩸.\nJet de puissance\n1-4  Aucun effet.\n5-9  2 dégâts.\n10+  4 dégâts et soignez-vous de 2 PV. GARDEZ."
+  }
+]

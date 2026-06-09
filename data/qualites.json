@@ -1,0 +1,162 @@
+[
+  {
+    "id": "EP2-042",
+    "nom": "Trésormodix",
+    "type": "Qualité",
+    "glyphe": "Arcane",
+    "exemplaires": 2,
+    "texte": "Gagnez 1 Trésor. Chaque adversaire qui n'a pas de Trésor en gagne 1. Payez 8 🩸 : Puis infligez 2 dégâts par Trésor en jeu à chaque adversaire."
+  },
+  {
+    "id": "EP2-044",
+    "nom": "Gromago",
+    "type": "Qualité",
+    "glyphe": "Arcane",
+    "exemplaires": 2,
+    "texte": "Gagnez 2 Trésors. Chaque adversaire qui n'a pas encore joué ce tour gagne 1 Trésor. Payez 2 🩸 : Chaque adversaire qui a déjà joué ce tour doit défausser 1 de ses Trésors."
+  },
+  {
+    "id": "EP2-045",
+    "nom": "Roulepélax",
+    "type": "Qualité",
+    "glyphe": "Arcane",
+    "exemplaires": 2,
+    "texte": "Votre adversaire de gauche doit vous donner 1 carte Arcane de sa main, sinon il vous donne 1 de ses Trésors. Donjon : Appliquez le même effet à votre voisin de droite."
+  },
+  {
+    "id": "EP2-048",
+    "nom": "Trankilus",
+    "type": "Qualité",
+    "glyphe": "Arcane",
+    "exemplaires": 2,
+    "texte": "Lancez 1 dé et gagnez autant de 🩸 que son résultat. Si vous obtenez 4 ou moins, votre adversaire le plus faible se soigne d'autant de PV que son résultat."
+  },
+  {
+    "id": "EP2-050",
+    "nom": "Asphixis",
+    "type": "Qualité",
+    "glyphe": "Ténèbres",
+    "exemplaires": 2,
+    "texte": "Infligez 1 dégât à chaque adversaire. Payez 1 🩸 : Choisissez un adversaire. Il subit autant de dégâts que votre niveau de 🩸 et vous subissez autant de dégâts que son niveau de 🩸."
+  },
+  {
+    "id": "EP2-051",
+    "nom": "Oeilcrevax",
+    "type": "Qualité",
+    "glyphe": "Ténèbres",
+    "exemplaires": 2,
+    "texte": "Infligez 3 dégâts à votre adversaire le plus fort. S'il bloque avec une Créature, gagnez 1 🩸."
+  },
+  {
+    "id": "EP2-053",
+    "nom": "Chancedecocus",
+    "type": "Qualité",
+    "glyphe": "Ténèbres",
+    "exemplaires": 2,
+    "texte": "Chaque adversaire lance 1 dé. Celui qui obtient le plus grand résultat gagne 1 🩸 et subit autant de dégâts que son résultat. Donjon : Chaque autre adversaire subit également autant de dégâts que son résultat."
+  },
+  {
+    "id": "EP2-056",
+    "nom": "Mortalriktus",
+    "type": "Qualité",
+    "glyphe": "Ténèbres",
+    "exemplaires": 2,
+    "texte": "Choisissez un adversaire et défaussez des cartes du même type (Source/Qualité/Destination) de votre main. Il subit autant de dégâts que le nombre de cartes défaussées. Payez 4 🩸 : Doublez les dégâts infligés."
+  },
+  {
+    "id": "EP2-057",
+    "nom": "Sabruledepartoux",
+    "type": "Qualité",
+    "glyphe": "Élémentaire",
+    "exemplaires": 2,
+    "texte": "Le sorcier qui contrôle le Donjon subit 4 dégâts. Si aucun sorcier vivant ne contrôle le Donjon, tous les sorciers subissent 4 dégâts. Payez 6 🩸 : Le sorcier qui contrôle le Donjon subit 8 dégâts, puis ses voisins directs subissent 4 dégâts chacun."
+  },
+  {
+    "id": "EP2-059",
+    "nom": "Poilcramus",
+    "type": "Qualité",
+    "glyphe": "Élémentaire",
+    "exemplaires": 2,
+    "texte": "Choisissez un adversaire qui doit révéler sa main. Il subit autant de dégâts que le double du nombre de Créatures dans sa main. Payez 3 🩸 : L'effet s'applique à chaque adversaire au lieu d'un."
+  },
+  {
+    "id": "EP2-061",
+    "nom": "Oulacécho",
+    "type": "Qualité",
+    "glyphe": "Élémentaire",
+    "exemplaires": 2,
+    "texte": "Infligez 1 dé de dégâts à un adversaire désigné par le dé. Donjon : Infligez ensuite 2 dégâts à un autre adversaire."
+  },
+  {
+    "id": "EP2-064",
+    "nom": "Fourchétix",
+    "type": "Qualité",
+    "glyphe": "Élémentaire",
+    "exemplaires": 2,
+    "texte": "Prenez le Donjon et donnez-le à un adversaire qui ne l'avait pas. Puis infligez 3 dégâts à cet adversaire. Payez 3 🩸 : Tuez d'abord toutes ses Créatures."
+  },
+  {
+    "id": "EP2-065",
+    "nom": "Groclonar",
+    "type": "Qualité",
+    "glyphe": "Illusion",
+    "exemplaires": 2,
+    "texte": "Choisissez une option : infligez 2 dégâts à chaque adversaire avec un nombre pair de PV ou infligez 3 dégâts à chaque adversaire avec un nombre impair de PV. Donjon : Faites les deux (pair puis impair)."
+  },
+  {
+    "id": "EP2-068",
+    "nom": "Cadopourrix",
+    "type": "Qualité",
+    "glyphe": "Illusion",
+    "exemplaires": 2,
+    "texte": "Ajoutez à votre sort 1 carte Destination de votre main. Payez 4 🩸 : Révélez des cartes de la pioche principale jusqu'à trouver une Créature, puis ajoutez-la à votre sort."
+  },
+  {
+    "id": "EP2-070",
+    "nom": "Boulcheloux",
+    "type": "Qualité",
+    "glyphe": "Illusion",
+    "exemplaires": 2,
+    "texte": "Choisissez un adversaire qui n'a pas de Trésor. Il en gagne 1. Puis infligez 2 dégâts à chaque adversaire qui a un Trésor."
+  },
+  {
+    "id": "EP2-071",
+    "nom": "Coupéhendus",
+    "type": "Qualité",
+    "glyphe": "Illusion",
+    "exemplaires": 2,
+    "texte": "Lancez 2 dés. Choisissez un adversaire et infligez-lui autant de dégâts que le plus petit résultat des deux. Payez 2 🩸 : Infligez autant de dégâts que l'autre résultat à un autre adversaire."
+  },
+  {
+    "id": "EP2-073",
+    "nom": "Peutidardus",
+    "type": "Qualité",
+    "glyphe": "Primaire",
+    "exemplaires": 2,
+    "texte": "Révélez des cartes de la pioche principale jusqu'à trouver une Créature, puis ajoutez-la à votre sort. Donjon : Ajoutez 2 Créatures au lieu d'une."
+  },
+  {
+    "id": "EP2-075",
+    "nom": "Bégoniax",
+    "type": "Qualité",
+    "glyphe": "Primaire",
+    "exemplaires": 2,
+    "texte": "Prenez le Donjon et infligez 1 dégât par sorcier mort à chaque adversaire. Si aucun sorcier n'a été tué, gagnez 2 🩸."
+  },
+  {
+    "id": "EP2-076",
+    "nom": "Spiralex",
+    "type": "Qualité",
+    "glyphe": "Primaire",
+    "exemplaires": 2,
+    "texte": "Infligez 1 dégât à votre adversaire de droite, puis 2 dégâts à son adversaire de droite, puis 3 dégâts à l'adversaire suivant et ainsi de suite, jusqu'à ce que chaque adversaire ait subi des dégâts. Payez 2 🩸 : Doublez les dégâts infligés."
+  },
+  {
+    "id": "EP2-079",
+    "nom": "Sarabandus",
+    "type": "Qualité",
+    "glyphe": "Primaire",
+    "exemplaires": 2,
+    "texte": "Défaussez jusqu'à 3 cartes non Primaires de votre main. Soignez-vous de 1 PV par carte défaussée."
+  }
+]

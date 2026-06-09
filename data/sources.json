@@ -1,0 +1,162 @@
+[
+  {
+    "id": "EP2-002",
+    "nom": "Foulremix",
+    "type": "Source",
+    "glyphe": "Arcane",
+    "exemplaires": 2,
+    "texte": "Choisissez un type de cartes (Source/Qualité/Destination). Chaque sorcier doit passer toutes les cartes de ce type qu'il a en main à son voisin de gauche, puis subit autant de dégâts que le nombre de cartes qu'il reçoit. Payez 4 🩸 : Doublez les dégâts infligés."
+  },
+  {
+    "id": "EP2-003",
+    "nom": "Taléboulas",
+    "type": "Source",
+    "glyphe": "Arcane",
+    "exemplaires": 2,
+    "texte": "Infligez 3 dégâts à votre adversaire de gauche. Payez 2 🩸 : Infligez 3 dégâts à chaque adversaire à la place."
+  },
+  {
+    "id": "EP2-006",
+    "nom": "Tikérestox",
+    "type": "Source",
+    "glyphe": "Arcane",
+    "exemplaires": 2,
+    "texte": "Chaque adversaire qui a déjà joué ce tour doit vous donner 1 🩸. Chaque adversaire qui n'a pas encore joué ce tour subit 2 dégâts."
+  },
+  {
+    "id": "EP2-008",
+    "nom": "Dépipax",
+    "type": "Source",
+    "glyphe": "Arcane",
+    "exemplaires": 2,
+    "texte": "Lancez 1 dé : 1-2 Prenez le Donjon, 3-4 Gagnez 1 Trésor, 5+ Faites les deux. Réaction : Si vous mourez avant que cette carte ne soit résolue, gagnez 1 Trésor et jouez-le au début de la prochaine manche."
+  },
+  {
+    "id": "EP2-010",
+    "nom": "Castoramax",
+    "type": "Source",
+    "glyphe": "Ténèbres",
+    "exemplaires": 2,
+    "texte": "Lancez 2 dés. Utilisez-en un pour infliger autant de dégâts que son résultat à votre adversaire de gauche. Subissez autant de dégâts que le résultat de l'autre dé, sauf si vous contrôlez le Donjon ou si vous payez 1 🩸."
+  },
+  {
+    "id": "EP2-011",
+    "nom": "Necrophilus",
+    "type": "Source",
+    "glyphe": "Ténèbres",
+    "exemplaires": 2,
+    "texte": "Prenez le Donjon. Payez 1 🩸 : Infligez 2 dégâts par jeton Dernier Survivant en jeu à chaque adversaire."
+  },
+  {
+    "id": "EP2-014",
+    "nom": "Momidisis",
+    "type": "Source",
+    "glyphe": "Ténèbres",
+    "exemplaires": 2,
+    "texte": "Infligez 2 dégâts à chaque adversaire qui a déjà joué ce tour. Réaction : Si vous mourez avant que cette carte ne soit résolue, piochez 2 cartes Sorcier crevé supplémentaires."
+  },
+  {
+    "id": "EP2-015",
+    "nom": "Nyarlaprizdetep",
+    "type": "Source",
+    "glyphe": "Ténèbres",
+    "exemplaires": 2,
+    "texte": "Votre adversaire de gauche doit choisir entre vous donner 2 🩸 ou subir 3 dégâts."
+  },
+  {
+    "id": "EP2-017",
+    "nom": "Flaminus",
+    "type": "Source",
+    "glyphe": "Élémentaire",
+    "exemplaires": 2,
+    "texte": "Infligez 1 dégât à chaque adversaire. Payez 5 🩸 : Infligez 5 dégâts au lieu de 1."
+  },
+  {
+    "id": "EP2-019",
+    "nom": "Fukushimax",
+    "type": "Source",
+    "glyphe": "Élémentaire",
+    "exemplaires": 2,
+    "texte": "Infligez 2 dégâts à votre adversaire de droite. Réaction : Si vous mourez avant que cette carte ne soit résolue, infligez 1 dé de dégâts au sorcier qui vous a tué."
+  },
+  {
+    "id": "EP2-021",
+    "nom": "Volcanino",
+    "type": "Source",
+    "glyphe": "Élémentaire",
+    "exemplaires": 2,
+    "texte": "Donnez 1 🩸 à votre adversaire le plus fort (si vous en avez), puis infligez-lui 1 dé de dégâts. Donjon : Infligez ensuite 1 dé de dégâts à un autre adversaire."
+  },
+  {
+    "id": "EP2-024",
+    "nom": "Brikébix",
+    "type": "Source",
+    "glyphe": "Élémentaire",
+    "exemplaires": 2,
+    "texte": "Choisissez une option : prenez le Donjon et infligez 1 dégât à chaque adversaire ou infligez 3 dégâts à un adversaire qui ne contrôle pas le Donjon. Payez 3 🩸 : Faites les deux."
+  },
+  {
+    "id": "EP2-026",
+    "nom": "Bébéfédex",
+    "type": "Source",
+    "glyphe": "Illusion",
+    "exemplaires": 2,
+    "texte": "Infligez 2 dégâts à votre adversaire le plus fort. Payez 3 🩸 : Ajoutez à votre sort 1 carte au hasard de votre main."
+  },
+  {
+    "id": "EP2-028",
+    "nom": "Vishnakrax",
+    "type": "Source",
+    "glyphe": "Illusion",
+    "exemplaires": 2,
+    "texte": "Ajoutez à votre sort 1 carte de votre main. Donjon : Ajoutez à votre sort 1 carte supplémentaire."
+  },
+  {
+    "id": "EP2-030",
+    "nom": "Brademinus",
+    "type": "Source",
+    "glyphe": "Illusion",
+    "exemplaires": 2,
+    "texte": "Infligez 1 dégât à n'importe quel adversaire. Réaction : Si vous mourez avant que cette carte ne soit résolue et qu'une Créature est présente dans votre sort, révélez cette Créature. Elle encaisse les dégâts à votre place (vous ne mourez pas)."
+  },
+  {
+    "id": "EP2-031",
+    "nom": "Multitax",
+    "type": "Source",
+    "glyphe": "Illusion",
+    "exemplaires": 2,
+    "texte": "Prenez le Donjon. Si vous le prenez à un adversaire vivant, infligez 3 dégâts à un autre adversaire."
+  },
+  {
+    "id": "EP2-033",
+    "nom": "Pèredodux",
+    "type": "Source",
+    "glyphe": "Primaire",
+    "exemplaires": 2,
+    "texte": "Soignez-vous de 1 PV par Créature en jeu. Payez X 🩸 : Soignez-vous de X PV supplémentaires."
+  },
+  {
+    "id": "EP2-035",
+    "nom": "Gonzofungus",
+    "type": "Source",
+    "glyphe": "Primaire",
+    "exemplaires": 2,
+    "texte": "Lancez 1 dé et soignez-vous d'autant de PV que son résultat. Réaction : Si vous mourez avant que cette carte ne soit résolue, défaussez-la et placez votre jeton PV sur 1 (vous ne mourez pas)."
+  },
+  {
+    "id": "EP2-037",
+    "nom": "Hydraponix",
+    "type": "Source",
+    "glyphe": "Primaire",
+    "exemplaires": 2,
+    "texte": "Infligez 3 dégâts à votre adversaire le plus fort. Payez 4 🩸 : Infligez 7 dégâts à chaque adversaire possédant un jeton Dernier Survivant."
+  },
+  {
+    "id": "EP2-039",
+    "nom": "Boucledorus",
+    "type": "Source",
+    "glyphe": "Primaire",
+    "exemplaires": 2,
+    "texte": "Choisissez un adversaire. Il peut vous donner une Créature de sa main que vous ajoutez à votre sort, sinon infligez-lui 1 dé de dégâts."
+  }
+]

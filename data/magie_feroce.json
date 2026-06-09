@@ -1,0 +1,9 @@
+[
+  {
+    "id": "EP2-123",
+    "nom": "Magie Féroce",
+    "type": "MagieFeroce",
+    "exemplaires": 8,
+    "texte": "Remplace n'importe quelle carte dans un sort. Avant de résoudre votre sort, révélez des cartes de la pioche principale jusqu'à ce que vous trouviez une carte du type remplacé par cette carte Magie féroce. La carte piochée fait désormais partie de votre sort. Défaussez cette carte Magie féroce et les autres cartes révélées."
+  }
+]

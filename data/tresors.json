@@ -1,0 +1,177 @@
+[
+  {
+    "id": "EP2-146",
+    "nom": "Braguette de Cthulhu",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Au début de chacun de vos tours, volez 1 🩸 à n'importe quel adversaire."
+  },
+  {
+    "id": "EP2-154",
+    "nom": "Gang du Gong",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Payez 2 🩸 : Infligez 1 dégât à l'ennemi ciblé par tranche complète de 5 PV qu'il possède. (Ex. : Un adversaire avec 14 PV subit 2 dégâts.)"
+  },
+  {
+    "id": "EP2-155",
+    "nom": "Divan le Terrible",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Lorsque vous jouez une carte Magie féroce, révélez des cartes jusqu'à trouver 2 cartes du type que vous cherchez au lieu de 1. Ajoutez les 2 cartes à votre sort."
+  },
+  {
+    "id": "EP2-156",
+    "nom": "Dés Pipés",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Relancez tous les 1 que vous obtenez lors de vos Jets de puissance."
+  },
+  {
+    "id": "EP2-157",
+    "nom": "Chalisman",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Prenez le Donjon. Chaque fois que vous gagnez des 🩸 parce que vous contrôlez le Donjon en fin de tour, gagnez 1 🩸 supplémentaire."
+  },
+  {
+    "id": "EP2-158",
+    "nom": "Vers Pas Solitaires",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Si vous êtes ex æquo avec d'autres joueurs à l'initiative, vous pouvez payer 1 🩸 pour remporter l'égalité et jouer avant les autres."
+  },
+  {
+    "id": "EP2-159",
+    "nom": "Dissuasion Nucléaire",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Lorsque vous êtes la seule cible d'un sort adverse, vous pouvez payer 3 🩸 pour rediriger le sort vers un autre sorcier (mais pas celui qui lance le sort)."
+  },
+  {
+    "id": "EP2-160",
+    "nom": "Baguette Bicéphale",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Lorsque vous résolvez une carte qui cible votre adversaire de gauche, vous pouvez la rediriger vers celui de droite et inversement. Si vous inversez la direction d'une carte, vous devez le faire pour tous les effets du sort."
+  },
+  {
+    "id": "EP2-161",
+    "nom": "Manuel de Cryptozoic",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Lors de chacun de vos tours, vous pouvez relancer le Jet de puissance d'une de vos Créatures. Vous êtes obligé de garder le nouveau résultat (même s'il est pire)."
+  },
+  {
+    "id": "EP2-162",
+    "nom": "Pièces du Destin",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Lorsque vous gagnez ce Trésor, annoncez le prochain sorcier qui sera tué selon vous. Si votre annonce est juste, gagnez 2 🩸 (même s'il s'agit de vous)."
+  },
+  {
+    "id": "EP2-163",
+    "nom": "Buffet à Volonté",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Lorsque vous gagnez ce Trésor, choisissez un Composant de sort de votre main et glissez-le sous ce Trésor. Son Glyphe compte dans chacun de vos sorts."
+  },
+  {
+    "id": "EP2-164",
+    "nom": "Nachos de la Rage",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Payez 3 🩸 : Soignez-vous de 2 PV."
+  },
+  {
+    "id": "EP2-165",
+    "nom": "Bœuf aux Hormones",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Après avoir résolu un Composant Créature de votre sort, vous pouvez payer 3 🩸 pour GARDER cette Créature au lieu de la défausser."
+  },
+  {
+    "id": "EP2-167",
+    "nom": "Coupe du Tocard",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Si votre mort met fin à la manche, gagnez 3 🩸. Payez 1 🩸 : Soignez-vous de 1 PV (une seule fois par tour)."
+  },
+  {
+    "id": "EP2-168",
+    "nom": "Bébé Monstre",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Lorsque vous gagnez ce Trésor, infligez 1 dégât à chaque sorcier (vous compris). Puis gagnez 2 🩸 pour chaque sorcier qui a 5 PV ou moins. Payez 4 🩸 : Infligez 2 dégâts à n'importe quel adversaire."
+  },
+  {
+    "id": "EP2-169",
+    "nom": "Menottes d'Avarice",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Si vous êtes le dernier sorcier à jouer dans l'ordre du tour, gagnez un Trésor."
+  },
+  {
+    "id": "EP2-171",
+    "nom": "Fusil à Triple Canon",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Gagnez 1 🩸 pour chaque série complète de 3 Glyphes identiques dans votre sort."
+  },
+  {
+    "id": "EP2-172",
+    "nom": "Avis de Recherche",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Placez ce Trésor au milieu de la zone de jeu et gagnez un autre Trésor. Le prochain sorcier qui en tue un autre défausse cette carte et gagne 3 🩸."
+  },
+  {
+    "id": "EP2-173",
+    "nom": "Mains Poisseuses !",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Si vous êtes le premier sorcier à jouer dans l'ordre du tour, échangez ce Trésor contre n'importe quel Trésor d'un adversaire."
+  },
+  {
+    "id": "EP2-174",
+    "nom": "Liste du Père Fouettard",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Gagnez 1 🩸 supplémentaire à chaque fois que vous tuez un adversaire."
+  },
+  {
+    "id": "EP2-175",
+    "nom": "Chipodada",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Gagnez 1 🩸 à chaque fois que vous obtenez 13 ou plus lors d'un Jet de puissance."
+  },
+  {
+    "id": "EP2-176",
+    "nom": "Granoloup",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "À chaque fois qu'une de vos Créatures inflige des dégâts à la suite d'un Jet de puissance, augmentez ces dégâts de 1."
+  },
+  {
+    "id": "EP2-177",
+    "nom": "Bouclier Anti-Fiente",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "À chaque fois qu'un adversaire pioche une carte Sorcier crevé, lancez un dé. Si vous obtenez 5 ou 6, soignez-vous de 1 PV."
+  },
+  {
+    "id": "EP2-178",
+    "nom": "Globe Sacrificiel",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Payez 2 🩸 : Relancez un dé."
+  },
+  {
+    "id": "EP2-179",
+    "nom": "Smoking de Location",
+    "type": "Trésor",
+    "exemplaires": 1,
+    "texte": "Si vous êtes le sorcier le plus faible (ou à égalité avec un autre joueur) à la fin d'un tour, soignez-vous de 2 PV et gagnez un Trésor."
+  }
+]

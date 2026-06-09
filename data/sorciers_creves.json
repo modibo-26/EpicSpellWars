@@ -1,0 +1,58 @@
+[
+  {
+    "id": "EP2-130",
+    "nom": "Petit Ange Parti Trop Tôt",
+    "type": "SorcierCrevé",
+    "exemplaires": 3,
+    "texte": "Gardez cette carte devant vous jusqu'à votre prochain Jet de puissance pour une Créature. Ajoutez 1 dé supplémentaire à votre Jet de puissance."
+  },
+  {
+    "id": "EP2-134",
+    "nom": "Tournée d'Adieu",
+    "type": "SorcierCrevé",
+    "exemplaires": 3,
+    "texte": "Immédiat : Gagnez 2 🩸. Si vous êtes le premier sorcier tué de cette manche, gagnez 2 🩸 de plus."
+  },
+  {
+    "id": "EP2-139",
+    "nom": "Bilan Sanguin",
+    "type": "SorcierCrevé",
+    "exemplaires": 3,
+    "texte": "Immédiat : Volez 1 🩸 à chaque sorcier vivant."
+  },
+  {
+    "id": "EP2-140",
+    "nom": "Sorcier sous Terre",
+    "type": "SorcierCrevé",
+    "exemplaires": 3,
+    "texte": "Immédiat : Prenez le Donjon. Si vous contrôlez le Donjon alors que vous êtes mort à la fin d'un tour, gagnez 4 🩸 au lieu de 1."
+  },
+  {
+    "id": "EP2-144",
+    "nom": "Repos Mérité",
+    "type": "SorcierCrevé",
+    "exemplaires": 4,
+    "texte": "Immédiat : Gagnez 1 🩸 pour chaque jeton Dernier Survivant en jeu. Si vous n'en avez aucun, gagnez 1 Trésor au début de la prochaine manche."
+  },
+  {
+    "id": "EP2-145",
+    "nom": "Doigt Magique",
+    "type": "SorcierCrevé",
+    "exemplaires": 4,
+    "texte": "Le vainqueur de cette manche pioche 2 cartes de moins au début de la prochaine manche."
+  },
+  {
+    "id": "EP2-149",
+    "nom": "Ronronne en Paix",
+    "type": "SorcierCrevé",
+    "exemplaires": 3,
+    "texte": "Au début de la prochaine manche, révélez des cartes de la pioche principale jusqu'à trouver une Créature. Mettez cette Créature en jeu devant vous. Défaussez les autres cartes révélées."
+  },
+  {
+    "id": "EP2-152",
+    "nom": "Baisse de Tension",
+    "type": "SorcierCrevé",
+    "exemplaires": 2,
+    "texte": "Lorsque vous jouerez votre premier sort de la prochaine manche, ajoutez-lui la première carte de la pioche principale. Si c'est une carte Magie féroce, prenez-la en main et ajoutez la carte suivante de la pioche à votre sort."
+  }
+]
