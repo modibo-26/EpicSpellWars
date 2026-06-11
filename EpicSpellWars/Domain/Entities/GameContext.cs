@@ -44,6 +44,11 @@ public class GameContext
     // Ex. Mortalriktus (puis defausse de ce type), Foulremix (puis passage de ce type).
     public required Func<Sorcier, IReadOnlyList<TypeComposant>, TypeComposant> ChoisirTypeComposant { get; set; }
 
+    // Le lanceur decide-t-il de payer ce cout en Sang ? (« Payez N 🩸 : … »). libelle = effet propose.
+    public required Func<Sorcier, int, string, bool> ChoisirPayer { get; set; }
+    // Montant choisi pour un cout variable « Payez X 🩸 » (sera borne au Sang dispo).
+    public required Func<Sorcier, int> ChoisirMontant { get; set; }
+
     // Nb de cartes du sort en cours (+ creatures gardees) portant ce Glyphe.
     public int CompterGlyphes(Glyphe glyphe) =>
         SortEnCours.Count(c => c.Glyphe == glyphe)
@@ -73,6 +78,32 @@ public class GameContext
             if (cible != Lanceur)
                 DerniereCible = cible;   // « cet adversaire » / « un autre adversaire » se calent dessus
         }
+    }
+
+    // Coût « Payez N 🩸 » d'un Composant : demande la decision au lanceur, et si oui debite N Sang.
+    // Renvoie true si paye. Regles-sang : decider AVANT de resoudre (l'appelant n'execute l'effet
+    // qu'apres ce true), 1x/tour pour un Composant, et impossible si pas assez de Sang.
+    public bool TenterPayer(int cout, string libelle)
+    {
+        if (Lanceur.ADejaPayeCeTour || Lanceur.Sang < cout || !ChoisirPayer(Lanceur, cout, libelle))
+            return false;
+        Lanceur.Sang -= cout;
+        Lanceur.ADejaPayeCeTour = true;
+        return true;
+    }
+
+    // Coût variable « Payez X 🩸 » : le lanceur choisit X (borne au Sang dispo), on debite, on renvoie X
+    // (0 si rien paye / pas de Sang / deja paye ce tour). X alimente une Valeur via DerniereQuantite.
+    public int TenterPayerVariable(string libelle)
+    {
+        if (Lanceur.ADejaPayeCeTour)
+            return 0;
+        var x = Math.Clamp(ChoisirMontant(Lanceur), 0, Lanceur.Sang);
+        if (x <= 0)
+            return 0;
+        Lanceur.Sang -= x;
+        Lanceur.ADejaPayeCeTour = true;
+        return x;
     }
 
     // Revele les cartes du sommet de la pioche principale jusqu'a en trouver une qui matche `critere`

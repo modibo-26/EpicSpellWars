@@ -19,7 +19,7 @@ public class EffetRevelerPioche : IEffet
         {
             var carte = context.RevelerPiocheJusqua(Critere);
             if (carte is null)
-                break;   // pioche epuisee : on s'arrete (cf. TODO remelange dans RevelerPiocheJusqua)
+                break;   // pioche epuisee : on s'arrête (cf. TODO remelange dans RevelerPiocheJusqua)
 
             if (Destination == DestinationRevele.Sort)
                 context.SortEnCours.Add(carte);

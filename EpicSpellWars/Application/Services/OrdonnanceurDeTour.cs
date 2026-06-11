@@ -19,7 +19,10 @@ public class OrdonnanceurDeTour
     public IReadOnlyList<Sorcier> JouerTour(GameContext ctx, IReadOnlyDictionary<Sorcier, List<CarteSort>> sorts)
     {
         foreach (var s in ctx.Sorciers)
+        {
             s.ADejaJoueCeTour = false;
+            s.ADejaPayeCeTour = false;
+        }
 
         var aJouer = ctx.Sorciers
             .Where(s => s.EstVivant && sorts.TryGetValue(s, out var sort) && sort.Count > 0)
@@ -47,9 +50,8 @@ public class OrdonnanceurDeTour
 
             // Nettoyage fin de sort : composants non gardes → Defausse. Les Creatures gardees sont deja
             // dans Lanceur.Creatures (via GarderCreatureEnCours) ; on ne les defausse pas.
-            foreach (var composant in ctx.SortEnCours)
-                if (!lanceur.Creatures.Contains(composant))
-                    ctx.Defausse.Add(composant);
+            foreach (var composant in ctx.SortEnCours.Where(composant => !lanceur.Creatures.Contains(composant)))
+                ctx.Defausse.Add(composant);
             ctx.SortEnCours = [];
 
             lanceur.ADejaJoueCeTour = true;

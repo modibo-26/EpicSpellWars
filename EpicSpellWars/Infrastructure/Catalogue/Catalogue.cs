@@ -1,0 +1,27 @@
+using EpicSpellWars.Domain.Entities;
+
+namespace EpicSpellWars.Infrastructure.Catalogue;
+
+// Assemble la pioche principale a partir des catalogues par type.
+// Encodees : Sources + Qualites + Destinations. MagieFeroce s'ajoutera ici (.Concat(...)).
+public static class Catalogue
+{
+    // ATTENTION : Enumerable.Repeat renvoie la MEME instance N fois (alias). Acceptable tant qu'on ne
+    // tire pas reellement la pioche ni ne deplace les cartes entre zones (main/defausse) ; a remplacer
+    // par des clones distincts quand le vrai cycle de jeu sera implemente.
+    public static List<Carte> PiochePrincipale()
+    {
+        var modeles = Sources.Toutes()
+            .Concat(Qualites.Toutes())
+            .Concat(Destinations.Toutes())
+            .Cast<Carte>()
+            .ToList();
+
+        // Rattache le texte verbatim depuis data/*.json (jointure par Id) avant de tirer les exemplaires.
+        TexteLoader.AppliquerTextes(modeles);
+
+        return modeles
+            .SelectMany(c => Enumerable.Repeat(c, c.Exemplaires))
+            .ToList();
+    }
+}

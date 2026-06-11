@@ -1,16 +1,15 @@
 using EpicSpellWars.Domain.Entities;
 using EpicSpellWars.Domain.Enums;
-using Xunit;
 using Action = EpicSpellWars.Domain.Entities.Action;
 
 namespace EpicSpellWars.Tests;
 
-// Boucle de résolution d'un sort (GameContext.ResoudreSort) : ordre de lecture Source→Qualité→Destination
+// Boucle de résolution d'un sort (GameContext. ResoudreSort) : ordre de lecture Source→Qualité→Destination
 // et carte ajoutée en cours de résolution résolue à son rang de type.
 public class ResoudreSortTests
 {
-    // 12) Sort donné en désordre [Destination, Qualité, Source]. La Qualité ajoute une Source de la main
-    //     (GagnerCarte) qui se résout AVANT la Destination. Jet 10+ : 4 dégâts gauche + GARDEZ.
+    // 12) Un Sort donné en désordre [Destination, Qualité, Source]. La Qualité ajoute une Source de la main
+    //     (GagnerCarte) qui se résout AVANT la Destination. Jet 10+ : 4 dégâts à gauche + GARDEZ.
     //     Dégâts à Gandalf : Source 2 + Source ajoutée 1 + Destination 4 = 7.
     [Fact]
     public void Resout_dans_l_ordre_de_type_y_compris_les_cartes_ajoutees()

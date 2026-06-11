@@ -7,4 +7,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <!-- data/*.json (texte verbatim des cartes, hors projet) embarques pour TexteLoader.
+         LogicalName = nom de fichier nu (ex. "sources.json") ; le wildcard prend les futurs JSON. -->
+    <ItemGroup>
+        <EmbeddedResource Include="..\data\*.json">
+            <Link>data\%(Filename)%(Extension)</Link>
+            <LogicalName>%(Filename)%(Extension)</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
 </Project>

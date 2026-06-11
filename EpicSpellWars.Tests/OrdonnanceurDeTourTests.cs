@@ -1,7 +1,6 @@
 using EpicSpellWars.Application.Services;
 using EpicSpellWars.Domain.Entities;
 using EpicSpellWars.Domain.Enums;
-using Xunit;
 using Action = EpicSpellWars.Domain.Entities.Action;
 
 namespace EpicSpellWars.Tests;
