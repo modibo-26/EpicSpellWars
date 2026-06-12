@@ -24,4 +24,18 @@ public static class Catalogue
             .SelectMany(c => Enumerable.Repeat(c, c.Exemplaires))
             .ToList();
     }
+
+    // Piles SEPAREES de la pioche principale (permanents / pioche de mort / joker). Meme schema :
+    // texte rattache par Id, puis exemplaires tires.
+    public static List<Tresor> PiocheTresor() => AvecTextePuisExemplaires(Tresors.Toutes());
+
+    public static List<SorcierCreve> PiocheSorcierCreve() => AvecTextePuisExemplaires(SorciersCreves.Toutes());
+
+    public static List<MagieFeroce> PiocheMagieFeroce() => AvecTextePuisExemplaires(MagiesFeroces.Toutes());
+
+    private static List<T> AvecTextePuisExemplaires<T>(List<T> modeles) where T : Carte
+    {
+        TexteLoader.AppliquerTextes(modeles);
+        return modeles.SelectMany(c => Enumerable.Repeat(c, c.Exemplaires)).ToList();
+    }
 }

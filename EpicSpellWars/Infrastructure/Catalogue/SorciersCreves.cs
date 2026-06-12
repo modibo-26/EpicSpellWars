@@ -1,0 +1,48 @@
+using EpicSpellWars.Domain.Entities;
+using EpicSpellWars.Domain.Enums;
+using Action = EpicSpellWars.Domain.Entities.Action;
+
+namespace EpicSpellWars.Infrastructure.Catalogue;
+
+// Les 8 Sorciers crevés (piochés à la mort ; exemplaires variables). Texte = data/sorciers_creves.json
+// (TexteLoader, jointure Id). Le DÉCLENCHEUR (« pioché à la mort ») relève du 2e pilier ; mais les
+// effets « Immédiat : » à base d'Actions pures sont déjà encodés ici (data prête, exécutée plus tard).
+//   // GAP   = clause conditionnelle / valeur pas encore exprimable.
+//   // TODO  = effet « manche suivante » (différé) = pilier déclencheurs, Effets vides.
+public static class SorciersCreves
+{
+    public static List<SorcierCreve> Toutes() =>
+    [
+        // « Gardez jusqu'à votre prochain Jet pour une Créature : +1 dé » = modificateur BonusDesJet (GAP, cf. Shub-Niggurath).
+        new("Petit Ange Parti Trop Tôt", [], TriggerType.Passif) { Id = "EP2-130", Exemplaires = 3 },
+
+        // Immédiat : +2 🩸 (base encodée). // GAP : +2 🩸 si premier tué de la manche.
+        new("Tournée d'Adieu",
+            [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurFixe(2) }] }],
+            TriggerType.Immediat) { Id = "EP2-134", Exemplaires = 3 },
+
+        // Immédiat : volez 1 🩸 à chaque sorcier vivant (= TousAdversaires, le lanceur est mort). Complet.
+        new("Bilan Sanguin",
+            [new EffetSimple { Actions = [new Action { Type = TypeAction.VolerSang, Cible = Cible.TousAdversaires, Valeur = new ValeurFixe(1) }] }],
+            TriggerType.Immediat) { Id = "EP2-139", Exemplaires = 3 },
+
+        // Immédiat : prenez le Donjon (base encodée). // GAP : +4 🩸 (au lieu de 1) si Donjon en fin de tour.
+        new("Sorcier sous Terre",
+            [new EffetSimple { Actions = [new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi }] }],
+            TriggerType.Immediat) { Id = "EP2-140", Exemplaires = 3 },
+
+        // Immédiat : +1 🩸 par jeton Dernier Survivant (base encodée). // GAP : si aucun, 1 Trésor la manche suivante.
+        new("Repos Mérité",
+            [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurParJeton(1) }] }],
+            TriggerType.Immediat) { Id = "EP2-144", Exemplaires = 4 },
+
+        // TODO manche suivante : le vainqueur pioche 2 cartes de moins.
+        new("Doigt Magique", [], TriggerType.MancheSuivante) { Id = "EP2-145", Exemplaires = 4 },
+
+        // TODO manche suivante : révéler jusqu'à une Créature et la mettre en jeu.
+        new("Ronronne en Paix", [], TriggerType.MancheSuivante) { Id = "EP2-149", Exemplaires = 3 },
+
+        // TODO manche suivante : ajouter la 1re carte de la pioche au 1er sort (gestion Magie féroce incluse).
+        new("Baisse de Tension", [], TriggerType.MancheSuivante) { Id = "EP2-152", Exemplaires = 2 },
+    ];
+}

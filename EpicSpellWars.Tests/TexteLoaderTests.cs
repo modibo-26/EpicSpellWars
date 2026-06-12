@@ -20,9 +20,13 @@ public class TexteLoaderTests
     [Fact]
     public void Toutes_les_cartes_encodees_ont_un_texte_non_vide()
     {
-        var pioche = Catalogue.PiochePrincipale();
+        // Catalogue complet : sorts (pioche principale) + Trésors + Sorciers crevés + Magie féroce.
+        var toutes = Catalogue.PiochePrincipale()
+            .Concat<Domain.Entities.Carte>(Catalogue.PiocheTresor())
+            .Concat(Catalogue.PiocheSorcierCreve())
+            .Concat(Catalogue.PiocheMagieFeroce());
 
-        var sansTexte = pioche.Where(c => string.IsNullOrEmpty(c.Texte)).Select(c => $"{c.Id} {c.Nom}").Distinct();
+        var sansTexte = toutes.Where(c => string.IsNullOrEmpty(c.Texte)).Select(c => $"{c.Id} {c.Nom}").Distinct();
         Assert.Empty(sansTexte);
     }
 }
