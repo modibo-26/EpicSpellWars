@@ -39,7 +39,7 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-006",
-            Effets =
+            Effets = 
             [
                 new EffetSimple
                 {

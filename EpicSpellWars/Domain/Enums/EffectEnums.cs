@@ -56,3 +56,14 @@ public enum DestinationRevele
     Sort,
     Main
 }
+
+// Sorcier de reference d'une Valeur (ex. ValeurParSang : « votre » Sang vs « son » Sang).
+//   Lanceur       = celui qui lance le sort.
+//   Cible         = la cible de l'Action en cours.
+//   DerniereCible = la derniere cible affectee ce sort (« cet adversaire »), pour les renvois croises.
+public enum SourceSorcier
+{
+    Lanceur,
+    Cible,
+    DerniereCible
+}

@@ -1,3 +1,4 @@
+using EpicSpellWars.Domain.Enums;
 using EpicSpellWars.Domain.Interfaces;
 
 namespace EpicSpellWars.Domain.Entities;
@@ -38,6 +39,32 @@ public class ValeurParJeton(int parUnite) : IValeur
 {
     public int Calculer(GameContext context, Sorcier cible) =>
         parUnite * context.Sorciers.Sum(s => s.JetonsDernierSurvivant);
+}
+
+// « n par Trésor en jeu » (global, tous sorciers ; ex. Trésormodix payé)
+public class ValeurParTresorEnJeu(int parUnite) : IValeur
+{
+    public int Calculer(GameContext context, Sorcier cible) =>
+        parUnite * context.Sorciers.Sum(s => s.Tresors.Count);
+}
+
+// « n par niveau de 🩸 » d'un sorcier de référence (Asphixis : votre Sang = Lanceur ; son Sang = DerniereCible).
+public class ValeurParSang(int parUnite, SourceSorcier source) : IValeur
+{
+    public int Calculer(GameContext context, Sorcier cible) =>
+        parUnite * source switch
+        {
+            SourceSorcier.Lanceur => context.Lanceur.Sang,
+            SourceSorcier.DerniereCible => context.DerniereCible?.Sang ?? 0,
+            _ => cible.Sang,
+        };
+}
+
+// « n par Créature dans la MAIN de la cible » (≠ ValeurParCreature qui compte les Créatures EN JEU ; ex. Poilcramus)
+public class ValeurParCreatureEnMain(int parUnite) : IValeur
+{
+    public int Calculer(GameContext context, Sorcier cible) =>
+        parUnite * cible.Main.Count(c => c.EstCreature);
 }
 
 // « n par carte choisie » : lit le nb de cartes du dernier choix de main (DerniereQuantite).

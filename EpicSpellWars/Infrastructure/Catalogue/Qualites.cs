@@ -15,8 +15,22 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-042",
-            // GAP : Cible « adversaire sans Trésor » (absente) ; Payez 8 : Valeur « par Trésor en jeu » (absente).
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerTresor, Cible = Cible.Soi }] }],
+            Effets =
+            [
+                new EffetSimple
+                {
+                    Actions =
+                    [
+                        new Action { Type = TypeAction.GagnerTresor, Cible = Cible.Soi },
+                        new Action { Type = TypeAction.GagnerTresor, Cible = Cible.SansTresor },   // chaque adversaire sans Trésor en gagne 1 (ensemble)
+                    ],
+                },
+                new EffetOptionnelPayant
+                {
+                    Cout = 8, Libelle = "Infligez 2 dégâts par Trésor en jeu à chaque adversaire",
+                    SiPaye = [new Action { Type = TypeAction.Degats, Cible = Cible.TousAdversaires, Valeur = new ValeurParTresorEnJeu(2) }],
+                },
+            ],
         },
 
         new("Gromago", TypeComposant.Qualite, Glyphe.Arcane)
@@ -70,8 +84,21 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-050",
-            // GAP Payez 1 : Valeur « par niveau de Sang » (du lanceur / de la cible) absente.
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.TousAdversaires, Valeur = new ValeurFixe(1) }] }],
+            Effets =
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.TousAdversaires, Valeur = new ValeurFixe(1) }] },
+                new EffetOptionnelPayant
+                {
+                    Cout = 1, Libelle = "Un adversaire subit votre Sang ; vous subissez le sien",
+                    SiPaye =
+                    [
+                        // « Il subit autant de dégâts que VOTRE niveau de 🩸 » (le choix pose DerniereCible).
+                        new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurParSang(1, SourceSorcier.Lanceur) },
+                        // « et vous subissez autant de dégâts que SON niveau de 🩸 ».
+                        new Action { Type = TypeAction.AutoDegats, Cible = Cible.Soi, Valeur = new ValeurParSang(1, SourceSorcier.DerniereCible) },
+                    ],
+                },
+            ],
         },
 
         new("Oeilcrevax", TypeComposant.Qualite, Glyphe.Tenebres)
@@ -118,8 +145,24 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-059",
-            // GAP : Valeur « par Créature dans la MAIN de la cible » (ValeurParCreature compte les Créatures EN JEU).
-            Effets = [],
+            // « le double du nombre de Créatures dans sa main » = ValeurParCreatureEnMain(2). Base = un adversaire, payé = chacun.
+            Effets =
+            [
+                new EffetChoixPayant
+                {
+                    Cout = 3, Libelle = "L'effet s'applique à chaque adversaire au lieu d'un",
+                    Base =
+                    [
+                        new Action { Type = TypeAction.RevelerMain, Cible = Cible.AdversaireAuChoix },   // choisit + révèle (pose DerniereCible)
+                        new Action { Type = TypeAction.Degats, Cible = Cible.MemeCible, Valeur = new ValeurParCreatureEnMain(2) },
+                    ],
+                    SiPaye =
+                    [
+                        new Action { Type = TypeAction.RevelerMain, Cible = Cible.TousAdversaires },
+                        new Action { Type = TypeAction.Degats, Cible = Cible.TousAdversaires, Valeur = new ValeurParCreatureEnMain(2) },
+                    ],
+                },
+            ],
         },
 
         new("Oulacécho", TypeComposant.Qualite, Glyphe.Elementaire)
