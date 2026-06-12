@@ -30,6 +30,7 @@ internal sealed class Table
             Sorciers = [Merlin, Gandalf, Saroumane],   // ordre de table : « gauche » = case suivante
             ChoisirCible = candidats => candidats.First(),
             LancerDe = () => ProchainDe,
+            ChoisirDe = des => des.Max(),   // Castoramax : dé offensif = le plus grand (optimal)
             ChoisirCartes = (candidats, _, max) => candidats.Take(max).ToList(),
             ChoisirOption = (_, _) => ProchainChoix,
             ChoisirTypeComposant = (_, types) => types.Contains(ProchainType) ? ProchainType : types.First(),

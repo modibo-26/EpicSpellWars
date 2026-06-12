@@ -67,6 +67,13 @@ public class ValeurParCreatureEnMain(int parUnite) : IValeur
         parUnite * cible.Main.Count(c => c.EstCreature);
 }
 
+// « n par point du dé mémorisé » : relit DernierDe (posé par LancerDeMemorise) — un seul tirage,
+// plusieurs lectures (ex. Trankilus : gain de Sang = dé, puis soin = même dé).
+public class ValeurDernierDe(int parUnite) : IValeur
+{
+    public int Calculer(GameContext context, Sorcier cible) => parUnite * context.DernierDe;
+}
+
 // « n par carte choisie » : lit le nb de cartes du dernier choix de main (DerniereQuantite).
 // L'Action de choix (DefausserCartes) doit s'exécuter AVANT pour alimenter le compte.
 // Ex. Mortalriktus dégâts = nb défaussé ; Sarabandus soin = 1 PV / carte (parUnite=1).

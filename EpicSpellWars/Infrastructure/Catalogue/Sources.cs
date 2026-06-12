@@ -84,9 +84,7 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-010",
-            // GAP : deux dés utilisés SÉPARÉMENT (un pour les dégâts, l'autre pour l'auto-dégât conditionnel).
-            //       Le modèle de dé actuel (ValeurDe = somme) ne sait pas isoler chaque dé.
-            Effets = [],
+            Effets = [new EffetCastoramax()],
         },
 
         new("Necrophilus", TypeComposant.Source, Glyphe.Tenebres)

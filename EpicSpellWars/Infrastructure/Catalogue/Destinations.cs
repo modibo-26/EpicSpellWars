@@ -142,11 +142,15 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-090",
-            // GAP : « Payez 1 🩸 : GARDEZ » = GARDEZ payé, INDEPENDANT du jet. GARDEZ est un hook de tranche
-            //       (TrancheJetDePuissance."PeutGarder"), pas une Action ni un effet enveloppable → un coût qui
-            //       déclenche GARDEZ hors palier n'est pas exprimable. Famille « GARDEZ hors tranche ».
+            // « Payez 1 🩸 : GARDEZ » = GARDEZ payé, INDÉPENDANT du jet → TypeAction.Garder (GarderCreatureEnCours
+            // hors tranche). La Créature en cours est posée par ResoudreComposant pendant la résolution. FAIT.
             Effets =
             [
+                new EffetOptionnelPayant
+                {
+                    Cout = 1, Libelle = "GARDEZ",
+                    SiPaye = [new Action { Type = TypeAction.Garder, Cible = Cible.Soi }],
+                },
                 new EffetJetDePuissance
                 {
                     Glyphe = Glyphe.Tenebres,
@@ -192,11 +196,16 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-093",
-            // Cible « Adversaire qui a déjà joué » = filtrante + CibleUnique (le lanceur en choisit un). FAIT.
-            // GAP paiement : « Payez 1 🩸 : Ajoutez 1 dé à chacun de vos Jets pour une Créature ce tour »
-            //       = modificateur de BonusDesJet (hardcodé 0) ; pas de mécanisme de modificateurs actifs.
+            // Cible « Adversaire qui a déjà joué » = filtrante + CibleUnique. FAIT.
+            // « Payez 1 🩸 : Ajoutez 1 dé à vos Jets pour une Créature ce tour » = AjouterBonusDe (BonusDesJetCreature).
+            // Placé AVANT le Jet pour que le dé bonus s'applique aussi au Jet de Shub lui-même. FAIT.
             Effets =
             [
+                new EffetOptionnelPayant
+                {
+                    Cout = 1, Libelle = "Ajoutez 1 dé à vos Jets pour une Créature ce tour",
+                    SiPaye = [new Action { Type = TypeAction.AjouterBonusDe, Cible = Cible.Soi, Valeur = new ValeurFixe(1) }],
+                },
                 new EffetJetDePuissance
                 {
                     Glyphe = Glyphe.Tenebres,

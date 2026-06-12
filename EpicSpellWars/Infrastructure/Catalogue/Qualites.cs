@@ -76,8 +76,19 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-048",
-            // GAP : conditionnelle « si 4 ou moins » + réutilisation du MÊME résultat de dé (ValeurDe relance à chaque appel).
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurDe(1) }] }],
+            // Lance 1 dé MÉMORISÉ (DernierDe) ; gain de 🩸 = ce dé. Réutilisation OK via ValeurDernierDe.
+            // TODO étape 5 (conditionnelle) : « si ≤ 4, le plus faible se soigne de DernierDe PV » (même dé).
+            Effets =
+            [
+                new EffetSimple
+                {
+                    Actions =
+                    [
+                        new Action { Type = TypeAction.LancerDeMemorise, Cible = Cible.Soi },
+                        new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurDernierDe(1) },
+                    ],
+                },
+            ],
         },
 
         new("Asphixis", TypeComposant.Qualite, Glyphe.Tenebres)
@@ -233,8 +244,7 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-071",
-            // GAP : 2 dés utilisés SÉPARÉMENT (min / autre) — comme Castoramax.
-            Effets = [],
+            Effets = [new EffetCoupehendus()],
         },
 
         new("Peutidardus", TypeComposant.Qualite, Glyphe.Primaire)

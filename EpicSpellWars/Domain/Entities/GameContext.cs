@@ -28,9 +28,20 @@ public class GameContext
     // À reinitialiser au debut de chaque sort (comme DerniereCible).
     public int DerniereQuantite { get; set; }
 
+    // Resultat du dernier de memorise ce sort (LancerDeMemorise → ValeurDernierDe : un meme tirage
+    // alimente plusieurs effets, ex. Trankilus). À reinitialiser au debut de chaque sort.
+    public int DernierDe { get; set; }
+
+    // Des ajoutes aux Jets de puissance (pour une Creature) du lanceur CE TOUR (Shub-Niggurath paye).
+    // Portee = tour du lanceur : remis a 0 par l'ordonnanceur au debut de chaque resolution de sort.
+    public int BonusDesJetCreature { get; set; }
+
     // Hooks de decision (injectes par la couche qui pilote la partie)
     public required Func<IEnumerable<Sorcier>, Sorcier> ChoisirCible { get; set; }
     public required Func<int> LancerDe { get; set; }
+
+    // Castoramax : « utilisez-EN UN » — le lanceur choisit, parmi les des lances, lequel sert d'attaque.
+    public required Func<IReadOnlyList<int>, int> ChoisirDe { get; set; }
 
     // Choix de cartes dans une main : recoit les candidats DEJA filtres + les bornes [min...max],
     // renvoie la selection (longueur dans [min...max]). Injecte par la couche qui pilote la partie.
@@ -54,9 +65,9 @@ public class GameContext
         SortEnCours.Count(c => c.Glyphe == glyphe)
         + Lanceur.Creatures.Count(c => c.Glyphe == glyphe);
 
-    // Des ajoutes a CE Jet de puissance par les modificateurs actifs (Tresors / Sorcier creve / effets).
-    // Ne s'applique qu'aux Jets de puissance. TODO: agreger via le systeme de declencheurs ; 0 par defaut.
-    public int BonusDesJet(EffetJetDePuissance jet) => 0;
+    // Des ajoutes a CE Jet de puissance par les modificateurs actifs (Shub-Niggurath paye ; plus tard
+    // Petit Ange et autres via le pilier declencheurs). Tous les Jets de puissance sont « pour une Creature ».
+    public int BonusDesJet(EffetJetDePuissance jet) => BonusDesJetCreature;
 
     // Garde la creature en cours en jeu (resultat GARDEZ d'un Jet de puissance).
     public void GarderCreatureEnCours()
@@ -138,6 +149,7 @@ public class GameContext
     {
         DerniereCible = null;
         DerniereQuantite = 0;
+        DernierDe = 0;
 
         var resolus = new HashSet<CarteSort>();
         while (true)
@@ -323,6 +335,15 @@ public class GameContext
                 break;
             case TypeAction.PvAUn:
                 cible.PointsDeVie = 1;
+                break;
+            case TypeAction.LancerDeMemorise:
+                DernierDe = LancerDe();
+                break;
+            case TypeAction.AjouterBonusDe:
+                BonusDesJetCreature += montant;
+                break;
+            case TypeAction.Garder:
+                GarderCreatureEnCours();
                 break;
             case TypeAction.GagnerSang:
                 cible.Sang = Math.Min(cible.SangMax, cible.Sang + montant);

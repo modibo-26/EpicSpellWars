@@ -44,6 +44,7 @@ public class OrdonnanceurDeTour
 
             ctx.Lanceur = lanceur;
             ctx.CreatureEnCours = null;
+            ctx.BonusDesJetCreature = 0;   // bonus de dés (Shub payé) à portée du tour du lanceur
             ctx.SortEnCours = [..sorts[lanceur]];   // copie : ResoudreSort/nettoyage ne touchent pas l'entree
 
             ctx.ResoudreSort();
