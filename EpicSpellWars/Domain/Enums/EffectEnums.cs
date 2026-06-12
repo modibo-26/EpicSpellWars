@@ -37,10 +37,12 @@ public enum TypeAction
     GagnerSang,
     VolerSang,
     PerdreSang,
+    DonnerSang,        // transfert lanceur → cible (inverse de VolerSang)
     GagnerTresor,
     VolerTresor,
     DefausserTresor,
     PrendreDonjon,
+    DonnerDonjon,      // donne le Donjon à la cible (≠ PrendreDonjon qui le donne au lanceur)
     RevelerMain,
     DefausserCartes,
     PasserCartes,

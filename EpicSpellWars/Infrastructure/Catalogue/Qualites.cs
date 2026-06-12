@@ -113,8 +113,8 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-053",
-            // GAP : un dé PAR adversaire + sélection du max + dégâts = son propre résultat. Aucune mécanique.
-            Effets = [],
+            // TODO Donjon : « chaque autre adversaire subit aussi autant de dégâts que son résultat ».
+            Effets = [new EffetChancedecocus()],
         },
 
         new("Mortalriktus", TypeComposant.Qualite, Glyphe.Tenebres)
@@ -177,8 +177,20 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-064",
-            // GAP : donner le Donjon à un ADVERSAIRE (PrendreDonjon ne le donne qu'au lanceur) + TuerCreature « TOUTES ».
-            Effets = [],
+            // « Donnez le Donjon à un adversaire qui ne l'avait pas, puis 3 dégâts à cet adversaire » :
+            // DonnerDonjon sur SansDonjon + CibleUnique (le « prenez le Donjon » est absorbé — la cible finit avec).
+            // GAP Payez 3 : « Tuez d'abord toutes ses Créatures » = TuerCreature « TOUTES » (montant non fixe).
+            Effets =
+            [
+                new EffetSimple
+                {
+                    Actions =
+                    [
+                        new Action { Type = TypeAction.DonnerDonjon, Cible = Cible.SansDonjon, CibleUnique = true },   // pose DerniereCible
+                        new Action { Type = TypeAction.Degats, Cible = Cible.MemeCible, Valeur = new ValeurFixe(3) },
+                    ],
+                },
+            ],
         },
 
         new("Groclonar", TypeComposant.Qualite, Glyphe.Illusion)
@@ -255,8 +267,7 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-076",
-            // GAP : dégâts CROISSANTS en faisant le tour de la table (montant qui augmente par cible successive).
-            Effets = [],
+            Effets = [new EffetSpiralex { CoutDouble = 2 }],
         },
 
         new("Sarabandus", TypeComposant.Qualite, Glyphe.Primaire)

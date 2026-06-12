@@ -155,9 +155,19 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-021",
-            // GAP : « Donnez 1 🩸 à un adversaire » = transfert Sang lanceur→cible, pas de TypeAction (l'inverse de VolerSang).
-            //       + bonus « Donjon : » (pilier Donjon).
-            Effets = [],
+            // TODO Donjon : « Infligez ensuite 1 dé de dégâts à un autre adversaire ».
+            Effets =
+            [
+                new EffetSimple
+                {
+                    Actions =
+                    [
+                        // « si vous en avez » : DonnerSang est borné au Sang dispo du lanceur. Pose DerniereCible.
+                        new Action { Type = TypeAction.DonnerSang, Cible = Cible.PlusFort, Valeur = new ValeurFixe(1) },
+                        new Action { Type = TypeAction.Degats, Cible = Cible.MemeCible, Valeur = new ValeurDe(1) },
+                    ],
+                },
+            ],
         },
 
         new("Brikébix", TypeComposant.Source, Glyphe.Elementaire)

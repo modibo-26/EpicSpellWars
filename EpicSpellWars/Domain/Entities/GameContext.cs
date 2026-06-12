@@ -335,9 +335,18 @@ public class GameContext
                 cible.Sang -= vol;
                 Lanceur.Sang = Math.Min(Lanceur.SangMax, Lanceur.Sang + vol);
                 break;
+            case TypeAction.DonnerSang:
+                // Transfert lanceur → cible, borne au Sang dispo du lanceur (« si vous en avez »).
+                var don = Math.Min(montant, Lanceur.Sang);
+                Lanceur.Sang -= don;
+                cible.Sang = Math.Min(cible.SangMax, cible.Sang + don);
+                break;
             case TypeAction.PrendreDonjon:
                 ControleurDonjon = Lanceur;
-                
+
+                break;
+            case TypeAction.DonnerDonjon:
+                ControleurDonjon = cible;
                 break;
             case TypeAction.GagnerTresor:
                 // Pioche `montant` Tresors du sommet vers la cible (s'arrete si la pioche est vide).
