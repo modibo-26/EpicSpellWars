@@ -9,6 +9,11 @@ public class Action
     public Cible Cible { get; set; }
     public IValeur? Valeur { get; set; }   // null pour les actions sans quantité (PrendreDonjon, TuerCreature...)
 
+    // « Adversaire qui... » au SINGULIER : le lanceur choisit UN seul match du filtre Cible (via ChoisirCible),
+    // au lieu de tout l'ensemble. Pour les Destinations dont la Cible principale est une filtrante (ADejaJoue,
+    // SansDonjon, SansCreature...). Sans effet si le filtre renvoie déjà 0 ou 1 cible.
+    public bool CibleUnique { get; set; }
+
     // Choix de cartes dans une main (GagnerCarte / DefausserCartes) :
     // - FiltreCarte : cartes éligibles (ex. Cadopourrix → c.Type == Destination ; Shub → c.EstCreature). null = toutes.
     // - MinCartes : borne basse du choix ; le MAX est le montant issu de Valeur (défaut 1).

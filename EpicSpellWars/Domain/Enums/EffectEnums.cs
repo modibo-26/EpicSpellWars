@@ -12,6 +12,8 @@ public enum Cible
     ADejaJoue,
     NaPasJoue,
     PlusDeTresors,
+    SansTresor,        // adversaires sans aucun Tresor (ensemble)
+    ATresor,           // adversaires possedant >= 1 Tresor (ensemble)
     PlusDeSang,
     ACreature,
     SansCreature,
@@ -21,6 +23,7 @@ public enum Cible
     AJetonDernierSurvivant,
     TousAdversaires,
     AutreAdversaire,   // un adversaire different de la derniere cible affectee ce sort
+    AutresAdversaires, // TOUS les adversaires sauf la derniere cible (« chaque autre adversaire »)
     MemeCible,         // la derniere cible affectee ce sort (« cet adversaire »)
     AdversaireAuChoix, // « choisissez un adversaire » : designe par le lanceur (via ChoisirCible)
     DesigneParDe,

@@ -70,7 +70,12 @@ public class GameContext
     // Les cibles sont figees AVANT application (snapshot) pour ne pas etre affectees par les morts en cours.
     public void Appliquer(Action action)
     {
-        foreach (var cible in ResoudreCible(action.Cible).ToList())
+        var cibles = ResoudreCible(action.Cible).ToList();
+        // « Adversaire qui... » au singulier : le lanceur tranche entre les matchs du filtre.
+        if (action.CibleUnique && cibles.Count > 1)
+            cibles = [ChoisirCible(cibles)];
+
+        foreach (var cible in cibles)
         {
             // Quantite par defaut = 1 (« gagnez un Tresor »...). Les effets sans quantite l'ignorent.
             var montant = action.Valeur?.Calculer(this, cible) ?? 1;
@@ -264,6 +269,8 @@ public class GameContext
             // Filtres conditionnels (ensemble des adversaires qui matchent)
             case Cible.ACreature: return Adversaires.Where(s => s.Creatures.Count > 0);
             case Cible.SansCreature: return Adversaires.Where(s => s.Creatures.Count == 0);
+            case Cible.ATresor: return Adversaires.Where(s => s.Tresors.Count > 0);
+            case Cible.SansTresor: return Adversaires.Where(s => s.Tresors.Count == 0);
             case Cible.ADonjon: return Adversaires.Where(s => s == ControleurDonjon);
             case Cible.SansDonjon: return Adversaires.Where(s => s != ControleurDonjon);
             case Cible.AJetonDernierSurvivant: return Adversaires.Where(s => s.JetonsDernierSurvivant > 0);
@@ -275,6 +282,9 @@ public class GameContext
             case Cible.AutreAdversaire:
                 var autres = Adversaires.Where(s => s != DerniereCible).ToList();
                 return autres.Count == 0 ? [] : [ChoisirCible(autres)];
+
+            // « Chaque autre adversaire » = TOUS sauf la derniere cible (ensemble, ≠ AutreAdversaire qui en designe UN).
+            case Cible.AutresAdversaires: return Adversaires.Where(s => s != DerniereCible);
 
             // « Choisissez un adversaire » : cible unique designee par le lanceur (via ChoisirCible).
             case Cible.AdversaireAuChoix:

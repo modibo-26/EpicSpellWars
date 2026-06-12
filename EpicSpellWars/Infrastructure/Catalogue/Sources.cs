@@ -26,6 +26,7 @@ public static class Sources
             Effets =
             [
                 new EffetChoixPayant
+                    
                 {
                     Cout = 2, Libelle = "Infligez 3 dégâts à chaque adversaire à la place",
                     Base = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireGauche, Valeur = new ValeurFixe(3) }],

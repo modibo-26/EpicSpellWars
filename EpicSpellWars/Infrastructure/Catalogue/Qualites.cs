@@ -158,8 +158,20 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-070",
-            // GAP : Cibles « adversaire sans Trésor » / « adversaire avec Trésor » absentes.
-            Effets = [],
+            // « Choisissez un adversaire sans Trésor : il en gagne 1 » (SansTresor + CibleUnique, pose DerniereCible)
+            // « puis 2 dégâts à chaque adversaire qui a un Trésor » (ATresor, ensemble). NB : l'ordre « puis » fait
+            // que la cible qui vient de recevoir un Trésor est désormais éligible aux dégâts (lecture séquentielle).
+            Effets =
+            [
+                new EffetSimple
+                {
+                    Actions =
+                    [
+                        new Action { Type = TypeAction.GagnerTresor, Cible = Cible.SansTresor, CibleUnique = true },
+                        new Action { Type = TypeAction.Degats, Cible = Cible.ATresor, Valeur = new ValeurFixe(2) },
+                    ],
+                },
+            ],
         },
 
         new("Coupéhendus", TypeComposant.Qualite, Glyphe.Illusion)

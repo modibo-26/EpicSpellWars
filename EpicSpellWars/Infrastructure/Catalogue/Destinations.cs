@@ -12,15 +12,12 @@ namespace EpicSpellWars.Infrastructure.Catalogue;
 //   // TODO Réaction / Donjon : clause relevant d'un autre pilier (declencheurs), pas du resolveur.
 //   // GAP : clause non encore exprimable par le resolveur (mecanique a concevoir).
 //
-// DEUX FAMILLES DE GAP RÉVÉLÉES PAR LES DESTINATIONS (a traiter en lot) :
-//   1. CIBLE UNIQUE PARMI UN FILTRE. « Cible : Adversaire qui a deja joue / sans Donjon / ... » est au
-//      SINGULIER (le lanceur en choisit UN parmi ceux qui matchent), alors que les Cibles filtrantes du
-//      resolveur (ADejaJoue, SansDonjon, ADonjon, SansCreature) renvoient l'ENSEMBLE (« chaque ... »,
-//      cf. Sources/Qualites). Utilisees ici comme Cible principale, elles toucheraient TOUS les matchs.
-//      Les superlatifs (PlusFort, PlusFaible, PlusDeSang, PlusDeTresors, PlusDeCreatures) sont deja
-//      mono-cible (Superlatif + ChoisirCible) → corrects. // GAP cible = sur les filtrantes uniquement.
-//   2. « CHAQUE AUTRE ADVERSAIRE » = tous les adversaires SAUF la cible. Aucune Cible (TousAdversaires
-//      inclut la cible ; AutreAdversaire n'en designe qu'UN). Famille a creer.
+// DEUX FAMILLES DE GAP RÉVÉLÉES PAR LES DESTINATIONS — RÉSOLUES (étape 1, manques résolveur) :
+//   1. CIBLE UNIQUE PARMI UN FILTRE → flag Action.CibleUnique : le lanceur choisit UN match du filtre
+//      (ADejaJoue/SansDonjon/SansCreature) via ChoisirCible. NB ADonjon renvoie déjà au plus 1 (contrôleur
+//      unique). Superlatifs (PlusFort/PlusFaible/...) déjà mono-cible. FAIT.
+//   2. « CHAQUE AUTRE ADVERSAIRE » = Cible.AutresAdversaires (tous sauf DerniereCible ; ≠ TousAdversaires
+//      qui l'inclut, ≠ AutreAdversaire qui en désigne UN). FAIT.
 public static class Destinations
 {
     public static List<CarteSort> Toutes() =>
@@ -195,7 +192,7 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-093",
-            // GAP cible : « Adversaire qui a déjà joué ce tour » au SINGULIER (cf. en-tête, famille 1).
+            // Cible « Adversaire qui a déjà joué » = filtrante + CibleUnique (le lanceur en choisit un). FAIT.
             // GAP paiement : « Payez 1 🩸 : Ajoutez 1 dé à chacun de vos Jets pour une Créature ce tour »
             //       = modificateur de BonusDesJet (hardcodé 0) ; pas de mécanisme de modificateurs actifs.
             Effets =
@@ -206,13 +203,13 @@ public static class Destinations
                     Tranches =
                     [
                         // 1-4 : aucun effet (pas de tranche Seuil = 1).
-                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(1) }] },
+                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(1) }] },
                         new TrancheJetDePuissance
                         {
                             Seuil = 10, PeutGarder = true,
                             Actions =
                             [
-                                new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(2) },
+                                new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(2) },
                                 // « jouez une autre Créature de votre main » : ajout au sort (résolu par ResoudreSort).
                                 new Action { Type = TypeAction.GagnerCarte, Cible = Cible.Soi, MinCartes = 1, FiltreCarte = c => c.EstCreature },
                             ],
@@ -280,7 +277,7 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-099",
-            // GAP cible : « Adversaire qui n'a pas le Donjon » au SINGULIER (famille 1).
+            // Cible « Adversaire sans Donjon » = SansDonjon + CibleUnique (peut matcher plusieurs → choix). FAIT.
             Effets =
             [
                 new EffetJetDePuissance
@@ -288,11 +285,11 @@ public static class Destinations
                     Glyphe = Glyphe.Elementaire,
                     Tranches =
                     [
-                        new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, Valeur = new ValeurFixe(1) }] },
-                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, Valeur = new ValeurFixe(2) }] },
+                        new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurFixe(1) }] },
+                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurFixe(2) }] },
                         // GAP valeur : « 3 dégâts ou 6 si c'est votre dernier adversaire » (conditionnelle « dernier
                         //       adversaire » non exprimable ; le 3 de base est encodé).
-                        new TrancheJetDePuissance { Seuil = 10, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, Valeur = new ValeurFixe(3) }] },
+                        new TrancheJetDePuissance { Seuil = 10, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurFixe(3) }] },
                     ],
                 },
             ],
@@ -302,7 +299,7 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-102",
-            // GAP cible : « Adversaire qui a déjà joué ce tour » au SINGULIER (famille 1).
+            // Cible « Adversaire qui a déjà joué » = ADejaJoue + CibleUnique. FAIT.
             Effets =
             [
                 new EffetJetDePuissance
@@ -310,14 +307,14 @@ public static class Destinations
                     Glyphe = Glyphe.Elementaire,
                     Tranches =
                     [
-                        new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(1) }] },
-                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(3) }] },
+                        new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(1) }] },
+                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(3) }] },
                         new TrancheJetDePuissance
                         {
                             Seuil = 10, PeutGarder = true,
                             Actions =
                             [
-                                new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(3) },
+                                new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(3) },
                                 // « 3 dégâts à chaque adversaire qui a un jeton Dernier Survivant » = ensemble (correct).
                                 new Action { Type = TypeAction.Degats, Cible = Cible.AJetonDernierSurvivant, Valeur = new ValeurFixe(3) },
                             ],
@@ -351,7 +348,7 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-106",
-            // GAP cible : « Adversaire qui a déjà joué ce tour » au SINGULIER (famille 1).
+            // Cible « Adversaire qui a déjà joué » = ADejaJoue + CibleUnique. FAIT.
             // GAP paiement : « Payez 2 🩸 : résoudre chaque dé de ce Jet individuellement contre des adversaires
             //       différents » = dés du Jet utilisés SEPAREMENT + ciblage par dé (cf. Castoramax / Coupéhendus).
             Effets =
@@ -361,9 +358,9 @@ public static class Destinations
                     Glyphe = Glyphe.Illusion,
                     Tranches =
                     [
-                        new TrancheJetDePuissance { Seuil = 1, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(1) }] },
-                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(2) }] },
-                        new TrancheJetDePuissance { Seuil = 10, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(4) }] },
+                        new TrancheJetDePuissance { Seuil = 1, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(1) }] },
+                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(2) }] },
+                        new TrancheJetDePuissance { Seuil = 10, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(4) }] },
                     ],
                 },
             ],
@@ -373,7 +370,7 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-107",
-            // GAP cible : « Adversaire sans Créature en jeu » au SINGULIER (famille 1).
+            // Cible « Adversaire sans Créature » = SansCreature + CibleUnique. FAIT.
             Effets =
             [
                 new EffetJetDePuissance
@@ -381,14 +378,14 @@ public static class Destinations
                     Glyphe = Glyphe.Illusion,
                     Tranches =
                     [
-                        new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansCreature, Valeur = new ValeurFixe(1) }] },
-                        new TrancheJetDePuissance { Seuil = 5, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansCreature, Valeur = new ValeurFixe(2) }] },
+                        new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansCreature, CibleUnique = true, Valeur = new ValeurFixe(1) }] },
+                        new TrancheJetDePuissance { Seuil = 5, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansCreature, CibleUnique = true, Valeur = new ValeurFixe(2) }] },
                         new TrancheJetDePuissance
                         {
                             Seuil = 10,
                             Actions =
                             [
-                                new Action { Type = TypeAction.Degats, Cible = Cible.SansCreature, Valeur = new ValeurFixe(3) },
+                                new Action { Type = TypeAction.Degats, Cible = Cible.SansCreature, CibleUnique = true, Valeur = new ValeurFixe(3) },
                                 new Action { Type = TypeAction.VolerTresor, Cible = Cible.MemeCible, Valeur = new ValeurFixe(1) },
                             ],
                         },
@@ -446,8 +443,16 @@ public static class Destinations
                         // 1-4 : Chaque adversaire se soigne de 1 PV (ensemble = correct).
                         new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Soin, Cible = Cible.TousAdversaires, Valeur = new ValeurFixe(1) }] },
                         new TrancheJetDePuissance { Seuil = 5, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.PlusFaible, Valeur = new ValeurFixe(3) }] },
-                        // GAP : « chaque AUTRE adversaire se soigne de 1 PV » = tous sauf la cible (famille 2). Le 5 est encodé.
-                        new TrancheJetDePuissance { Seuil = 10, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.PlusFaible, Valeur = new ValeurFixe(5) }] },
+                        // 5 dégâts (pose DerniereCible) puis chaque AUTRE adversaire (= tous sauf la cible) se soigne de 1 PV.
+                        new TrancheJetDePuissance
+                        {
+                            Seuil = 10,
+                            Actions =
+                            [
+                                new Action { Type = TypeAction.Degats, Cible = Cible.PlusFaible, Valeur = new ValeurFixe(5) },
+                                new Action { Type = TypeAction.Soin, Cible = Cible.AutresAdversaires, Valeur = new ValeurFixe(1) },
+                            ],
+                        },
                     ],
                 },
             ],
@@ -477,7 +482,7 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-116",
-            // GAP cible : « Adversaire qui a déjà joué ce tour » au SINGULIER (famille 1).
+            // Cible « Adversaire qui a déjà joué » = ADejaJoue + CibleUnique. FAIT.
             Effets =
             [
                 new EffetJetDePuissance
@@ -485,10 +490,18 @@ public static class Destinations
                     Glyphe = Glyphe.Primaire,
                     Tranches =
                     [
-                        new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(2) }] },
-                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(3) }] },
-                        // GAP : « 1 dégât à chaque autre adversaire » = tous sauf la cible (famille 2). Le 4 est encodé.
-                        new TrancheJetDePuissance { Seuil = 10, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(4) }] },
+                        new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(2) }] },
+                        new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(3) }] },
+                        // 4 dégâts à la cible (pose DerniereCible) puis 1 dégât à chaque AUTRE adversaire.
+                        new TrancheJetDePuissance
+                        {
+                            Seuil = 10, PeutGarder = true,
+                            Actions =
+                            [
+                                new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, CibleUnique = true, Valeur = new ValeurFixe(4) },
+                                new Action { Type = TypeAction.Degats, Cible = Cible.AutresAdversaires, Valeur = new ValeurFixe(1) },
+                            ],
+                        },
                     ],
                 },
             ],
@@ -498,7 +511,7 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-118",
-            // GAP cible : « Adversaire qui a le Donjon » au SINGULIER (famille 1).
+            // Cible « Adversaire qui a le Donjon » : ADonjon renvoie déjà au plus 1 (contrôleur unique) → mono-cible. FAIT.
             Effets =
             [
                 new EffetJetDePuissance
