@@ -45,6 +45,13 @@ public class OrdonnanceurDeTour
             ctx.Lanceur = lanceur;
             ctx.CreatureEnCours = null;
             ctx.BonusDesJetCreature = 0;   // bonus de dés (Shub payé) à portée du tour du lanceur
+
+            // Trésors « SurInitiative » au DÉBUT du tour de leur porteur (Braguette de Cthulhu). Les Trésors
+            // SurInitiative conditionnés à l'ORDRE (premier/dernier à jouer) gardent Effets=[] → inertes ici ;
+            // ils se brancheront à leur place propre (cf. GAP tranche D).
+            foreach (var tresor in lanceur.Tresors.Where(t => t.TriggerType == TriggerType.SurInitiative).ToList())
+                ctx.DeclencherTresor(tresor, lanceur);
+
             ctx.SortEnCours = [..sorts[lanceur]];   // copie : ResoudreSort/nettoyage ne touchent pas l'entree
 
             ctx.ResoudreSort();

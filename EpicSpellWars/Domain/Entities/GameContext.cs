@@ -109,7 +109,9 @@ public class GameContext
         var tueur = Lanceur;
         if (tueur != victime)
         {
-            tueur.Sang = Math.Min(tueur.SangMax, tueur.Sang + 3);   // +3 Sang au kill
+            // +3 Sang au kill, + bonus passif des Tresors du tueur (Liste du Père Fouettard, tranche D).
+            var bonus = tueur.Tresors.Sum(t => t.BonusSangParKill);
+            tueur.Sang = Math.Min(tueur.SangMax, tueur.Sang + 3 + bonus);
             if (ControleurDonjon == victime)
                 ControleurDonjon = tueur;                            // vol du Donjon au kill
         }
@@ -141,6 +143,22 @@ public class GameContext
             if (aReagi)
                 _composantsResolus.Add(composant);
         }
+    }
+
+    // Declenche les effets d'un Tresor du POINT DE VUE de son proprietaire (Lanceur temporaire). Utilise
+    // pour les declenchements actifs des Tresors (tranche D) : Immediat « Lorsque vous gagnez ce Tresor »,
+    // SurInitiative « au debut de votre tour ». Lanceur/DerniereCible sont sauvegardes/restaures pour ne pas
+    // polluer un sort en cours (cas Immediat obtenu pendant une resolution).
+    public void DeclencherTresor(Tresor tresor, Sorcier proprietaire)
+    {
+        var ancienLanceur = Lanceur;
+        var ancienneCible = DerniereCible;
+        Lanceur = proprietaire;
+        DerniereCible = null;
+        foreach (var effet in tresor.Effets)
+            effet.Execute(this);
+        Lanceur = ancienLanceur;
+        DerniereCible = ancienneCible;
     }
 
     // Garde la creature en cours en jeu (resultat GARDEZ d'un Jet de puissance).
@@ -470,8 +488,12 @@ public class GameContext
                 // Pioche `montant` Tresors du sommet vers la cible (s'arrete si la pioche est vide).
                 for (var i = 0; i < montant && PiocheTresor.Count > 0; i++)
                 {
-                    cible.Tresors.Add(PiocheTresor[0]);
+                    var tresor = PiocheTresor[0];
                     PiocheTresor.RemoveAt(0);
+                    cible.Tresors.Add(tresor);
+                    // « Lorsque vous gagnez ce Tresor » (Immediat) : effet one-shot du point de vue du gagnant.
+                    if (tresor.TriggerType == TriggerType.Immediat)
+                        DeclencherTresor(tresor, cible);
                 }
                 break;
             case TypeAction.VolerTresor:

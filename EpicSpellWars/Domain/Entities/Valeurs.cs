@@ -34,6 +34,13 @@ public class ValeurParMort(int parUnite) : IValeur
         parUnite * context.Sorciers.Count(s => !s.EstVivant);
 }
 
+// « n par sorcier VIVANT dont les PV sont <= seuil » (Bébé Monstre : +2 🩸 par sorcier à 5 PV ou moins).
+public class ValeurParSorcierFaible(int parUnite, int seuil) : IValeur
+{
+    public int Calculer(GameContext context, Sorcier cible) =>
+        parUnite * context.Sorciers.Count(s => s.EstVivant && s.PointsDeVie <= seuil);
+}
+
 // « n par jeton Dernier Survivant en jeu » (global, tous sorciers ; ex. Necrophilus, Repos Mérité)
 public class ValeurParJeton(int parUnite) : IValeur
 {
