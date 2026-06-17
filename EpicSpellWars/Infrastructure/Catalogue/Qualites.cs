@@ -287,8 +287,8 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-073",
-            // TODO Donjon (Nombre = 2).
-            Effets = [new EffetRevelerPioche { Critere = c => c.EstCreature, Nombre = 1, Destination = DestinationRevele.Sort }],
+            // « Révélez jusqu'à une Créature, ajoutez-la au sort ; Donjon : 2 Créatures au lieu d'une ».
+            Effets = [new EffetRevelerPioche { Critere = c => c.EstCreature, Nombre = 1, NombreSiDonjon = 2, Destination = DestinationRevele.Sort }],
         },
 
         new("Bégoniax", TypeComposant.Qualite, Glyphe.Primaire)

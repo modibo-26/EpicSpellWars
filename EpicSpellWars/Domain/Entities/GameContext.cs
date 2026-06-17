@@ -8,6 +8,10 @@ public class GameContext
     public required Sorcier Lanceur { get; set; }
     public Sorcier? ControleurDonjon { get; set; }
 
+    // Le lanceur controle-t-il le Donjon ? Condition des bonus « Donjon : <effet> » (appliques seulement
+    // si on controle le Donjon au moment de jouer la carte). Ex. EffetConditionnel(ctx => ctx.LanceurControleDonjon).
+    public bool LanceurControleDonjon => ControleurDonjon == Lanceur;
+
     public List<Carte> PiochePrincipale { get; set; } = [];
     public List<Carte> Defausse { get; set; } = [];
     public List<Tresor> PiocheTresor { get; set; } = [];

@@ -153,7 +153,7 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-021",
-            // TODO Donjon : « Infligez ensuite 1 dé de dégâts à un autre adversaire ».
+            // Base + bonus « Donjon : 1 dé de dégâts à un AUTRE adversaire » (≠ le plus fort déjà visé).
             Effets =
             [
                 new EffetSimple
@@ -164,6 +164,11 @@ public static class Sources
                         new Action { Type = TypeAction.DonnerSang, Cible = Cible.PlusFort, Valeur = new ValeurFixe(1) },
                         new Action { Type = TypeAction.Degats, Cible = Cible.MemeCible, Valeur = new ValeurDe(1) },
                     ],
+                },
+                new EffetConditionnel
+                {
+                    Condition = ctx => ctx.LanceurControleDonjon,
+                    SiVrai = [new Action { Type = TypeAction.Degats, Cible = Cible.AutreAdversaire, Valeur = new ValeurDe(1) }],
                 },
             ],
         },
@@ -213,8 +218,16 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-028",
-            // TODO Donjon (+1 carte si vous contrôlez le Donjon).
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerCarte, Cible = Cible.Soi, MinCartes = 1 }] }],
+            // « Ajoutez 1 carte de la main au sort ; Donjon : 1 carte supplémentaire ».
+            Effets =
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerCarte, Cible = Cible.Soi, MinCartes = 1 }] },
+                new EffetConditionnel
+                {
+                    Condition = ctx => ctx.LanceurControleDonjon,
+                    SiVrai = [new Action { Type = TypeAction.GagnerCarte, Cible = Cible.Soi, MinCartes = 1 }],
+                },
+            ],
         },
 
         new("Brademinus", TypeComposant.Source, Glyphe.Illusion)

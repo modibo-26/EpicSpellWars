@@ -5,7 +5,7 @@ namespace EpicSpellWars.Domain.Entities;
 // Chancedecocus (IEffet sur-mesure) : « Chaque adversaire lance 1 dé. Celui qui obtient le plus grand
 // résultat gagne 1 🩸 et subit autant de dégâts que son résultat. »
 // Égalité au sommet tranchée par le lanceur (ChoisirCible, comme les superlatifs).
-// TODO Donjon (pilier déclencheurs) : « chaque AUTRE adversaire subit aussi autant de dégâts que son résultat ».
+// Donjon : « chaque AUTRE adversaire subit aussi autant de dégâts que son propre résultat ».
 public class EffetChancedecocus : IEffet
 {
     public void Execute(GameContext context)
@@ -21,5 +21,10 @@ public class EffetChancedecocus : IEffet
 
         gagnant.Sang = Math.Min(gagnant.SangMax, gagnant.Sang + 1);
         context.InfligerDegats(gagnant, resultats[gagnant]);
+
+        // Donjon : chaque autre adversaire subit aussi son propre résultat de dé.
+        if (context.LanceurControleDonjon)
+            foreach (var s in advs.Where(s => s != gagnant))
+                context.InfligerDegats(s, resultats[s]);
     }
 }

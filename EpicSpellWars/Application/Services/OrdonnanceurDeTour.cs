@@ -58,8 +58,21 @@ public class OrdonnanceurDeTour
             lanceur.ADejaJoueCeTour = true;
         }
 
+        // Fin de tour : le contrôleur du Donjon le conserve et gagne +1 Sang ([[donjon-controle]]). S'applique
+        // même s'il est mort (le Sang persiste). Sorcier sous Terre / Chalisman modifieront ce gain (tranche D/E).
+        if (ctx.ControleurDonjon is { } gardien)
+            gardien.Sang = Math.Min(gardien.SangMax, gardien.Sang + 1);
+
         ctx.Tour++;
         return ordre;
+    }
+
+    // Début de manche : le Donjon est remis au centre (personne ne le contrôle) et le compteur avance.
+    // Reset transverse ([[donjon-controle]]) ; appelé par la boucle de manche (à venir).
+    public void DebutManche(GameContext ctx)
+    {
+        ctx.ControleurDonjon = null;
+        ctx.Manche++;
     }
 
     // Initiative du sort = celle de sa Destination ; 0 sans Destination.

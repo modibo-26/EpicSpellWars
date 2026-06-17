@@ -11,11 +11,15 @@ public class EffetRevelerPioche : IEffet
 {
     public Predicate<CarteSort> Critere { get; set; } = c => c.EstCreature;
     public int Nombre { get; set; } = 1;
+    // Bonus « Donjon : » — nombre de cartes révélées si le lanceur contrôle le Donjon (0 = pas de bonus).
+    // Ex. Peutidardus : Nombre 1, NombreSiDonjon 2.
+    public int NombreSiDonjon { get; set; }
     public DestinationRevele Destination { get; set; } = DestinationRevele.Sort;
 
     public void Execute(GameContext context)
     {
-        for (var i = 0; i < Nombre; i++)
+        var nombre = NombreSiDonjon > 0 && context.LanceurControleDonjon ? NombreSiDonjon : Nombre;
+        for (var i = 0; i < nombre; i++)
         {
             var carte = context.RevelerPiocheJusqua(Critere);
             if (carte is null)
