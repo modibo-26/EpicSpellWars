@@ -27,6 +27,8 @@ public enum Cible
     MemeCible,         // la derniere cible affectee ce sort (« cet adversaire »)
     AdversaireAuChoix, // « choisissez un adversaire » : designe par le lanceur (via ChoisirCible)
     DesigneParDe,
+    ControleurDonjon,  // le sorcier qui controle le Donjon (PEUT etre le lanceur ; 0 ou 1 ; Sabruledepartoux)
+    TousSorciers,      // TOUS les sorciers vivants, lanceur INCLUS (≠ TousAdversaires qui l'exclut)
     Soi
 }
 

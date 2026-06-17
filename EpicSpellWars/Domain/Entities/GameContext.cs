@@ -267,6 +267,11 @@ public class GameContext
         {
             case Cible.Soi: return [Lanceur];
             case Cible.TousAdversaires: return Adversaires;
+            // Tous les sorciers vivants, lanceur inclus (« tous les sorciers subissent... », Sabruledepartoux).
+            case Cible.TousSorciers: return Sorciers.Where(s => s.EstVivant);
+            // Le controleur du Donjon (0 ou 1 ; peut etre le lanceur). Le filtrage vivant/non est laisse
+            // a l'appelant (Sabruledepartoux branche dessus via EffetConditionnel).
+            case Cible.ControleurDonjon: return Enumerable1(ControleurDonjon);
             case Cible.AdversaireGauche: return Enumerable1(Voisin(+1));
             case Cible.AdversaireDroite: return Enumerable1(Voisin(-1));
             case Cible.DeuxVoisins: return new[] { Voisin(+1), Voisin(-1) }.OfType<Sorcier>().Distinct();

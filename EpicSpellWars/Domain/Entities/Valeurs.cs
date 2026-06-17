@@ -81,3 +81,12 @@ public class ValeurQuantiteChoisie(int parUnite) : IValeur
 {
     public int Calculer(GameContext context, Sorcier cible) => parUnite * context.DerniereQuantite;
 }
+
+// « <valeur A> ou <valeur B> si <condition> » : montant conditionnel selon l'état de jeu (≠ EffetConditionnel
+// qui branche des Actions ; ici on branche la seule VALEUR d'une Action, à l'intérieur d'une tranche par ex.).
+// Beeeh-zerker 10+ : « 3 dégâts ou 6 si c'est votre dernier adversaire ».
+public class ValeurConditionnelle(Predicate<GameContext> condition, IValeur siVrai, IValeur siFaux) : IValeur
+{
+    public int Calculer(GameContext context, Sorcier cible) =>
+        (condition(context) ? siVrai : siFaux).Calculer(context, cible);
+}

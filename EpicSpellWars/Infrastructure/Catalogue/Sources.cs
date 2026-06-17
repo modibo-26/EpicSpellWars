@@ -204,8 +204,23 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-031",
-            // GAP : conditionnelle « si vous le prenez à un adversaire vivant » (dépend de l'ancien contrôleur du Donjon).
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi }] }],
+            // « Prenez le Donjon. Si vous le prenez à un adversaire vivant, 3 dégâts à un AUTRE adversaire. »
+            // La condition lit l'état d'AVANT (PrendreDonjon est dans la branche, joué après l'évaluation).
+            // « un autre adversaire » : les dégâts (Cible.SansDonjon) sont infligés AVANT PrendreDonjon, tant que
+            // l'ancien contrôleur détient encore le Donjon → SansDonjon l'exclut bien. CibleUnique = le lanceur choisit.
+            Effets =
+            [
+                new EffetConditionnel
+                {
+                    Condition = ctx => ctx.ControleurDonjon is { EstVivant: true } c && c != ctx.Lanceur,
+                    SiVrai =
+                    [
+                        new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurFixe(3) },
+                        new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi },
+                    ],
+                    SiFaux = [new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi }],
+                },
+            ],
         },
 
         new("Pèredodux", TypeComposant.Source, Glyphe.Primaire)

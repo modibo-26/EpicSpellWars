@@ -77,7 +77,7 @@ public static class Qualites
             Exemplaires = 2,
             Id = "EP2-048",
             // Lance 1 dé MÉMORISÉ (DernierDe) ; gain de 🩸 = ce dé. Réutilisation OK via ValeurDernierDe.
-            // TODO étape 5 (conditionnelle) : « si ≤ 4, le plus faible se soigne de DernierDe PV » (même dé).
+            // Conditionnelle : « si ≤ 4, l'adversaire le plus faible se soigne de DernierDe PV » (MÊME dé).
             Effets =
             [
                 new EffetSimple
@@ -87,6 +87,11 @@ public static class Qualites
                         new Action { Type = TypeAction.LancerDeMemorise, Cible = Cible.Soi },
                         new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurDernierDe(1) },
                     ],
+                },
+                new EffetConditionnel
+                {
+                    Condition = ctx => ctx.DernierDe <= 4,
+                    SiVrai = [new Action { Type = TypeAction.Soin, Cible = Cible.PlusFaible, Valeur = new ValeurDernierDe(1) }],
                 },
             ],
         },
@@ -148,8 +153,19 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-057",
-            // GAP : cibler le contrôleur du Donjon (peut être le lanceur) + conditionnelle « si personne » + voisins du contrôleur.
-            Effets = [],
+            // Base + conditionnelle : le contrôleur du Donjon (ControleurDonjon, peut être le lanceur) subit 4 ;
+            // si personne de vivant ne le contrôle → TOUS les sorciers (lanceur inclus) subissent 4.
+            // GAP Payez 6 reste ouvert : « contrôleur 8 puis ses VOISINS DIRECTS 4 » — voisins relatifs au
+            // contrôleur (≠ Voisin du lanceur) non exprimables dans le modèle de ciblage actuel.
+            Effets =
+            [
+                new EffetConditionnel
+                {
+                    Condition = ctx => ctx.ControleurDonjon is { EstVivant: true },
+                    SiVrai = [new Action { Type = TypeAction.Degats, Cible = Cible.ControleurDonjon, Valeur = new ValeurFixe(4) }],
+                    SiFaux = [new Action { Type = TypeAction.Degats, Cible = Cible.TousSorciers, Valeur = new ValeurFixe(4) }],
+                },
+            ],
         },
 
         new("Poilcramus", TypeComposant.Qualite, Glyphe.Elementaire)
@@ -259,7 +275,7 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-075",
-            // GAP : conditionnelle « si aucun sorcier mort → gagnez 2 🩸 ».
+            // « Prenez le Donjon, 1 dégât par sorcier mort à chaque adversaire ; si aucun mort → +2 🩸 ».
             Effets =
             [
                 new EffetSimple
@@ -269,6 +285,11 @@ public static class Qualites
                         new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi },
                         new Action { Type = TypeAction.Degats, Cible = Cible.TousAdversaires, Valeur = new ValeurParMort(1) },
                     ],
+                },
+                new EffetConditionnel
+                {
+                    Condition = ctx => ctx.Sorciers.All(s => s.EstVivant),
+                    SiVrai = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurFixe(2) }],
                 },
             ],
         },

@@ -296,9 +296,9 @@ public static class Destinations
                     [
                         new TrancheJetDePuissance { Seuil = 1, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurFixe(1) }] },
                         new TrancheJetDePuissance { Seuil = 5, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurFixe(2) }] },
-                        // GAP valeur : « 3 dégâts ou 6 si c'est votre dernier adversaire » (conditionnelle « dernier
-                        //       adversaire » non exprimable ; le 3 de base est encodé).
-                        new TrancheJetDePuissance { Seuil = 10, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurFixe(3) }] },
+                        // « 3 dégâts, ou 6 si c'est votre dernier adversaire » : valeur conditionnelle (un seul
+                        //       adversaire vivant restant). GARDEZ sur cette tranche.
+                        new TrancheJetDePuissance { Seuil = 10, PeutGarder = true, Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurConditionnelle(ctx => ctx.Sorciers.Count(s => s != ctx.Lanceur && s.EstVivant) == 1, new ValeurFixe(6), new ValeurFixe(3)) }] },
                     ],
                 },
             ],
