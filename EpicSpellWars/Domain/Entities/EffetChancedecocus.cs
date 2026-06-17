@@ -20,6 +20,6 @@ public class EffetChancedecocus : IEffet
         var gagnant = gagnants.Count == 1 ? gagnants[0] : context.ChoisirCible(gagnants);
 
         gagnant.Sang = Math.Min(gagnant.SangMax, gagnant.Sang + 1);
-        gagnant.PointsDeVie = Math.Max(0, gagnant.PointsDeVie - resultats[gagnant]);
+        context.InfligerDegats(gagnant, resultats[gagnant]);
     }
 }

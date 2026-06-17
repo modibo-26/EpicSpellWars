@@ -74,6 +74,40 @@ public class GameContext
     // Petit Ange et autres via le pilier declencheurs). Tous les Jets de puissance sont « pour une Creature ».
     public int BonusDesJet(EffetJetDePuissance jet) => BonusDesJetCreature;
 
+    // GOULOT UNIQUE de tous les degats du jeu : inflige `montant` a `cible` (borne a 0) et detecte la
+    // transition vivant→mort. Toutes les sources de degats passent ici (Actions Degats/AutoDegats + effets
+    // sur-mesure Spiralex/Foulremix/Chancedecocus), pour que les declencheurs (recompenses au kill, et plus
+    // tard Reactions/Tresors/Sorciers creves) se branchent en UN seul endroit (OnMort).
+    public void InfligerDegats(Sorcier cible, int montant)
+    {
+        var avant = cible.PointsDeVie;
+        cible.PointsDeVie = Math.Max(0, cible.PointsDeVie - montant);
+        if (avant > 0 && cible.PointsDeVie == 0)
+            OnMort(cible);
+    }
+
+    // Declencheurs a la mort d'un sorcier (pilier 2, tranche A : recompenses au kill). Le TUEUR = Lanceur
+    // courant (celui dont l'effet a porte le coup fatal). Suicide (victime == Lanceur) → aucune recompense
+    // (regles-sang : pas de Sang si on se tue soi-meme).
+    // TODO pilier 2 : B Reactions (composants non resolus du sort de la victime), D Tresors passifs (abonnes),
+    //                 E Sorcier creve pioche a la mort.
+    private void OnMort(Sorcier victime)
+    {
+        var tueur = Lanceur;
+        if (tueur != victime)
+        {
+            tueur.Sang = Math.Min(tueur.SangMax, tueur.Sang + 3);   // +3 Sang au kill
+            if (ControleurDonjon == victime)
+                ControleurDonjon = tueur;                            // vol du Donjon au kill
+        }
+
+        // Jeton Dernier Survivant : s'il ne reste qu'un sorcier vivant, il l'emporte (victoire a 2 jetons).
+        // Le « +1 Sang / fin de tour » du dernier survivant se couplera au cycle de tour (tranche C).
+        var vivants = Sorciers.Where(s => s.EstVivant).ToList();
+        if (vivants.Count == 1)
+            vivants[0].JetonsDernierSurvivant++;
+    }
+
     // Garde la creature en cours en jeu (resultat GARDEZ d'un Jet de puissance).
     public void GarderCreatureEnCours()
     {
@@ -338,10 +372,10 @@ public class GameContext
         switch (action.Type)
         {
             case TypeAction.Degats:
-                cible.PointsDeVie = Math.Max(0, cible.PointsDeVie - montant);
+                InfligerDegats(cible, montant);
                 break;
             case TypeAction.AutoDegats:
-                Lanceur.PointsDeVie = Math.Max(0, Lanceur.PointsDeVie - montant);
+                InfligerDegats(Lanceur, montant);
                 break;
             case TypeAction.Soin:
                 cible.PointsDeVie = Math.Min(cible.PointsDeVieMax, cible.PointsDeVie + montant);

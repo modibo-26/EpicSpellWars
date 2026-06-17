@@ -23,7 +23,7 @@ public class EffetSpiralex : IEffet
             var s = context.Sorciers[((i - pas) % n + n) % n];   // -1 = droite
             if (s == context.Lanceur || !s.EstVivant)
                 continue;
-            s.PointsDeVie = Math.Max(0, s.PointsDeVie - degats * multiplicateur);
+            context.InfligerDegats(s, degats * multiplicateur);
             degats++;
         }
     }

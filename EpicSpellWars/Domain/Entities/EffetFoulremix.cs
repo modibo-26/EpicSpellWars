@@ -42,9 +42,9 @@ public class EffetFoulremix : IEffet
             recues[voisin] += aPasser[s].Count;
         }
 
-        // 3) Degats = nb de cartes recues (x multiplicateur), borne a 0.
+        // 3) Degats = nb de cartes recues (x multiplicateur). Passe par le goulot (detection de mort).
         foreach (var s in vivants)
-            s.PointsDeVie = Math.Max(0, s.PointsDeVie - recues[s] * multiplicateur);
+            context.InfligerDegats(s, recues[s] * multiplicateur);
     }
 
     // Voisin de gauche vivant (case suivante = +1), en sautant les morts. Convention table identique
