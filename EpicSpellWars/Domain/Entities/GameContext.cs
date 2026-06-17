@@ -120,6 +120,32 @@ public class GameContext
         var vivants = Sorciers.Where(s => s.EstVivant).ToList();
         if (vivants.Count == 1)
             vivants[0].JetonsDernierSurvivant++;
+
+        // Tranche E : la victime pioche un Sorcier creve (consolation du mort).
+        PiocherSorcierCreve(victime);
+    }
+
+    // A la mort, la victime pioche le Sorcier creve du sommet de la pile. Immediat → effet tout de suite (du
+    // point de vue de la victime ; morte, mais Sang/Donjon persistent) ; MancheSuivante → differe ; Passif
+    // (Petit Ange) → simplement conserve (son modificateur s'appliquera a son moment propre, GAP BonusDesJet).
+    private void PiocherSorcierCreve(Sorcier victime)
+    {
+        if (PiocheSorcierCreve.Count == 0)
+            return;
+
+        var creve = PiocheSorcierCreve[0];
+        PiocheSorcierCreve.RemoveAt(0);
+        victime.SorciersCreves.Add(creve);
+
+        switch (creve.TriggerType)
+        {
+            case TriggerType.Immediat:
+                DeclencherEffets(creve.Effets, victime);
+                break;
+            case TriggerType.MancheSuivante:
+                EffetsDifferes.Add((creve.Effets, victime));
+                break;
+        }
     }
 
     // Declenche les Reactions des composants NON resolus du sort en cours (le composant en cours de
@@ -145,21 +171,41 @@ public class GameContext
         }
     }
 
-    // Declenche les effets d'un Tresor du POINT DE VUE de son proprietaire (Lanceur temporaire). Utilise
-    // pour les declenchements actifs des Tresors (tranche D) : Immediat « Lorsque vous gagnez ce Tresor »,
-    // SurInitiative « au debut de votre tour ». Lanceur/DerniereCible sont sauvegardes/restaures pour ne pas
-    // polluer un sort en cours (cas Immediat obtenu pendant une resolution).
-    public void DeclencherTresor(Tresor tresor, Sorcier proprietaire)
+    // Effets « au debut de la prochaine manche » (differes) : Sorciers creves MancheSuivante, Repos Merite/
+    // Dépipax (TODO). Empiles avec leur proprietaire, vides par DeclencherEffetsDifferes (appele a DebutManche).
+    public List<(List<IEffet> Effets, Sorcier Proprietaire)> EffetsDifferes { get; } = [];
+
+    // Execute une liste d'effets du POINT DE VUE d'un proprietaire (Lanceur temporaire). Sauvegarde/restaure
+    // Lanceur+DerniereCible pour ne pas polluer un sort en cours (Tresor Immediat / crevé piochés en cours).
+    private void DeclencherEffets(List<IEffet> effets, Sorcier proprietaire)
     {
         var ancienLanceur = Lanceur;
         var ancienneCible = DerniereCible;
         Lanceur = proprietaire;
         DerniereCible = null;
-        foreach (var effet in tresor.Effets)
+        foreach (var effet in effets)
             effet.Execute(this);
         Lanceur = ancienLanceur;
         DerniereCible = ancienneCible;
     }
+
+    // Declenche les effets d'un Tresor (tranche D : Immediat « Lorsque vous gagnez ce Tresor », SurInitiative
+    // « au debut de votre tour ») du point de vue de son proprietaire.
+    public void DeclencherTresor(Tresor tresor, Sorcier proprietaire) => DeclencherEffets(tresor.Effets, proprietaire);
+
+    // Vide la file des effets differes (debut de manche) : chacun joue du point de vue de son proprietaire.
+    public void DeclencherEffetsDifferes()
+    {
+        foreach (var (effets, proprietaire) in EffetsDifferes)
+            DeclencherEffets(effets, proprietaire);
+        EffetsDifferes.Clear();
+    }
+
+    // Joker Magie feroce ([[magie-feroce]]) : revele la pioche principale jusqu'a trouver une carte du TYPE
+    // remplace par le joker ; cette carte rejoint le sort (l'appelant la place), le joker et les revelees non
+    // retenues sont defaussees (RevelerPiocheJusqua s'en charge). null si type non declare / pioche epuisee.
+    public CarteSort? ResoudreMagieFeroce(MagieFeroce joker) =>
+        joker.TypeRemplace is { } type ? RevelerPiocheJusqua(c => c.Type == type) : null;
 
     // Garde la creature en cours en jeu (resultat GARDEZ d'un Jet de puissance).
     public void GarderCreatureEnCours()

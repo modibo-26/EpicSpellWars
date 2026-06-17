@@ -80,6 +80,8 @@ public class OrdonnanceurDeTour
     {
         ctx.ControleurDonjon = null;
         ctx.Manche++;
+        // Effets différés « au début de la prochaine manche » (Sorciers crevés MancheSuivante, etc., tranche E).
+        ctx.DeclencherEffetsDifferes();
     }
 
     // Initiative du sort = celle de sa Destination ; 0 sans Destination.

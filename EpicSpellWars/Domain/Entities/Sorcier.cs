@@ -22,4 +22,7 @@ public class Sorcier(string nom)
     public List<CarteSort> Main { get; set; } = [];
     public List<CarteSort> Creatures { get; set; } = [];
     public List<Tresor> Tresors { get; set; } = [];
+
+    // Cartes Sorcier creve piochees a la mort (consolation du mort, tenues devant soi).
+    public List<SorcierCreve> SorciersCreves { get; set; } = [];
 }

@@ -5,10 +5,11 @@ using Action = EpicSpellWars.Domain.Entities.Action;
 namespace EpicSpellWars.Infrastructure.Catalogue;
 
 // Les 8 Sorciers crevés (piochés à la mort ; exemplaires variables). Texte = data/sorciers_creves.json
-// (TexteLoader, jointure Id). Le DÉCLENCHEUR (« pioché à la mort ») relève du 2e pilier ; mais les
-// effets « Immédiat : » à base d'Actions pures sont déjà encodés ici (data prête, exécutée plus tard).
+// (TexteLoader, jointure Id). DÉCLENCHEUR « pioché à la mort » CÂBLÉ (tranche E, GameContext.PiocherSorcierCreve) :
+// Immediat = effet tout de suite (du point de vue du mort) ; MancheSuivante = différé à DebutManche ;
+// Passif (Petit Ange) = conservé. Les 4 Immédiat à Actions pures sont actifs ; conditionnelles/différés en GAP.
 //   // GAP   = clause conditionnelle / valeur pas encore exprimable.
-//   // TODO  = effet « manche suivante » (différé) = pilier déclencheurs, Effets vides.
+//   // TODO  = effet « manche suivante » dépendant du flux de manche (vainqueur, mise en jeu), Effets vides.
 public static class SorciersCreves
 {
     public static List<SorcierCreve> Toutes() =>
