@@ -51,6 +51,11 @@ public class GameContext
     // « Est-ce que ce sorcier accepte cette proposition ? » Ex. Roulepélax, Boucledorus, Nyarlaprizdetep.
     public required Func<Sorcier, string, bool> ChoisirOption { get; set; }
 
+    // Choix d'une option par le LANCEUR parmi N libelles (« choisissez une option : ... ou ... »).
+    // Renvoie l'index de l'option retenue. Distinct de ChoisirOption (decision oui/non d'une CIBLE).
+    // Ex. Brikébix, Groclonar.
+    public required Func<Sorcier, IReadOnlyList<string>, int> ChoisirOptionLanceur { get; set; }
+
     // Choix d'un type de composant (Source/Qualite/Destination) par UN sorcier, parmi une liste.
     // Ex. Mortalriktus (puis defausse de ce type), Foulremix (puis passage de ce type).
     public required Func<Sorcier, IReadOnlyList<TypeComposant>, TypeComposant> ChoisirTypeComposant { get; set; }
@@ -293,6 +298,9 @@ public class GameContext
             case Cible.AJetonDernierSurvivant: return Adversaires.Where(s => s.JetonsDernierSurvivant > 0);
             case Cible.PlusFortQueMoi: return Adversaires.Where(s => s.PointsDeVie > Lanceur.PointsDeVie);
             case Cible.PlusFaibleQueMoi: return Adversaires.Where(s => s.PointsDeVie < Lanceur.PointsDeVie);
+            // « chaque adversaire avec un nombre PAIR / IMPAIR de PV » (Groclonar).
+            case Cible.PvPair: return Adversaires.Where(s => s.PointsDeVie % 2 == 0);
+            case Cible.PvImpair: return Adversaires.Where(s => s.PointsDeVie % 2 != 0);
 
             // Cibles relatives au sort en cours
             case Cible.MemeCible: return Enumerable1(DerniereCible);

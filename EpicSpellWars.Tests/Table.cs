@@ -21,6 +21,7 @@ internal sealed class Table
     public TypeComposant ProchainType = TypeComposant.Source;
     public bool ProchainPaye = false;   // reponse de ChoisirPayer
     public int ProchainMontant = 0;     // montant de ChoisirMontant (« Payez X »)
+    public int ProchainOption = 0;      // index renvoye par ChoisirOptionLanceur (« choisissez une option »)
 
     public Table()
     {
@@ -33,6 +34,7 @@ internal sealed class Table
             ChoisirDe = des => des.Max(),   // Castoramax : dé offensif = le plus grand (optimal)
             ChoisirCartes = (candidats, _, max) => candidats.Take(max).ToList(),
             ChoisirOption = (_, _) => ProchainChoix,
+            ChoisirOptionLanceur = (_, _) => ProchainOption,
             ChoisirTypeComposant = (_, types) => types.Contains(ProchainType) ? ProchainType : types.First(),
             ChoisirPayer = (_, _, _) => ProchainPaye,
             ChoisirMontant = _ => ProchainMontant,

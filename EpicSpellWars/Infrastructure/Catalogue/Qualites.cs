@@ -224,8 +224,28 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-065",
-            // GAP : choix d'option par le LANCEUR + Cible « PV pair / impair ».
-            Effets = [],
+            // « Choisissez : (A) 2 dégâts à chaque adversaire avec un nb PAIR de PV, ou (B) 3 dégâts à chaque
+            // adversaire avec un nb IMPAIR de PV. » Clause « Donjon : faites les deux (pair puis impair) » =
+            // bonus Donjon → pilier 2 (déclencheurs), TODO.
+            Effets =
+            [
+                new EffetChoixLanceur
+                {
+                    Options =
+                    [
+                        new OptionLanceur
+                        {
+                            Libelle = "2 dégâts à chaque adversaire avec un nombre pair de PV",
+                            Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.PvPair, Valeur = new ValeurFixe(2) }],
+                        },
+                        new OptionLanceur
+                        {
+                            Libelle = "3 dégâts à chaque adversaire avec un nombre impair de PV",
+                            Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.PvImpair, Valeur = new ValeurFixe(3) }],
+                        },
+                    ],
+                },
+            ],
         },
 
         new("Cadopourrix", TypeComposant.Qualite, Glyphe.Illusion)

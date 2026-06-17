@@ -172,8 +172,33 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-024",
-            // GAP : le LANCEUR choisit entre deux effets (pas une décision oui/non d'une cible comme EffetProposition).
-            Effets = [],
+            // « Choisissez : (A) prenez le Donjon + 1 dégât à chaque adversaire, ou (B) 3 dégâts à un adversaire
+            // sans Donjon. Payez 3 🩸 : faites les deux. » Le lanceur tranche A/B ; payé → A puis B (après A, le
+            // lanceur contrôle le Donjon → SansDonjon de B = n'importe quel adversaire).
+            Effets =
+            [
+                new EffetChoixLanceur
+                {
+                    CoutTout = 3, LibelleTout = "Faites les deux",
+                    Options =
+                    [
+                        new OptionLanceur
+                        {
+                            Libelle = "Prenez le Donjon et 1 dégât à chaque adversaire",
+                            Actions =
+                            [
+                                new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi },
+                                new Action { Type = TypeAction.Degats, Cible = Cible.TousAdversaires, Valeur = new ValeurFixe(1) },
+                            ],
+                        },
+                        new OptionLanceur
+                        {
+                            Libelle = "3 dégâts à un adversaire sans Donjon",
+                            Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.SansDonjon, CibleUnique = true, Valeur = new ValeurFixe(3) }],
+                        },
+                    ],
+                },
+            ],
         },
 
         new("Bébéfédex", TypeComposant.Source, Glyphe.Illusion)

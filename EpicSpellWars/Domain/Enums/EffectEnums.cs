@@ -29,6 +29,8 @@ public enum Cible
     DesigneParDe,
     ControleurDonjon,  // le sorcier qui controle le Donjon (PEUT etre le lanceur ; 0 ou 1 ; Sabruledepartoux)
     TousSorciers,      // TOUS les sorciers vivants, lanceur INCLUS (≠ TousAdversaires qui l'exclut)
+    PvPair,            // chaque adversaire avec un nombre PAIR de PV (Groclonar)
+    PvImpair,          // chaque adversaire avec un nombre IMPAIR de PV (Groclonar)
     Soi
 }
 
