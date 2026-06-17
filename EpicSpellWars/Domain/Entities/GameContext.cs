@@ -1,4 +1,5 @@
 using EpicSpellWars.Domain.Enums;
+using EpicSpellWars.Domain.Interfaces;
 
 namespace EpicSpellWars.Domain.Entities;
 
@@ -90,13 +91,21 @@ public class GameContext
             OnMort(cible);
     }
 
-    // Declencheurs a la mort d'un sorcier (pilier 2, tranche A : recompenses au kill). Le TUEUR = Lanceur
-    // courant (celui dont l'effet a porte le coup fatal). Suicide (victime == Lanceur) → aucune recompense
-    // (regles-sang : pas de Sang si on se tue soi-meme).
-    // TODO pilier 2 : B Reactions (composants non resolus du sort de la victime), D Tresors passifs (abonnes),
-    //                 E Sorcier creve pioche a la mort.
+    // Declencheurs a la mort d'un sorcier (pilier 2). Le TUEUR = Lanceur courant (celui dont l'effet a
+    // porte le coup fatal). Suicide (victime == Lanceur) → aucune recompense (regles-sang).
+    // TODO pilier 2 : D Tresors passifs (abonnes), E Sorcier creve pioche a la mort.
     private void OnMort(Sorcier victime)
     {
+        // Tranche B : Reactions. Cas SELF (la victime resout SON sort) : declencher les Reactions des
+        // composants encore NON resolus de SortEnCours. Une Reaction peut EMPECHER la mort (Gonzofungus
+        // PV→1). Cross-wizard (mourir pendant le tour d'un autre) = TODO (l'ordonnanceur devrait garder le
+        // sort declare + l'etat de resolution de chaque sorcier).
+        if (victime == Lanceur)
+            DeclencherReactions();
+
+        if (victime.EstVivant)
+            return;   // une Reaction a empeche la mort → pas de recompense au kill
+
         var tueur = Lanceur;
         if (tueur != victime)
         {
@@ -106,10 +115,32 @@ public class GameContext
         }
 
         // Jeton Dernier Survivant : s'il ne reste qu'un sorcier vivant, il l'emporte (victoire a 2 jetons).
-        // Le « +1 Sang / fin de tour » du dernier survivant se couplera au cycle de tour (tranche C).
         var vivants = Sorciers.Where(s => s.EstVivant).ToList();
         if (vivants.Count == 1)
             vivants[0].JetonsDernierSurvivant++;
+    }
+
+    // Declenche les Reactions des composants NON resolus du sort en cours (le composant en cours de
+    // resolution est deja dans _composantsResolus → sa propre Reaction ne se declenche pas, conforme au
+    // timing fin : « si votre Destination vous tue, sa Reaction et celles deja resolues ne s'appliquent pas »).
+    // Une Reaction ne se declenche qu'UNE fois (_reactionsDeclenchees).
+    private void DeclencherReactions()
+    {
+        foreach (var composant in SortEnCours.Where(c => !_composantsResolus.Contains(c)).ToList())
+        {
+            var aReagi = false;
+            foreach (var reaction in composant.Effets.OfType<EffetReaction>())
+                if (_reactionsDeclenchees.Add(reaction))
+                {
+                    reaction.Execute(this);
+                    aReagi = true;
+                }
+
+            // La carte qui a reagi est consommee (« defaussez-la ») : si une Reaction empeche la mort
+            // (Gonzofungus), la resolution reprend mais ce composant ne resout PAS son effet principal.
+            if (aReagi)
+                _composantsResolus.Add(composant);
+        }
     }
 
     // Garde la creature en cours en jeu (resultat GARDEZ d'un Jet de puissance).
@@ -188,26 +219,39 @@ public class GameContext
     // type : on prend a chaque etape le composant NON resolu de plus petit rang, ce qui realise la regle
     // « finir le composant courant, puis reprendre au type le plus bas non resolu » (rulebook).
     // DerniereCible/DerniereQuantite sont a l'echelle du SORT (« cet adversaire » porte sur tout le sort).
+    // Composants deja resolus du sort en cours (eleve en champ pour que les Reactions sachent lesquels
+    // sont encore NON resolus a la mort). Reset par sort dans ResoudreSort.
+    private readonly HashSet<CarteSort> _composantsResolus = [];
+    // Reactions deja declenchees ce sort (anti double-declenchement). Reset par sort.
+    private readonly HashSet<IEffet> _reactionsDeclenchees = [];
+
     public void ResoudreSort()
     {
         DerniereCible = null;
         DerniereQuantite = 0;
         DernierDe = 0;
+        _composantsResolus.Clear();
+        _reactionsDeclenchees.Clear();
 
-        var resolus = new HashSet<CarteSort>();
         while (true)
         {
             // Egalite de rang (plusieurs non resolus du meme type) : ordre de SortEnCours.
             // TODO: laisser le joueur ordonner (hook) ; ne survient que via cartes ajoutees.
             var composant = SortEnCours
-                .Where(c => !resolus.Contains(c))
+                .Where(c => !_composantsResolus.Contains(c))
                 .OrderBy(RangType)
                 .FirstOrDefault();
             if (composant is null)
                 break;
 
-            resolus.Add(composant);
+            _composantsResolus.Add(composant);
             ResoudreComposant(composant);
+
+            // Lanceur mort en cours de sort (et aucune Reaction n'a empeche la mort) → le sort s'arrete :
+            // les composants restants ne se resolvent pas. Une Reaction preventive (Gonzofungus PV→1) laisse
+            // EstVivant a true → la resolution continue.
+            if (!Lanceur.EstVivant)
+                break;
         }
 
         CreatureEnCours = null;
@@ -221,8 +265,10 @@ public class GameContext
         if (composant.EstCreature)
             CreatureEnCours = composant;
 
+        // Les EffetReaction ne s'executent PAS en resolution normale : seulement a la mort (DeclencherReactions).
         foreach (var effet in composant.Effets)
-            effet.Execute(this);
+            if (effet is not EffetReaction)
+                effet.Execute(this);
 
         if (composant.EstCreature)
             CreatureEnCours = precedente;

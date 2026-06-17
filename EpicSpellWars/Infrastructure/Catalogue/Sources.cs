@@ -56,7 +56,8 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-008",
-            // TODO Réaction (gagnez 1 Trésor et jouez-le la manche suivante).
+            // Branchement par dé ; Réaction : si vous mourez avant résolution, gagnez 1 Trésor (immédiat).
+            // GAP : « et jouez-le au début de la prochaine manche » = effet différé MancheSuivante (non couvert).
             Effets =
             [
                 new EffetBranchement
@@ -77,6 +78,7 @@ public static class Sources
                         },
                     ],
                 },
+                new EffetReaction { Actions = [new Action { Type = TypeAction.GagnerTresor, Cible = Cible.Soi }] },
             ],
         },
 
@@ -106,7 +108,8 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-014",
-            // TODO Réaction (piochez 2 Sorcier crevé de plus).
+            // GAP Réaction (tranche B faite) : « piochez 2 Sorcier crevé supplémentaires » dépend du système
+            // de pioche de Sorciers crevés à la mort (tranche E).
             Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(2) }] }],
         },
 
@@ -145,7 +148,8 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-019",
-            // TODO Réaction (1 dé de dégâts au sorcier qui vous a tué).
+            // GAP Réaction (tranche B faite) : « 1 dé de dégâts au sorcier qui vous a tué » nécessite une
+            // Cible.Tueur (référence au tueur) + le cas CROSS-WIZARD (mourir pendant le tour d'un autre).
             Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireDroite, Valeur = new ValeurFixe(2) }] }],
         },
 
@@ -234,7 +238,9 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-030",
-            // TODO Réaction (la Créature du sort encaisse les dégâts).
+            // GAP Réaction (tranche B faite) : « révélez la Créature du sort, elle encaisse à votre place »
+            // = prévention de mort par redirection vers une Créature présente dans le sort (sémantique encaisse
+            // + restauration des PV avant le coup létal), pas encore modélisée.
             Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurFixe(1) }] }],
         },
 
@@ -280,8 +286,12 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-035",
-            // TODO Réaction (PV à 1 au lieu de mourir).
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Soin, Cible = Cible.Soi, Valeur = new ValeurDe(1) }] }],
+            // Soin = 1 dé ; Réaction : si vous mourez avant résolution, PV = 1 (vous ne mourez pas).
+            Effets =
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.Soin, Cible = Cible.Soi, Valeur = new ValeurDe(1) }] },
+                new EffetReaction { Actions = [new Action { Type = TypeAction.PvAUn, Cible = Cible.Soi }] },
+            ],
         },
 
         new("Hydraponix", TypeComposant.Source, Glyphe.Primaire)
