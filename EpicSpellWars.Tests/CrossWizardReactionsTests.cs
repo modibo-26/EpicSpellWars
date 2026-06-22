@@ -63,4 +63,27 @@ public class CrossWizardReactionsTests
         Assert.Equal(20, t.Merlin.PointsDeVie);    // PAS de riposte : Fukushimax déjà résolu avant la mort
         Assert.Equal(3, t.Merlin.Sang);            // +3 au kill (Merlin a tué Saroumane)
     }
+
+    // Cascade : Gandalf tue Merlin, dont la riposte Fukushimax (1 dé létal) tue Gandalf en retour. Il ne reste
+    // que Saroumane → UN SEUL jeton Dernier Survivant (le garde-fou empêche le double-comptage des OnMort
+    // imbriqués). Les +3 🩸 sont par-kill et restent attribués correctement (chacun à son tueur).
+    [Fact]
+    public void Riposte_mortelle_en_chaine_ne_decerne_qu_un_seul_jeton()
+    {
+        var t = new Table { ProchainDe = 25 };   // 1 dé de Fukushimax = 25 → létal pour Gandalf (20 PV)
+        t.Merlin.PointsDeVie = 3;
+
+        new OrdonnanceurDeTour().JouerTour(t.Ctx, new Dictionary<Sorcier, List<CarteSort>>
+        {
+            [t.Gandalf] = [Tueur(Cible.AdversaireDroite, 5)],   // tue Merlin
+            [t.Merlin] = [Fukushimax(), Filler()],              // riposte au tueur (Gandalf)
+        });
+
+        Assert.False(t.Merlin.EstVivant);
+        Assert.False(t.Gandalf.EstVivant);                     // tué par la riposte
+        Assert.True(t.Saroumane.EstVivant);
+        Assert.Equal(1, t.Saroumane.JetonsDernierSurvivant);   // UN seul jeton malgré 2 morts en cascade
+        Assert.Equal(3, t.Merlin.Sang);                        // Merlin a tué Gandalf (riposte) → +3 (Sang persiste après mort)
+        Assert.Equal(3, t.Gandalf.Sang);                       // Gandalf a tué Merlin → +3
+    }
 }

@@ -83,6 +83,7 @@ public class OrdonnanceurDeTour
     {
         ctx.ControleurDonjon = null;
         ctx.Manche++;
+        ctx.ReinitialiserJetonDernierSurvivant();   // nouvelle bataille → un nouveau jeton Dernier Survivant en jeu
         // Effets différés « au début de la prochaine manche » (Sorciers crevés MancheSuivante, etc., tranche E).
         ctx.DeclencherEffetsDifferes();
     }

@@ -123,9 +123,15 @@ public class GameContext
         }
 
         // Jeton Dernier Survivant : s'il ne reste qu'un sorcier vivant, il l'emporte (victoire a 2 jetons).
+        // UNE seule fois par manche (la bataille s'arrete des qu'il reste un survivant) : sinon une cascade de
+        // morts en chaine (riposte mortelle d'une Reaction → OnMort imbrique) re-testerait « 1 vivant » a
+        // chaque niveau et decernerait plusieurs jetons. Reset par DebutManche.
         var vivants = Sorciers.Where(s => s.EstVivant).ToList();
-        if (vivants.Count == 1)
+        if (vivants.Count == 1 && !_jetonDernierSurvivantDecerne)
+        {
             vivants[0].JetonsDernierSurvivant++;
+            _jetonDernierSurvivantDecerne = true;
+        }
 
         // Tranche E : la victime pioche un Sorcier creve (consolation du mort).
         PiocherSorcierCreve(victime);
@@ -194,6 +200,13 @@ public class GameContext
     // Tueur courant, valide uniquement pendant la resolution d'une Reaction (cf. DeclencherReactions) ;
     // lu par Cible.Tueur. Null hors contexte de Reaction.
     private Sorcier? _tueur;
+
+    // Jeton Dernier Survivant deja decerne dans la manche en cours (une bataille = un seul jeton). Reset au
+    // debut de manche par ReinitialiserJetonDernierSurvivant ; garde-fou anti double-comptage en cascade (OnMort).
+    private bool _jetonDernierSurvivantDecerne;
+
+    // Rearme le jeton Dernier Survivant au debut d'une nouvelle manche (appele par OrdonnanceurDeTour.DebutManche).
+    public void ReinitialiserJetonDernierSurvivant() => _jetonDernierSurvivantDecerne = false;
 
     // Effets « au debut de la prochaine manche » (differes) : Sorciers creves MancheSuivante, Repos Merite/
     // Dépipax (TODO). Empiles avec leur proprietaire, vides par DeclencherEffetsDifferes (appele a DebutManche).
