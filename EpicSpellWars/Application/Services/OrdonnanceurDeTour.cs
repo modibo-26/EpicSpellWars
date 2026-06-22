@@ -24,6 +24,9 @@ public class OrdonnanceurDeTour
             s.ADejaPayeCeTour = false;
         }
 
+        // Memorise les sorts declares + reset de l'etat de resolution a portee tour (Reactions cross-wizard).
+        ctx.PreparerTour(sorts);
+
         var aJouer = ctx.Sorciers
             .Where(s => s.EstVivant && sorts.TryGetValue(s, out var sort) && sort.Count > 0)
             .ToList();

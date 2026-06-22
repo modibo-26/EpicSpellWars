@@ -148,9 +148,14 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-019",
-            // GAP Réaction (tranche B faite) : « 1 dé de dégâts au sorcier qui vous a tué » nécessite une
-            // Cible.Tueur (référence au tueur) + le cas CROSS-WIZARD (mourir pendant le tour d'un autre).
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireDroite, Valeur = new ValeurFixe(2) }] }],
+            // « Infligez 2 dégâts à votre adversaire de droite. Réaction : si vous mourez avant que cette carte
+            // ne soit résolue, infligez 1 dé de dégâts au sorcier qui vous a tué. » La Réaction utilise
+            // Cible.Tueur + le cas CROSS-WIZARD (mourir pendant le tour d'un autre), cf. DeclencherReactions.
+            Effets =
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireDroite, Valeur = new ValeurFixe(2) }] },
+                new EffetReaction { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.Tueur, Valeur = new ValeurDe(1) }] },
+            ],
         },
 
         new("Volcanino", TypeComposant.Source, Glyphe.Elementaire)

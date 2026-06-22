@@ -92,21 +92,27 @@ public class GameContext
     }
 
     // Declencheurs a la mort d'un sorcier (pilier 2). Le TUEUR = Lanceur courant (celui dont l'effet a
-    // porte le coup fatal). Suicide (victime == Lanceur) → aucune recompense (regles-sang).
-    // TODO pilier 2 : D Tresors passifs (abonnes), E Sorcier creve pioche a la mort.
+    // porte le coup fatal). Suicide (victime == Lanceur) → aucune recompense (regles-sang). Branche dans
+    // l'ordre : B Reactions (peuvent empecher la mort), A recompenses au kill (+ passif Tresor), E crevé.
     private void OnMort(Sorcier victime)
     {
-        // Tranche B : Reactions. Cas SELF (la victime resout SON sort) : declencher les Reactions des
-        // composants encore NON resolus de SortEnCours. Une Reaction peut EMPECHER la mort (Gonzofungus
-        // PV→1). Cross-wizard (mourir pendant le tour d'un autre) = TODO (l'ordonnanceur devrait garder le
-        // sort declare + l'etat de resolution de chaque sorcier).
-        if (victime == Lanceur)
-            DeclencherReactions();
+        // Le TUEUR = Lanceur courant (celui dont l'effet a porte le coup fatal). Capture AVANT les Reactions :
+        // une Reaction agit du point de vue de la victime (Lanceur temporairement = victime), donc on fige le
+        // tueur ici, pour Cible.Tueur (Fukushimax) comme pour les recompenses au kill.
+        var tueur = Lanceur;
+
+        // Tranche B : Reactions. Sort de la victime = SortsDeclares[victime] ; pour le lanceur qui se resout,
+        // c'est SortEnCours (memes instances). Seules tirent les Reactions des composants NON resolus
+        // (_composantsResolus, portee TOUR) — ce qui couvre les 3 situations SANS cas special :
+        //   victime pas encore jouee → aucun resolu → toutes ses Reactions ; victime == lanceur en cours →
+        //   seuls les composants pas encore passes ; victime a deja joue ce tour → tous resolus → aucune.
+        // Une Reaction peut EMPECHER la mort (Gonzofungus PV→1) → on re-teste EstVivant ensuite.
+        var sortVictime = victime == Lanceur ? SortEnCours : SortsDeclares.GetValueOrDefault(victime) ?? [];
+        DeclencherReactions(sortVictime, victime, tueur);
 
         if (victime.EstVivant)
             return;   // une Reaction a empeche la mort → pas de recompense au kill
 
-        var tueur = Lanceur;
         if (tueur != victime)
         {
             // +3 Sang au kill, + bonus passif des Tresors du tueur (Liste du Père Fouettard, tranche D).
@@ -148,13 +154,23 @@ public class GameContext
         }
     }
 
-    // Declenche les Reactions des composants NON resolus du sort en cours (le composant en cours de
-    // resolution est deja dans _composantsResolus → sa propre Reaction ne se declenche pas, conforme au
-    // timing fin : « si votre Destination vous tue, sa Reaction et celles deja resolues ne s'appliquent pas »).
-    // Une Reaction ne se declenche qu'UNE fois (_reactionsDeclenchees).
-    private void DeclencherReactions()
+    // Declenche les Reactions des composants NON resolus du sort de la victime. La Reaction agit du POINT DE
+    // VUE de la victime (Lanceur temporaire) : ainsi une riposte mortelle (Fukushimax) est attribuee a la
+    // victime, et le tueur est expose via _tueur (Cible.Tueur). Save/restore Lanceur/_tueur/DerniereCible
+    // pour ne pas polluer le sort en cours (cross-wizard : on est au milieu du sort du tueur). Le composant
+    // en cours de resolution est deja dans _composantsResolus → sa propre Reaction ne se declenche pas
+    // (timing fin SELF : « si votre Destination vous tue, sa Reaction et celles deja resolues ne s'appliquent
+    // pas »). Une Reaction ne se declenche qu'UNE fois (_reactionsDeclenchees).
+    private void DeclencherReactions(IReadOnlyList<CarteSort> sortVictime, Sorcier victime, Sorcier tueur)
     {
-        foreach (var composant in SortEnCours.Where(c => !_composantsResolus.Contains(c)).ToList())
+        var ancienLanceur = Lanceur;
+        var ancienTueur = _tueur;
+        var ancienneCible = DerniereCible;
+        Lanceur = victime;
+        _tueur = tueur;
+        DerniereCible = null;
+
+        foreach (var composant in sortVictime.Where(c => !_composantsResolus.Contains(c)).ToList())
         {
             var aReagi = false;
             foreach (var reaction in composant.Effets.OfType<EffetReaction>())
@@ -169,7 +185,15 @@ public class GameContext
             if (aReagi)
                 _composantsResolus.Add(composant);
         }
+
+        Lanceur = ancienLanceur;
+        _tueur = ancienTueur;
+        DerniereCible = ancienneCible;
     }
+
+    // Tueur courant, valide uniquement pendant la resolution d'une Reaction (cf. DeclencherReactions) ;
+    // lu par Cible.Tueur. Null hors contexte de Reaction.
+    private Sorcier? _tueur;
 
     // Effets « au debut de la prochaine manche » (differes) : Sorciers creves MancheSuivante, Repos Merite/
     // Dépipax (TODO). Empiles avec leur proprietaire, vides par DeclencherEffetsDifferes (appele a DebutManche).
@@ -283,19 +307,31 @@ public class GameContext
     // type : on prend a chaque etape le composant NON resolu de plus petit rang, ce qui realise la regle
     // « finir le composant courant, puis reprendre au type le plus bas non resolu » (rulebook).
     // DerniereCible/DerniereQuantite sont a l'echelle du SORT (« cet adversaire » porte sur tout le sort).
-    // Composants deja resolus du sort en cours (eleve en champ pour que les Reactions sachent lesquels
-    // sont encore NON resolus a la mort). Reset par sort dans ResoudreSort.
+    // Composants resolus / Reactions declenchees sont a PORTEE TOUR (reset par PreparerTour, PAS par sort) :
+    // ainsi, quand un sorcier meurt pendant le tour d'un autre, on sait si SES composants sont resolus
+    // (= a-t-il deja joue ce tour) sans tracker l'etat par sorcier. Instances distinctes par sorcier → un
+    // seul set plat suffit ([[reaction-timing]]).
     private readonly HashSet<CarteSort> _composantsResolus = [];
-    // Reactions deja declenchees ce sort (anti double-declenchement). Reset par sort.
     private readonly HashSet<IEffet> _reactionsDeclenchees = [];
+
+    // Sort declare de chaque sorcier ce tour (alimente par PreparerTour). Sert aux Reactions CROSS-WIZARD :
+    // un sorcier peut mourir pendant le tour d'un autre, il faut alors retrouver son sort declare.
+    public Dictionary<Sorcier, List<CarteSort>> SortsDeclares { get; set; } = [];
+
+    // Debut de tour (appele par l'ordonnanceur) : memorise les sorts declares et remet a zero l'etat de
+    // resolution a portee TOUR. DerniereCible/DernierDe restent a portee SORT (reset par ResoudreSort).
+    public void PreparerTour(IReadOnlyDictionary<Sorcier, List<CarteSort>> sorts)
+    {
+        SortsDeclares = sorts.ToDictionary(kv => kv.Key, kv => kv.Value);
+        _composantsResolus.Clear();
+        _reactionsDeclenchees.Clear();
+    }
 
     public void ResoudreSort()
     {
         DerniereCible = null;
         DerniereQuantite = 0;
         DernierDe = 0;
-        _composantsResolus.Clear();
-        _reactionsDeclenchees.Clear();
 
         while (true)
         {
@@ -449,6 +485,9 @@ public class GameContext
             // « chaque adversaire avec un nombre PAIR / IMPAIR de PV » (Groclonar).
             case Cible.PvPair: return Adversaires.Where(s => s.PointsDeVie % 2 == 0);
             case Cible.PvImpair: return Adversaires.Where(s => s.PointsDeVie % 2 != 0);
+
+            // Le sorcier ayant porte le coup fatal (contexte Reaction a la mort ; null hors de ce contexte).
+            case Cible.Tueur: return Enumerable1(_tueur);
 
             // Cibles relatives au sort en cours
             case Cible.MemeCible: return Enumerable1(DerniereCible);

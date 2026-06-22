@@ -25,6 +25,7 @@ public enum Cible
     AutreAdversaire,   // un adversaire different de la derniere cible affectee ce sort
     AutresAdversaires, // TOUS les adversaires sauf la derniere cible (« chaque autre adversaire »)
     MemeCible,         // la derniere cible affectee ce sort (« cet adversaire »)
+    Tueur,             // le sorcier qui a porte le coup fatal (contexte Reaction a la mort ; Fukushimax)
     AdversaireAuChoix, // « choisissez un adversaire » : designe par le lanceur (via ChoisirCible)
     DesigneParDe,
     ControleurDonjon,  // le sorcier qui controle le Donjon (PEUT etre le lanceur ; 0 ou 1 ; Sabruledepartoux)
