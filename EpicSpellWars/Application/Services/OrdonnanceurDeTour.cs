@@ -190,6 +190,7 @@ public class OrdonnanceurDeTour
     {
         ctx.ControleurDonjon = null;
         ctx.Manche++;
+        ctx.PrimesEnJeu = 0;                         // les primes (Avis de Recherche) ne survivent pas à la manche
         ctx.ReinitialiserJetonDernierSurvivant();   // nouvelle bataille → un nouveau jeton Dernier Survivant en jeu
 
         // Réveil : chaque sorcier repart à PV de départ (les morts reviennent pour la nouvelle manche) et son

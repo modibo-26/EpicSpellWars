@@ -22,4 +22,12 @@ public class Tresor(string nom, List<IEffet> effets, TriggerType triggerType) : 
     // Passif data-driven : 🩸 EN PLUS du gain « Donjon » de fin de tour quand le porteur contrôle le Donjon
     // (Chalisman = 1). Lu dans OrdonnanceurDeTour. 0 = pas de bonus.
     public int BonusSangDonjonFinTour { get; init; }
+
+    // Passif data-driven : 🩸 gagné par le porteur si SA mort met fin à la manche (Coupe du Tocard = 3).
+    // Lu dans GameContext.OnMort. 0 = pas de bonus.
+    public int BonusSangMortFinManche { get; init; }
+
+    // Passif data-driven : à chaque fois qu'un ADVERSAIRE du porteur pioche un Sorcier crevé, le porteur lance
+    // un dé et se soigne de 1 PV sur 5-6 (Bouclier Anti-Fiente). Lu dans GameContext.PiocherSorcierCreve.
+    public bool SoigneSurPiocheCreveAdverse { get; init; }
 }

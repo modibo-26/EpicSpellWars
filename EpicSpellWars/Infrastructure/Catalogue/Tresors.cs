@@ -67,11 +67,12 @@ public static class Tresors
             },
         },
         new("Bœuf aux Hormones", [], TriggerType.Passif) { Id = "EP2-165" },
-        // Capacité activée : Payez 1 🩸 → soignez-vous de 1 PV (1×/tour, assuré par la limite de paiement
-        // Trésor). GAP : la clause « si votre mort met fin à la manche, +3 🩸 » = déclencheur de mort (à part).
+        // Passif : si votre mort met fin à la manche, +3 🩸 (BonusSangMortFinManche, lu dans OnMort).
+        // Capacité activée : Payez 1 🩸 → soignez-vous de 1 PV (1×/tour, assuré par la limite de paiement Trésor).
         new("Coupe du Tocard", [], TriggerType.Passif)
         {
             Id = "EP2-167",
+            BonusSangMortFinManche = 3,
             Activation = new EffetActivationTresor
             {
                 Cout = 1,
@@ -112,7 +113,8 @@ public static class Tresors
             ],
         },
         new("Fusil à Triple Canon", [], TriggerType.Passif) { Id = "EP2-171" },
-        new("Avis de Recherche", [], TriggerType.Immediat) { Id = "EP2-172" },
+        // Immediat : placez une prime au milieu + gagnez un autre Trésor ; le prochain tueur gagne 3 🩸 (OnMort).
+        new("Avis de Recherche", [new EffetAvisDeRecherche()], TriggerType.Immediat) { Id = "EP2-172" },
         // GAP : « si premier à jouer, échangez CE Trésor contre un Trésor adverse » = besoin de l'identité du
         // Trésor porteur de la clause (échange de cette carte précise) + action d'échange. Phase DebutTour prête.
         new("Mains Poisseuses !", [], TriggerType.Passif) { Id = "EP2-173" },
@@ -120,7 +122,8 @@ public static class Tresors
         new("Liste du Père Fouettard", [], TriggerType.Passif) { Id = "EP2-174", BonusSangParKill = 1 },
         new("Chipodada", [], TriggerType.Passif) { Id = "EP2-175" },
         new("Granoloup", [], TriggerType.Passif) { Id = "EP2-176" },
-        new("Bouclier Anti-Fiente", [], TriggerType.Passif) { Id = "EP2-177" },
+        // Passif : à chaque fois qu'un adversaire pioche un crevé, lancez un dé ; 5-6 → soin 1 PV (PiocherSorcierCreve).
+        new("Bouclier Anti-Fiente", [], TriggerType.Passif) { Id = "EP2-177", SoigneSurPiocheCreveAdverse = true },
         new("Globe Sacrificiel", [], TriggerType.Passif) { Id = "EP2-178" },
         // FinTour : si vous êtes (à égalité) le sorcier le plus faible en fin de tour, soin 2 PV + gagnez un Trésor.
         new("Smoking de Location", [], TriggerType.Passif)

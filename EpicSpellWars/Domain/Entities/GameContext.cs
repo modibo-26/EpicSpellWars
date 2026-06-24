@@ -37,6 +37,10 @@ public class GameContext
     // fin de JouerManche ; lu par les effets differes qui ciblent « le vainqueur de cette manche » (Doigt Magique).
     public Sorcier? VainqueurDerniereManche { get; set; }
 
+    // Primes « Avis de Recherche » placees au milieu : le prochain tueur en consomme une et gagne 3 🩸 (OnMort).
+    // Reinitialise au debut de chaque manche (les Tresors sont defausses en fin de manche).
+    public int PrimesEnJeu { get; set; }
+
     // Sort en cours de resolution (composants du lanceur ce tour) et creature en cours.
     public List<CarteSort> SortEnCours { get; set; } = [];
     public CarteSort? CreatureEnCours { get; set; }
@@ -159,6 +163,13 @@ public class GameContext
             tueur.Sang = Math.Min(tueur.SangMax, tueur.Sang + 3 + bonus);
             if (ControleurDonjon == victime)
                 ControleurDonjon = tueur;                            // vol du Donjon au kill
+
+            // Avis de Recherche : une prime au milieu → le 1er tueur gagne 3 🩸 ; la prime est consommée.
+            if (PrimesEnJeu > 0)
+            {
+                tueur.Sang = Math.Min(tueur.SangMax, tueur.Sang + 3);
+                PrimesEnJeu--;
+            }
         }
 
         // Jeton Dernier Survivant : s'il ne reste qu'un sorcier vivant, il l'emporte (victoire a 2 jetons).
@@ -170,6 +181,14 @@ public class GameContext
         {
             vivants[0].JetonsDernierSurvivant++;
             _jetonDernierSurvivantDecerne = true;
+        }
+
+        // Coupe du Tocard : si la mort de la victime met fin à la manche (≤ 1 survivant), elle gagne 3 🩸 (passif).
+        if (vivants.Count <= 1)
+        {
+            var bonusFin = victime.Tresors.Sum(t => t.BonusSangMortFinManche);
+            if (bonusFin > 0)
+                victime.Sang = Math.Min(victime.SangMax, victime.Sang + bonusFin);
         }
 
         // Tranche E : la victime pioche un Sorcier creve (consolation du mort).
@@ -203,6 +222,12 @@ public class GameContext
                 victime.BonusProchainJetCreature += creve.BonusProchainJetCreature;
                 break;
         }
+
+        // Bouclier Anti-Fiente : quand un sorcier pioche un crevé, chaque AUTRE porteur lance un dé et se
+        // soigne de 1 PV sur 5-6.
+        foreach (var porteur in Sorciers)
+            if (porteur != victime && porteur.Tresors.Any(t => t.SoigneSurPiocheCreveAdverse) && LancerDe() >= 5)
+                porteur.PointsDeVie = Math.Min(porteur.PointsDeVieMax, porteur.PointsDeVie + 1);
     }
 
     // Declenche les Reactions des composants NON resolus du sort de la victime. La Reaction agit du POINT DE
