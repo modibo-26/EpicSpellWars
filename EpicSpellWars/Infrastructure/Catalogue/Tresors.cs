@@ -5,22 +5,32 @@ using Action = EpicSpellWars.Domain.Entities.Action;
 namespace EpicSpellWars.Infrastructure.Catalogue;
 
 // Les 25 Tresors (permanents face visible, chacun en 1 exemplaire). Texte = data/tresors.json (charge
-// par TexteLoader, jointure Id). 2e PILIER (declencheurs) — tranche D : modele d'abonnement par TriggerType.
-//   SurInitiative = se declenche a votre tour / sur l'ordre du tour (premier/dernier a jouer, egalite).
-//   Immediat      = effet one-shot « Lorsque vous gagnez ce Tresor ».
-//   Passif        = reactif/conditionnel permanent ou capacite activee payante.
-// ENCODES (representants tranche D) : Braguette de Cthulhu (SurInitiative debut de tour), Bébé Monstre
-// (Immediat, partie one-shot), Liste du Père Fouettard (passif data-driven BonusSangParKill, lu dans OnMort).
-// Les autres restent Effets=[] : ils dependent de mecaniques non construites (relance de des, redirection,
-// capacites ACTIVEES a une phase dediee, Magie feroce, prediction, modif de Glyphes, ordre du tour).
+// par TexteLoader, jointure Id). 2e PILIER (declencheurs) — modes de declenchement :
+//   Immediat (TriggerType)   = effet one-shot « Lorsque vous gagnez ce Tresor » (DeclencherTresor a GagnerTresor).
+//   Activation (Tresor.Activation) = capacite payante « Payez X 🩸 » au tour d'Initiative (phase Standby).
+//   Clauses (Tresor.Clauses) = clauses de PHASE DebutTour / FinTour (pipeline de l'ordonnanceur).
+//   Passif data-driven       = champ lu au goulot concerne (BonusSangParKill dans OnMort, BonusSangDonjonFinTour).
+// ENCODES : Braguette (DebutTour), Gang du Gong/Nachos/Bébé Monstre/Coupe du Tocard (Activation), Bébé Monstre
+// (Immediat), Liste du Père Fouettard + Chalisman (passifs), Menottes d'Avarice + Smoking de Location (FinTour).
+// Restent Effets=[] : mecaniques non construites (relance de des, redirection, Magie feroce, prediction,
+// modif de Glyphes, hooks de Jet, declencheurs mort/kill, Mains Poisseuses/Vers Pas Solitaires).
 public static class Tresors
 {
     public static List<Tresor> Toutes() =>
     [
-        // SurInitiative : au début de chacun de vos tours, volez 1 🩸 à n'importe quel adversaire.
-        new("Braguette de Cthulhu",
-            [new EffetSimple { Actions = [new Action { Type = TypeAction.VolerSang, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurFixe(1) }] }],
-            TriggerType.SurInitiative) { Id = "EP2-146" },
+        // DebutTour : au début de chacun de vos tours, volez 1 🩸 à n'importe quel adversaire.
+        new("Braguette de Cthulhu", [], TriggerType.Passif)
+        {
+            Id = "EP2-146",
+            Clauses =
+            [
+                new ClausePhase
+                {
+                    Phase = PhaseTour.DebutTour,
+                    Effet = new EffetSimple { Actions = [new Action { Type = TypeAction.VolerSang, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurFixe(1) }] },
+                },
+            ],
+        },
         // Capacité activée : Payez 2 🩸 → 1 dégât à un ennemi par tranche complète de 5 PV qu'il possède.
         new("Gang du Gong", [], TriggerType.Passif)
         {
@@ -34,11 +44,15 @@ public static class Tresors
         },
         new("Divan le Terrible", [], TriggerType.Passif) { Id = "EP2-155" },
         new("Dés Pipés", [], TriggerType.Passif) { Id = "EP2-156" },
-        new("Chalisman", [], TriggerType.Passif) { Id = "EP2-157" },
-        new("Vers Pas Solitaires", [], TriggerType.SurInitiative) { Id = "EP2-158" },
+        // Immediat : Prenez le Donjon. Passif : +1 🩸 supplémentaire au gain « Donjon » de fin de tour (BonusSangDonjonFinTour).
+        new("Chalisman",
+            [new EffetSimple { Actions = [new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi }] }],
+            TriggerType.Immediat) { Id = "EP2-157", BonusSangDonjonFinTour = 1 },
+        // GAP : « égalité à l'initiative, payez 1 pour gagner » = hook de résolution d'ordre (hors pipeline de phases).
+        new("Vers Pas Solitaires", [], TriggerType.Passif) { Id = "EP2-158" },
         new("Dissuasion Nucléaire", [], TriggerType.Passif) { Id = "EP2-159" },
         new("Baguette Bicéphale", [], TriggerType.Passif) { Id = "EP2-160" },
-        new("Manuel de Cryptozoic", [], TriggerType.SurInitiative) { Id = "EP2-161" },
+        new("Manuel de Cryptozoic", [], TriggerType.Passif) { Id = "EP2-161" },
         new("Pièces du Destin", [], TriggerType.Immediat) { Id = "EP2-162" },
         new("Buffet à Volonté", [], TriggerType.Passif) { Id = "EP2-163" },
         // Capacité activée : Payez 3 🩸 → soignez-vous de 2 PV.
@@ -83,16 +97,48 @@ public static class Tresors
                 SiPaye = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurFixe(2) }],
             },
         },
-        new("Menottes d'Avarice", [], TriggerType.SurInitiative) { Id = "EP2-169" },
+        // FinTour : si vous êtes le dernier à jouer dans l'ordre du tour, gagnez un Trésor.
+        new("Menottes d'Avarice", [], TriggerType.Passif)
+        {
+            Id = "EP2-169",
+            Clauses =
+            [
+                new ClausePhase
+                {
+                    Phase = PhaseTour.FinTour,
+                    Condition = ctx => ctx.LanceurEstDernierAJouer,
+                    Effet = new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerTresor, Cible = Cible.Soi }] },
+                },
+            ],
+        },
         new("Fusil à Triple Canon", [], TriggerType.Passif) { Id = "EP2-171" },
         new("Avis de Recherche", [], TriggerType.Immediat) { Id = "EP2-172" },
-        new("Mains Poisseuses !", [], TriggerType.SurInitiative) { Id = "EP2-173" },
+        // GAP : « si premier à jouer, échangez CE Trésor contre un Trésor adverse » = besoin de l'identité du
+        // Trésor porteur de la clause (échange de cette carte précise) + action d'échange. Phase DebutTour prête.
+        new("Mains Poisseuses !", [], TriggerType.Passif) { Id = "EP2-173" },
         // Passif data-driven : +1 🩸 (en plus des +3) à chaque kill du porteur — lu dans OnMort.
         new("Liste du Père Fouettard", [], TriggerType.Passif) { Id = "EP2-174", BonusSangParKill = 1 },
         new("Chipodada", [], TriggerType.Passif) { Id = "EP2-175" },
         new("Granoloup", [], TriggerType.Passif) { Id = "EP2-176" },
         new("Bouclier Anti-Fiente", [], TriggerType.Passif) { Id = "EP2-177" },
         new("Globe Sacrificiel", [], TriggerType.Passif) { Id = "EP2-178" },
-        new("Smoking de Location", [], TriggerType.SurInitiative) { Id = "EP2-179" },
+        // FinTour : si vous êtes (à égalité) le sorcier le plus faible en fin de tour, soin 2 PV + gagnez un Trésor.
+        new("Smoking de Location", [], TriggerType.Passif)
+        {
+            Id = "EP2-179",
+            Clauses =
+            [
+                new ClausePhase
+                {
+                    Phase = PhaseTour.FinTour,
+                    Condition = ctx => ctx.LanceurEstLePlusFaible,
+                    Effet = new EffetSimple { Actions =
+                    [
+                        new Action { Type = TypeAction.Soin, Cible = Cible.Soi, Valeur = new ValeurFixe(2) },
+                        new Action { Type = TypeAction.GagnerTresor, Cible = Cible.Soi },
+                    ] },
+                },
+            ],
+        },
     ];
 }

@@ -40,6 +40,7 @@ public class OrdonnanceurDeTour
             .ThenByDescending(s => InitiativeDe(sorts[s]))
             .ThenByDescending(s => deDepart[s])
             .ToList();
+        ctx.OrdreDuTour = ordre;   // pour les clauses « si premier/dernier à jouer »
 
         foreach (var lanceur in ordre)
         {
@@ -50,18 +51,17 @@ public class OrdonnanceurDeTour
             ctx.CreatureEnCours = null;
             ctx.BonusDesJetCreature = 0;   // bonus de dés (Shub payé) à portée du tour du lanceur
 
-            // Trésors « SurInitiative » au DÉBUT du tour de leur porteur (Braguette de Cthulhu). Les Trésors
-            // SurInitiative conditionnés à l'ORDRE (premier/dernier à jouer) gardent Effets=[] → inertes ici ;
-            // ils se brancheront à leur place propre (cf. GAP tranche D).
-            foreach (var tresor in lanceur.Tresors.Where(t => t.TriggerType == TriggerType.SurInitiative).ToList())
-                ctx.DeclencherTresor(tresor, lanceur);
+            // Phase DEBUT DE TOUR : clauses « début de votre tour » des Trésors du porteur (Braguette de
+            // Cthulhu, Mains Poisseuses « si premier à jouer »...).
+            ctx.DeclencherClausesPhase(PhaseTour.DebutTour, [lanceur]);
 
-            // Phase d'activation des Trésors (tour d'Initiative) : le porteur peut activer UNE capacité
-            // « Payez X 🩸 » (paiement Trésor 1×/tour). Le choix (quel Trésor, ou aucun) est délégué au hook.
+            // Phase STANDBY : le porteur peut activer UNE capacité « Payez X 🩸 » (paiement Trésor 1×/tour).
+            // Le choix (quel Trésor, ou aucun) est délégué au hook.
             var activables = lanceur.Tresors.Where(t => t.Activation is not null).ToList();
             if (activables.Count > 0)
                 ctx.ChoisirActivationTresor(lanceur, activables)?.Activation!.Execute(ctx);
 
+            // Phase SORT : résolution du sort déclaré.
             ctx.SortEnCours = [..sorts[lanceur]];   // copie : ResoudreSort/nettoyage ne touchent pas l'entree
 
             ctx.ResoudreSort();
@@ -75,8 +75,13 @@ public class OrdonnanceurDeTour
             lanceur.ADejaJoueCeTour = true;
         }
 
-        // Fin de tour : le contrôleur du Donjon le conserve et gagne +1 Sang ([[donjon-controle]]). S'applique
-        // même s'il est mort (le Sang persiste). Sorcier sous Terre : un contrôleur MORT gagne 4 au lieu de 1.
+        // Phase FIN DE TOUR (une seule fois, tous les porteurs) : clauses « fin de tour » (Menottes d'Avarice
+        // « si dernier à jouer », Smoking de Location « si le plus faible »...).
+        ctx.DeclencherClausesPhase(PhaseTour.FinTour, ctx.Sorciers);
+
+        // Fin de tour : le contrôleur du Donjon le conserve et gagne du Sang ([[donjon-controle]]). S'applique
+        // même mort (le Sang persiste). Sorcier sous Terre : un contrôleur MORT gagne 4 au lieu de 1 ;
+        // Chalisman : +1 supplémentaire (BonusSangDonjonFinTour).
         if (ctx.ControleurDonjon is { } gardien)
         {
             var gain = 1;
@@ -86,6 +91,7 @@ public class OrdonnanceurDeTour
                 if (gainSiMort > 0)
                     gain = gainSiMort;
             }
+            gain += gardien.Tresors.Sum(t => t.BonusSangDonjonFinTour);
             gardien.Sang = Math.Min(gardien.SangMax, gardien.Sang + gain);
         }
 

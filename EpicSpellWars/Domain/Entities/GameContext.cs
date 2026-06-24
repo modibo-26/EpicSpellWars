@@ -13,6 +13,18 @@ public class GameContext
     // si on controle le Donjon au moment de jouer la carte). Ex. EffetConditionnel(ctx => ctx.LanceurControleDonjon).
     public bool LanceurControleDonjon => ControleurDonjon == Lanceur;
 
+    // Ordre de jeu effectif du tour (sorciers ayant joué, dans l'ordre), renseigné par OrdonnanceurDeTour.
+    // Sert aux clauses « si vous êtes premier/dernier à jouer ».
+    public IReadOnlyList<Sorcier> OrdreDuTour { get; set; } = [];
+
+    // Le lanceur est-il le premier / le dernier à jouer ce tour ? (clauses Mains Poisseuses / Menottes d'Avarice.)
+    public bool LanceurEstPremierAJouer => OrdreDuTour.Count > 0 && OrdreDuTour[0] == Lanceur;
+    public bool LanceurEstDernierAJouer => OrdreDuTour.Count > 0 && OrdreDuTour[^1] == Lanceur;
+
+    // Le lanceur est-il (à égalité) le sorcier vivant le plus faible en PV ? (clause Smoking de Location.)
+    public bool LanceurEstLePlusFaible =>
+        Lanceur.EstVivant && Sorciers.Where(s => s.EstVivant).Min(s => s.PointsDeVie) == Lanceur.PointsDeVie;
+
     public List<Carte> PiochePrincipale { get; set; } = [];
     public List<Carte> Defausse { get; set; } = [];
     public List<Tresor> PiocheTresor { get; set; } = [];
@@ -271,9 +283,27 @@ public class GameContext
         DerniereCible = ancienneCible;
     }
 
-    // Declenche les effets d'un Tresor (tranche D : Immediat « Lorsque vous gagnez ce Tresor », SurInitiative
-    // « au debut de votre tour ») du point de vue de son proprietaire.
+    // Declenche les effets d'un Tresor (Immediat « Lorsque vous gagnez ce Tresor ») du point de vue du proprietaire.
     public void DeclencherTresor(Tresor tresor, Sorcier proprietaire) => DeclencherEffets(tresor.Effets, proprietaire);
+
+    // Pipeline de phases : declenche les clauses d'une PHASE de tour pour une liste de porteurs. Chaque clause
+    // s'execute du POINT DE VUE de son porteur (Lanceur temporaire, comme DeclencherEffets) si sa Condition est
+    // remplie. Appele par OrdonnanceurDeTour (DebutTour par sorcier ; FinTour une fois pour tous).
+    public void DeclencherClausesPhase(PhaseTour phase, IEnumerable<Sorcier> porteurs)
+    {
+        foreach (var porteur in porteurs.ToList())
+            foreach (var clause in porteur.Tresors.SelectMany(t => t.Clauses).Where(c => c.Phase == phase).ToList())
+            {
+                var ancienLanceur = Lanceur;
+                var ancienneCible = DerniereCible;
+                Lanceur = porteur;
+                DerniereCible = null;
+                if (clause.Condition?.Invoke(this) ?? true)
+                    clause.Effet.Execute(this);
+                Lanceur = ancienLanceur;
+                DerniereCible = ancienneCible;
+            }
+    }
 
     // Vide la file des effets differes (debut de manche) : chacun joue du point de vue de son proprietaire.
     public void DeclencherEffetsDifferes()

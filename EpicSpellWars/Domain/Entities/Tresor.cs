@@ -14,4 +14,12 @@ public class Tresor(string nom, List<IEffet> effets, TriggerType triggerType) : 
     // Capacité ACTIVÉE « Payez X 🩸 : <effet> », utilisable au tour d'Initiative du porteur (gère son propre
     // paiement via TenterPayerTresor). null = Trésor sans capacité activée. Déclenchée par l'ordonnanceur.
     public IEffet? Activation { get; init; }
+
+    // Clauses déclenchées à une PHASE de tour (DebutTour / FinTour), exécutées par le pipeline de
+    // l'ordonnanceur du point de vue du porteur (cf. [[tresors-effets-speciaux]]).
+    public List<ClausePhase> Clauses { get; init; } = [];
+
+    // Passif data-driven : 🩸 EN PLUS du gain « Donjon » de fin de tour quand le porteur contrôle le Donjon
+    // (Chalisman = 1). Lu dans OrdonnanceurDeTour. 0 = pas de bonus.
+    public int BonusSangDonjonFinTour { get; init; }
 }
