@@ -43,4 +43,12 @@ public class Tresor(string nom, List<IEffet> effets, TriggerType triggerType) : 
     // Bœuf aux Hormones : après avoir résolu une Créature, le porteur peut payer 3 🩸 pour la GARDER
     // (lu dans GameContext.ResoudreComposant). Coût de Trésor (1×/tour).
     public bool GarderCreaturePayant { get; init; }
+
+    // Relances de dés sur un Jet de puissance (lues dans GameContext.AppliquerRelancesJet) :
+    //   RelanceLesUns    : relance auto tous les 1 (Dés Pipés).
+    //   RelanceJetEntier : option de relancer TOUT le jet, 1×/tour (Manuel de Cryptozoic).
+    //   RelanceUnDePayant : Payez 2 🩸 → relance le plus petit dé (Globe Sacrificiel).
+    public bool RelanceLesUns { get; init; }
+    public bool RelanceJetEntier { get; init; }
+    public bool RelanceUnDePayant { get; init; }
 }

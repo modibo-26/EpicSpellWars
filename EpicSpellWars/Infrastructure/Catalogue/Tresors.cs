@@ -44,7 +44,8 @@ public static class Tresors
         },
         // Passif (Magie féroce) : un joker révèle 2 cartes du type cherché au lieu d'1, ajoutées au sort.
         new("Divan le Terrible", [], TriggerType.Passif) { Id = "EP2-155", JokerTrouveDeux = true },
-        new("Dés Pipés", [], TriggerType.Passif) { Id = "EP2-156" },
+        // Passif (relance) : relancez tous les 1 obtenus lors de vos Jets de puissance.
+        new("Dés Pipés", [], TriggerType.Passif) { Id = "EP2-156", RelanceLesUns = true },
         // Immediat : Prenez le Donjon. Passif : +1 🩸 supplémentaire au gain « Donjon » de fin de tour (BonusSangDonjonFinTour).
         new("Chalisman",
             [new EffetSimple { Actions = [new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi }] }],
@@ -53,7 +54,8 @@ public static class Tresors
         new("Vers Pas Solitaires", [], TriggerType.Passif) { Id = "EP2-158" },
         new("Dissuasion Nucléaire", [], TriggerType.Passif) { Id = "EP2-159" },
         new("Baguette Bicéphale", [], TriggerType.Passif) { Id = "EP2-160" },
-        new("Manuel de Cryptozoic", [], TriggerType.Passif) { Id = "EP2-161" },
+        // Passif (relance) : à chacun de vos tours, vous pouvez relancer le Jet entier d'une Créature (1×/tour).
+        new("Manuel de Cryptozoic", [], TriggerType.Passif) { Id = "EP2-161", RelanceJetEntier = true },
         new("Pièces du Destin", [], TriggerType.Immediat) { Id = "EP2-162" },
         new("Buffet à Volonté", [], TriggerType.Passif) { Id = "EP2-163" },
         // Capacité activée : Payez 3 🩸 → soignez-vous de 2 PV.
@@ -128,7 +130,8 @@ public static class Tresors
         new("Granoloup", [], TriggerType.Passif) { Id = "EP2-176", BonusDegatsCreatureJet = 1 },
         // Passif : à chaque fois qu'un adversaire pioche un crevé, lancez un dé ; 5-6 → soin 1 PV (PiocherSorcierCreve).
         new("Bouclier Anti-Fiente", [], TriggerType.Passif) { Id = "EP2-177", SoigneSurPiocheCreveAdverse = true },
-        new("Globe Sacrificiel", [], TriggerType.Passif) { Id = "EP2-178" },
+        // Passif (relance) : Payez 2 🩸 → relancez un dé (le plus petit, par politique du moteur).
+        new("Globe Sacrificiel", [], TriggerType.Passif) { Id = "EP2-178", RelanceUnDePayant = true },
         // FinTour : si vous êtes (à égalité) le sorcier le plus faible en fin de tour, soin 2 PV + gagnez un Trésor.
         new("Smoking de Location", [], TriggerType.Passif)
         {

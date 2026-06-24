@@ -13,6 +13,9 @@ public class EffetJetDePuissance : EffetBranchement
     protected override int CalculerNbDes(GameContext context) =>
         context.CompterGlyphes(Glyphe) + context.BonusDesJet(this);
 
+    // Relances de dés du lanceur (Dés Pipés / Manuel de Cryptozoic / Globe Sacrificiel) — uniquement sur un Jet.
+    protected override void AjusterDes(List<int> des, GameContext context) => context.AppliquerRelancesJet(des);
+
     // Chipodada : 🩸 si le résultat du Jet atteint le seuil d'un Trésor du lanceur.
     protected override void ApresLancer(int somme, GameContext context) => context.ApresJetDePuissance(somme);
 

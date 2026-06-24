@@ -23,6 +23,7 @@ public class OrdonnanceurDeTour
             s.ADejaJoueCeTour = false;
             s.ADejaPayeCeTour = false;
             s.ADejaPayeTresorCeTour = false;
+            s.ADejaRelanceJetCeTour = false;
         }
 
         // Memorise les sorts declares + reset de l'etat de resolution a portee tour (Reactions cross-wizard).

@@ -122,6 +122,34 @@ public class GameContext
         return bonus;
     }
 
+    // Relances de des d'un Jet de puissance par les Tresors du lanceur (des = dés tirés, modifies IN PLACE).
+    // Ordre : Manuel de Cryptozoic (relance TOUT le jet, choix 1x/tour, on garde le nouveau) → Dés Pipés
+    // (relance auto tous les 1) → Globe Sacrificiel (Payez 2 → relance le plus petit dé).
+    public void AppliquerRelancesJet(List<int> des)
+    {
+        if (des.Count == 0)
+            return;
+
+        // Manuel de Cryptozoic : relancer le Jet entier d'une de vos Créatures, 1x/tour, garder le résultat.
+        if (Lanceur.Tresors.Any(t => t.RelanceJetEntier) && !Lanceur.ADejaRelanceJetCeTour
+            && ChoisirOption(Lanceur, "Relancer entièrement le Jet de puissance ?"))
+        {
+            Lanceur.ADejaRelanceJetCeTour = true;
+            for (var i = 0; i < des.Count; i++)
+                des[i] = LancerDe();
+        }
+
+        // Dés Pipés : relance tous les 1 (une fois ; le nouveau résultat est conservé même si c'est un 1).
+        if (Lanceur.Tresors.Any(t => t.RelanceLesUns))
+            for (var i = 0; i < des.Count; i++)
+                if (des[i] == 1)
+                    des[i] = LancerDe();
+
+        // Globe Sacrificiel : Payez 2 🩸 → relance le plus petit dé (politique : on relance le pire).
+        if (Lanceur.Tresors.Any(t => t.RelanceUnDePayant) && TenterPayerTresor(2, "Relancez un dé"))
+            des[des.IndexOf(des.Min())] = LancerDe();
+    }
+
     // Apres le tirage d'un Jet de puissance : Tresors du lanceur qui octroient du 🩸 sur un resultat eleve
     // (Chipodada : +1 🩸 si le resultat atteint SeuilBonusSangJet). Appele par EffetJetDePuissance.
     public void ApresJetDePuissance(int somme)

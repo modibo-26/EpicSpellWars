@@ -26,6 +26,9 @@ public class Sorcier(string nom)
     // (rulebook : « le cout d'un Tresor ne peut etre paye qu'une fois par tour, a votre tour d'Initiative »).
     public bool ADejaPayeTresorCeTour { get; set; }
 
+    // A deja relance un Jet de puissance entier ce tour (Manuel de Cryptozoic, 1x/tour). Reset en debut de tour.
+    public bool ADejaRelanceJetCeTour { get; set; }
+
     // Reduction one-shot du nombre de cartes a piocher au prochain CompleterMain (Doigt Magique : le vainqueur
     // d'une manche pioche 2 cartes de moins au debut de la suivante). Consommee (remise a 0) des qu'appliquee.
     public int ReductionPiocheProchainTour { get; set; }

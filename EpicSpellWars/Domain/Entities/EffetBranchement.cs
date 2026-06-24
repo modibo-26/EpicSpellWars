@@ -11,11 +11,14 @@ public class EffetBranchement : IEffet
 
     public void Execute(GameContext context)
     {
-        var somme = 0;
         var nbDes = CalculerNbDes(context);
+        var des = new List<int>(nbDes);
         for (var i = 0; i < nbDes; i++)
-            somme += context.LancerDe();
+            des.Add(context.LancerDe());
 
+        AjusterDes(des, context);   // hook de RELANCE (Dés Pipés / Manuel / Globe) ; no-op hors Jet de puissance
+
+        var somme = des.Sum();
         ApresLancer(somme, context);   // hook sur le RÉSULTAT du jet (Chipodada : 🩸 si >= 13)
 
         var tranche = Tranches.Where(t => somme >= t.Seuil).MaxBy(t => t.Seuil);
@@ -33,6 +36,11 @@ public class EffetBranchement : IEffet
 
     // Nb de des a lancer. Fixe par defaut ; le Jet de puissance le redefinit via les Glyphes.
     protected virtual int CalculerNbDes(GameContext context) => NbDes;
+
+    // Hook de RELANCE des des, juste apres le tirage. No-op de base ; le Jet de puissance y applique les
+    // Tresors de relance du lanceur (Dés Pipés, Manuel de Cryptozoic, Globe Sacrificiel). Un simple
+    // branchement-par-de (Depipax) n'est PAS un Jet de puissance → pas de relance.
+    protected virtual void AjusterDes(List<int> des, GameContext context) { }
 
     // Hook sur le resultat du jet (somme), AVANT le branchement de tranche. No-op de base ; le Jet de
     // puissance y applique les modificateurs lies au resultat (Chipodada). N'est PAS appele pour un simple
