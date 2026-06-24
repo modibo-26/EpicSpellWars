@@ -50,15 +50,16 @@ public static class Tresors
         new("Chalisman",
             [new EffetSimple { Actions = [new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi }] }],
             TriggerType.Immediat) { Id = "EP2-157", BonusSangDonjonFinTour = 1 },
-        // GAP : « égalité à l'initiative, payez 1 pour gagner » = hook de résolution d'ordre (hors pipeline de phases).
-        new("Vers Pas Solitaires", [], TriggerType.Passif) { Id = "EP2-158" },
+        // Passif : à égalité d'initiative, payez 1 🩸 pour remporter l'égalité (priorité de départage, dans l'ordonnanceur).
+        new("Vers Pas Solitaires", [], TriggerType.Passif) { Id = "EP2-158", RemporteEgaliteInitiativePayant = true },
         // Passif (réactif) : seule cible d'un sort adverse → Payez 3 🩸 pour rediriger le sort vers un autre sorcier.
         new("Dissuasion Nucléaire", [], TriggerType.Passif) { Id = "EP2-159", RedirigeSortSeuleCible = true },
         // Passif : sur VOTRE sort, inversez gauche↔droite (pour tous les effets du sort).
         new("Baguette Bicéphale", [], TriggerType.Passif) { Id = "EP2-160", InverseGaucheDroite = true },
         // Passif (relance) : à chacun de vos tours, vous pouvez relancer le Jet entier d'une Créature (1×/tour).
         new("Manuel de Cryptozoic", [], TriggerType.Passif) { Id = "EP2-161", RelanceJetEntier = true },
-        new("Pièces du Destin", [], TriggerType.Immediat) { Id = "EP2-162" },
+        // Immediat : annoncez le prochain sorcier tué ; si juste, +2 🩸 (résolu dans OnMort via GameContext.Prediction).
+        new("Pièces du Destin", [new EffetPiecesDuDestin()], TriggerType.Immediat) { Id = "EP2-162" },
         // Immediat : glissez 1 Composant de votre main sous ce Trésor ; son Glyphe compte dans chacun de vos sorts.
         new("Buffet à Volonté", [new EffetBuffet()], TriggerType.Immediat) { Id = "EP2-163" },
         // Capacité activée : Payez 3 🩸 → soignez-vous de 2 PV.
@@ -123,9 +124,21 @@ public static class Tresors
         new("Fusil à Triple Canon", [], TriggerType.Passif) { Id = "EP2-171", SangParTroisGlyphes = true },
         // Immediat : placez une prime au milieu + gagnez un autre Trésor ; le prochain tueur gagne 3 🩸 (OnMort).
         new("Avis de Recherche", [new EffetAvisDeRecherche()], TriggerType.Immediat) { Id = "EP2-172" },
-        // GAP : « si premier à jouer, échangez CE Trésor contre un Trésor adverse » = besoin de l'identité du
-        // Trésor porteur de la clause (échange de cette carte précise) + action d'échange. Phase DebutTour prête.
-        new("Mains Poisseuses !", [], TriggerType.Passif) { Id = "EP2-173" },
+        // DebutTour, si premier à jouer : échangez ce Trésor contre n'importe quel Trésor d'un adversaire
+        // (EffetMainsPoisseuses lit TresorClauseEnCours pour connaître « ce Trésor »).
+        new("Mains Poisseuses !", [], TriggerType.Passif)
+        {
+            Id = "EP2-173",
+            Clauses =
+            [
+                new ClausePhase
+                {
+                    Phase = PhaseTour.DebutTour,
+                    Condition = ctx => ctx.LanceurEstPremierAJouer,
+                    Effet = new EffetMainsPoisseuses(),
+                },
+            ],
+        },
         // Passif data-driven : +1 🩸 (en plus des +3) à chaque kill du porteur — lu dans OnMort.
         new("Liste du Père Fouettard", [], TriggerType.Passif) { Id = "EP2-174", BonusSangParKill = 1 },
         // Passif (hook de Jet) : +1 🩸 à chaque fois que vous obtenez 13 ou plus à un Jet de puissance.

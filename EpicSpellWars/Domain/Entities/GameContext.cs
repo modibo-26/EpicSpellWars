@@ -41,6 +41,14 @@ public class GameContext
     // Reinitialise au debut de chaque manche (les Tresors sont defausses en fin de manche).
     public int PrimesEnJeu { get; set; }
 
+    // Pièces du Destin : annonce « le prochain sorcier tué » (Devin = porteur, Predit = sorcier annonce). Resolue
+    // a la 1re mort (OnMort) : si Predit == mort, Devin gagne 2 🩸. Reset a DebutManche.
+    public (Sorcier Devin, Sorcier Predit)? Prediction { get; set; }
+
+    // Tresor porteur de la clause de phase en cours d'execution (DeclencherClausesPhase) ; permet a une clause
+    // d'agir sur « ce Tresor » (Mains Poisseuses : echanger CETTE carte). Null hors d'une clause.
+    public Tresor? TresorClauseEnCours { get; private set; }
+
     // Sort en cours de resolution (composants du lanceur ce tour) et creature en cours.
     public List<CarteSort> SortEnCours { get; set; } = [];
     public CarteSort? CreatureEnCours { get; set; }
@@ -233,6 +241,15 @@ public class GameContext
                 victime.Sang = Math.Min(victime.SangMax, victime.Sang + bonusFin);
         }
 
+        // Pièces du Destin : cette mort est « le prochain tué » → si elle correspond à l'annonce, le devin gagne
+        // 2 🩸 (même si c'est lui). La prédiction est consommée dans tous les cas (c'était LE prochain tué).
+        if (Prediction is { } pred)
+        {
+            if (pred.Predit == victime)
+                pred.Devin.Sang = Math.Min(pred.Devin.SangMax, pred.Devin.Sang + 2);
+            Prediction = null;
+        }
+
         // Tranche E : la victime pioche un Sorcier creve (consolation du mort).
         PiocherSorcierCreve(victime);
     }
@@ -367,17 +384,25 @@ public class GameContext
     public void DeclencherClausesPhase(PhaseTour phase, IEnumerable<Sorcier> porteurs)
     {
         foreach (var porteur in porteurs.ToList())
-            foreach (var clause in porteur.Tresors.SelectMany(t => t.Clauses).Where(c => c.Phase == phase).ToList())
+        {
+            // Matérialisé : une clause peut modifier porteur.Tresors (Mains Poisseuses échange CE Trésor).
+            var clauses = porteur.Tresors
+                .SelectMany(t => t.Clauses.Where(c => c.Phase == phase).Select(c => (Tresor: t, Clause: c)))
+                .ToList();
+            foreach (var (tresor, clause) in clauses)
             {
                 var ancienLanceur = Lanceur;
                 var ancienneCible = DerniereCible;
                 Lanceur = porteur;
                 DerniereCible = null;
+                TresorClauseEnCours = tresor;
                 if (clause.Condition?.Invoke(this) ?? true)
                     clause.Effet.Execute(this);
+                TresorClauseEnCours = null;
                 Lanceur = ancienLanceur;
                 DerniereCible = ancienneCible;
             }
+        }
     }
 
     // Vide la file des effets differes (debut de manche) : chacun joue du point de vue de son proprietaire.

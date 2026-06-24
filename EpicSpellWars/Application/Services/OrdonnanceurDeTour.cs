@@ -36,9 +36,21 @@ public class OrdonnanceurDeTour
         // De de depart tire UNE seule fois par sorcier (sinon OrderBy reevaluerait la cle).
         var deDepart = aJouer.ToDictionary(s => s, _ => ctx.LancerDe());
 
+        // Vers Pas Solitaires : un porteur à égalité d'initiative (même nb de composants ET même Initiative
+        // qu'un autre) peut payer 1 🩸 pour remporter l'égalité et jouer avant les autres (priorité de départage).
+        var prioriteEgalite = new HashSet<Sorcier>();
+        foreach (var s in aJouer.Where(s => s.Tresors.Any(t => t.RemporteEgaliteInitiativePayant)))
+        {
+            var aEgalite = aJouer.Any(o => o != s && sorts[o].Count == sorts[s].Count && InitiativeDe(sorts[o]) == InitiativeDe(sorts[s]));
+            ctx.Lanceur = s;   // le porteur paie (TenterPayerTresor débite le Lanceur)
+            if (aEgalite && ctx.TenterPayerTresor(1, "Vers Pas Solitaires : remporter l'égalité"))
+                prioriteEgalite.Add(s);
+        }
+
         var ordre = aJouer
             .OrderBy(s => sorts[s].Count)
             .ThenByDescending(s => InitiativeDe(sorts[s]))
+            .ThenByDescending(s => prioriteEgalite.Contains(s))   // Vers Pas Solitaires gagne l'égalité
             .ThenByDescending(s => deDepart[s])
             .ToList();
         ctx.OrdreDuTour = ordre;   // pour les clauses « si premier/dernier à jouer »
@@ -194,6 +206,7 @@ public class OrdonnanceurDeTour
         ctx.ControleurDonjon = null;
         ctx.Manche++;
         ctx.PrimesEnJeu = 0;                         // les primes (Avis de Recherche) ne survivent pas à la manche
+        ctx.Prediction = null;                       // la prédiction (Pièces du Destin) ne survit pas à la manche
         ctx.ReinitialiserJetonDernierSurvivant();   // nouvelle bataille → un nouveau jeton Dernier Survivant en jeu
 
         // Réveil : chaque sorcier repart à PV de départ (les morts reviennent pour la nouvelle manche) et son

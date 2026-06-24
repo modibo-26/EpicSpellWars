@@ -62,4 +62,9 @@ public class Tresor(string nom, List<IEffet> effets, TriggerType triggerType) : 
     //     peut payer 3 🩸 pour rediriger le sort vers un autre sorcier (pas le lanceur).
     public bool InverseGaucheDroite { get; init; }
     public bool RedirigeSortSeuleCible { get; init; }
+
+    // Vers Pas Solitaires : à égalité d'initiative, le porteur peut payer 1 🩸 pour remporter l'égalité
+    // (priorité de départage, lue dans OrdonnanceurDeTour). Mains Poisseuses n'a pas de champ : clause DebutTour
+    // + EffetMainsPoisseuses ; Pièces du Destin : Immediat EffetPiecesDuDestin + GameContext.Prediction.
+    public bool RemporteEgaliteInitiativePayant { get; init; }
 }
