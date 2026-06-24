@@ -33,7 +33,7 @@ public class MagieFeroceDeclarationTests
         var joker = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
         var sort = new List<CarteSort> { joker };
 
-        t.Ctx.ResoudreJokersDuSort(sort);
+        t.Ctx.ResoudreJokersDuSort(sort, t.Merlin);
 
         Assert.Equal([qualite], sort);              // joker → 1re Qualité révélée
         Assert.Contains(joker, t.Ctx.Defausse);     // joker défaussé

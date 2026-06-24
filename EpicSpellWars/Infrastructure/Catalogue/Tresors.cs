@@ -42,7 +42,8 @@ public static class Tresors
                 SiPaye = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurParTrancheDePv(1, 5) }],
             },
         },
-        new("Divan le Terrible", [], TriggerType.Passif) { Id = "EP2-155" },
+        // Passif (Magie féroce) : un joker révèle 2 cartes du type cherché au lieu d'1, ajoutées au sort.
+        new("Divan le Terrible", [], TriggerType.Passif) { Id = "EP2-155", JokerTrouveDeux = true },
         new("Dés Pipés", [], TriggerType.Passif) { Id = "EP2-156" },
         // Immediat : Prenez le Donjon. Passif : +1 🩸 supplémentaire au gain « Donjon » de fin de tour (BonusSangDonjonFinTour).
         new("Chalisman",
@@ -66,7 +67,8 @@ public static class Tresors
                 SiPaye = [new Action { Type = TypeAction.Soin, Cible = Cible.Soi, Valeur = new ValeurFixe(2) }],
             },
         },
-        new("Bœuf aux Hormones", [], TriggerType.Passif) { Id = "EP2-165" },
+        // Passif (Payez 3) : après avoir résolu une Créature de votre sort, payez 3 🩸 pour la GARDER.
+        new("Bœuf aux Hormones", [], TriggerType.Passif) { Id = "EP2-165", GarderCreaturePayant = true },
         // Passif : si votre mort met fin à la manche, +3 🩸 (BonusSangMortFinManche, lu dans OnMort).
         // Capacité activée : Payez 1 🩸 → soignez-vous de 1 PV (1×/tour, assuré par la limite de paiement Trésor).
         new("Coupe du Tocard", [], TriggerType.Passif)

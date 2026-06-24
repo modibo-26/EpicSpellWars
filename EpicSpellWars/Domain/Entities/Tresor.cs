@@ -36,4 +36,11 @@ public class Tresor(string nom, List<IEffet> effets, TriggerType triggerType) : 
     //   BonusDegatsCreatureJet : +n à chaque instance de dégâts d'un Jet du porteur (Granoloup = 1).
     public int SeuilBonusSangJet { get; init; }
     public int BonusDegatsCreatureJet { get; init; }
+
+    // Divan le Terrible : un joker Magie féroce révèle 2 cartes du type au lieu d'1 (lu dans ResoudreJokersDuSort).
+    public bool JokerTrouveDeux { get; init; }
+
+    // Bœuf aux Hormones : après avoir résolu une Créature, le porteur peut payer 3 🩸 pour la GARDER
+    // (lu dans GameContext.ResoudreComposant). Coût de Trésor (1×/tour).
+    public bool GarderCreaturePayant { get; init; }
 }

@@ -362,17 +362,22 @@ public class GameContext
     // le joker disparaît sans remplacement. Appelé avant la résolution, pour que l'ordre du tour et le Jet
     // portent sur de vraies cartes. NB : la nuance « joker en Destination = Initiative 0 » n'est pas modélisée
     // (l'ordre utilise l'Initiative de la carte révélée) — simplification assumée.
-    public void ResoudreJokersDuSort(List<CarteSort> sort)
+    // `proprietaire` = le sorcier qui déclare le sort (ses Trésors modifient la résolution : Divan le Terrible
+    // → 2 cartes révélées par joker au lieu d'1).
+    public void ResoudreJokersDuSort(List<CarteSort> sort, Sorcier proprietaire)
     {
+        var nombre = proprietaire.Tresors.Any(t => t.JokerTrouveDeux) ? 2 : 1;   // Divan le Terrible
         for (var i = 0; i < sort.Count; i++)
             if (sort[i] is MagieFeroce joker)
             {
-                var reelle = ResoudreMagieFeroce(joker);
                 Defausse.Add(joker);
-                if (reelle is not null)
-                    sort[i] = reelle;
-                else
-                    sort.RemoveAt(i--);
+                var trouvees = new List<CarteSort>();
+                for (var n = 0; n < nombre; n++)
+                    if (ResoudreMagieFeroce(joker) is { } reelle)
+                        trouvees.Add(reelle);
+                sort.RemoveAt(i);
+                sort.InsertRange(i, trouvees);
+                i += trouvees.Count - 1;   // sauter les cartes insérées (déjà résolues, non-jokers)
             }
     }
 
@@ -574,6 +579,14 @@ public class GameContext
         foreach (var effet in composant.Effets)
             if (effet is not EffetReaction)
                 effet.Execute(this);
+
+        // Bœuf aux Hormones : apres avoir resolu une Creature non gardee, le lanceur peut payer 3 🩸 pour la
+        // GARDER (cout de Tresor, 1x/tour). CreatureEnCours = composant ici → GarderCreatureEnCours le garde.
+        if (composant.EstCreature
+            && !Lanceur.Creatures.Contains(composant)
+            && Lanceur.Tresors.Any(t => t.GarderCreaturePayant)
+            && TenterPayerTresor(3, "GARDER cette Créature"))
+            GarderCreatureEnCours();
 
         if (composant.EstCreature)
             CreatureEnCours = precedente;

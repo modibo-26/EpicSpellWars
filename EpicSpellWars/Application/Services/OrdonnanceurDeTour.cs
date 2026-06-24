@@ -137,7 +137,7 @@ public class OrdonnanceurDeTour
                 }
 
                 // Magie féroce : remplace les jokers du sort par de vraies cartes révélées de la pioche.
-                ctx.ResoudreJokersDuSort(composants);
+                ctx.ResoudreJokersDuSort(composants, s);
 
                 sorts[s] = composants;
             }
