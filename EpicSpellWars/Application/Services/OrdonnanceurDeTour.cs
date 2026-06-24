@@ -69,9 +69,18 @@ public class OrdonnanceurDeTour
         }
 
         // Fin de tour : le contrôleur du Donjon le conserve et gagne +1 Sang ([[donjon-controle]]). S'applique
-        // même s'il est mort (le Sang persiste). Sorcier sous Terre / Chalisman modifieront ce gain (tranche D/E).
+        // même s'il est mort (le Sang persiste). Sorcier sous Terre : un contrôleur MORT gagne 4 au lieu de 1.
         if (ctx.ControleurDonjon is { } gardien)
-            gardien.Sang = Math.Min(gardien.SangMax, gardien.Sang + 1);
+        {
+            var gain = 1;
+            if (!gardien.EstVivant)
+            {
+                var gainSiMort = gardien.SorciersCreves.Max(c => (int?)c.GainDonjonMortFinTour) ?? 0;
+                if (gainSiMort > 0)
+                    gain = gainSiMort;
+            }
+            gardien.Sang = Math.Min(gardien.SangMax, gardien.Sang + gain);
+        }
 
         ctx.Tour++;
         return ordre;
@@ -170,9 +179,13 @@ public class OrdonnanceurDeTour
         ctx.Manche++;
         ctx.ReinitialiserJetonDernierSurvivant();   // nouvelle bataille → un nouveau jeton Dernier Survivant en jeu
 
-        // Réveil : chaque sorcier repart à PV de départ (les morts reviennent pour la nouvelle manche).
+        // Réveil : chaque sorcier repart à PV de départ (les morts reviennent pour la nouvelle manche) et son
+        // statut « premier tué » est remis à zéro.
         foreach (var s in ctx.Sorciers)
+        {
             s.PointsDeVie = Sorcier.PvDepart;
+            s.EstPremierMortCetteManche = false;
+        }
 
         // Effets différés (Sorciers crevés MancheSuivante, etc.) — joués sur des sorciers désormais vivants.
         ctx.DeclencherEffetsDifferes();

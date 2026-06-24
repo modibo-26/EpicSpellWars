@@ -25,7 +25,7 @@ public class SorciersCrevesEtMagieFeroceTests
         t.Ctx.Appliquer(new Action { Type = TypeAction.AutoDegats, Cible = Cible.Soi, Valeur = new ValeurFixe(5) });
 
         Assert.False(t.Merlin.EstVivant);
-        Assert.Equal(2, t.Merlin.Sang);                  // Tournée d'Adieu : +2 🩸 même mort
+        Assert.Equal(4, t.Merlin.Sang);                  // Tournée d'Adieu : +2 🩸 + 2 🩸 (premier/seul tué de la manche)
         Assert.Single(t.Merlin.SorciersCreves);
     }
 

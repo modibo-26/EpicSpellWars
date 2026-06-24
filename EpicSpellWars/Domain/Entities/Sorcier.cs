@@ -30,6 +30,14 @@ public class Sorcier(string nom)
     // de la 1re carte de la pioche. Consommé (remis a false) des que ce premier sort est declare.
     public bool AugmenterPremierSort { get; set; }
 
+    // Ce sorcier est-il le PREMIER tué de la manche en cours ? Fixe au moment de sa mort (OnMort), remis a
+    // false en debut de manche. Lu par la conditionnelle de Tournee d'Adieu (« si premier tue : +2 🩸 »).
+    public bool EstPremierMortCetteManche { get; set; }
+
+    // Des supplementaires gardes pour le PROCHAIN Jet de puissance pour une Creature (Petit Ange, Passif).
+    // Persiste tant qu'il n'est pas consomme (meme d'une manche a l'autre) ; lu+consomme par GameContext.BonusDesJet.
+    public int BonusProchainJetCreature { get; set; }
+
     public List<CarteSort> Main { get; set; } = [];
     public List<CarteSort> Creatures { get; set; } = [];
     public List<Tresor> Tresors { get; set; } = [];

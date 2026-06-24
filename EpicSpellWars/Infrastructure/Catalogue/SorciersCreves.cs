@@ -14,12 +14,20 @@ public static class SorciersCreves
 {
     public static List<SorcierCreve> Toutes() =>
     [
-        // « Gardez jusqu'à votre prochain Jet pour une Créature : +1 dé » = modificateur BonusDesJet (GAP, cf. Shub-Niggurath).
-        new("Petit Ange Parti Trop Tôt", [], TriggerType.Passif) { Id = "EP2-130", Exemplaires = 3 },
+        // Passif : « +1 dé à votre prochain Jet de puissance pour une Créature » = BonusProchainJetCreature
+        // (appliqué au porteur dès la pioche, consommé au prochain Jet de Créature).
+        new("Petit Ange Parti Trop Tôt", [], TriggerType.Passif) { Id = "EP2-130", Exemplaires = 3, BonusProchainJetCreature = 1 },
 
-        // Immédiat : +2 🩸 (base encodée). // GAP : +2 🩸 si premier tué de la manche.
+        // Immédiat : +2 🩸, et +2 🩸 de plus si vous êtes le premier sorcier tué de la manche (EstPremierMortCetteManche).
         new("Tournée d'Adieu",
-            [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurFixe(2) }] }],
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurFixe(2) }] },
+                new EffetConditionnel
+                {
+                    Condition = ctx => ctx.Lanceur.EstPremierMortCetteManche,
+                    SiVrai = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurFixe(2) }],
+                },
+            ],
             TriggerType.Immediat) { Id = "EP2-134", Exemplaires = 3 },
 
         // Immédiat : volez 1 🩸 à chaque sorcier vivant (= TousAdversaires, le lanceur est mort). Complet.
@@ -27,14 +35,18 @@ public static class SorciersCreves
             [new EffetSimple { Actions = [new Action { Type = TypeAction.VolerSang, Cible = Cible.TousAdversaires, Valeur = new ValeurFixe(1) }] }],
             TriggerType.Immediat) { Id = "EP2-139", Exemplaires = 3 },
 
-        // Immédiat : prenez le Donjon (base encodée). // GAP : +4 🩸 (au lieu de 1) si Donjon en fin de tour.
+        // Immédiat : prenez le Donjon. Passif : si MORT et contrôleur du Donjon en fin de tour, gagnez 4 🩸 au
+        // lieu de 1 (GainDonjonMortFinTour, lu dans OrdonnanceurDeTour en fin de tour).
         new("Sorcier sous Terre",
             [new EffetSimple { Actions = [new Action { Type = TypeAction.PrendreDonjon, Cible = Cible.Soi }] }],
-            TriggerType.Immediat) { Id = "EP2-140", Exemplaires = 3 },
+            TriggerType.Immediat) { Id = "EP2-140", Exemplaires = 3, GainDonjonMortFinTour = 4 },
 
-        // Immédiat : +1 🩸 par jeton Dernier Survivant (base encodée). // GAP : si aucun, 1 Trésor la manche suivante.
+        // Immédiat : +1 🩸 par jeton Dernier Survivant ; si aucun, 1 Trésor au début de la manche suivante (EffetReposMerite).
         new("Repos Mérité",
-            [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurParJeton(1) }] }],
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurParJeton(1) }] },
+                new EffetReposMerite(),
+            ],
             TriggerType.Immediat) { Id = "EP2-144", Exemplaires = 4 },
 
         // MancheSuivante : le vainqueur de la manche pioche 2 cartes de moins au début de la suivante (EffetDoigtMagique).

@@ -84,9 +84,10 @@ public class FluxDeMancheTests
 
         new OrdonnanceurDeTour().JouerManche(t.Ctx);
 
-        // Gandalf : crevé à la mort (tour 1) + crevé au début du tour 2 = 2 crevés, +2 🩸 chacun.
+        // Gandalf : crevé à la mort (tour 1) + crevé au début du tour 2 = 2 crevés. Gandalf est le premier tué
+        // de la manche → chaque Tournée d'Adieu donne +2 +2 = 4, soit 8 au total.
         Assert.Equal(2, t.Gandalf.SorciersCreves.Count);
-        Assert.Equal(4, t.Gandalf.Sang);
+        Assert.Equal(8, t.Gandalf.Sang);
     }
 
     // Ronronne en Paix (crevé MancheSuivante) : à la mort, différé ; au début de la manche suivante, révèle

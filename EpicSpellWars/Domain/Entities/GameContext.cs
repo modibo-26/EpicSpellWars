@@ -84,9 +84,15 @@ public class GameContext
         SortEnCours.Count(c => c.Glyphe == glyphe)
         + Lanceur.Creatures.Count(c => c.Glyphe == glyphe);
 
-    // Des ajoutes a CE Jet de puissance par les modificateurs actifs (Shub-Niggurath paye ; plus tard
-    // Petit Ange et autres via le pilier declencheurs). Tous les Jets de puissance sont « pour une Creature ».
-    public int BonusDesJet(EffetJetDePuissance jet) => BonusDesJetCreature;
+    // Des ajoutes a CE Jet de puissance par les modificateurs actifs : BonusDesJetCreature (Shub-Niggurath
+    // paye, portee tour) + le bonus garde du Lanceur (Petit Ange, Passif). Tous les Jets de puissance sont
+    // « pour une Creature » → le bonus garde est CONSOMME ici (« jusqu'a votre prochain Jet pour une Creature »).
+    public int BonusDesJet(EffetJetDePuissance jet)
+    {
+        var bonus = BonusDesJetCreature + Lanceur.BonusProchainJetCreature;
+        Lanceur.BonusProchainJetCreature = 0;
+        return bonus;
+    }
 
     // GOULOT UNIQUE de tous les degats du jeu : inflige `montant` a `cible` (borne a 0) et detecte la
     // transition vivant→mort. Toutes les sources de degats passent ici (Actions Degats/AutoDegats + effets
@@ -121,6 +127,10 @@ public class GameContext
 
         if (victime.EstVivant)
             return;   // une Reaction a empeche la mort → pas de recompense au kill
+
+        // Premier tue de la manche ? (la victime est le seul mort a cet instant). Fige le statut pour la
+        // conditionnelle de Tournee d'Adieu, valable meme si le crevé est pioche plus tard dans la manche.
+        victime.EstPremierMortCetteManche = Sorciers.Count(s => !s.EstVivant) == 1;
 
         if (tueur != victime)
         {
@@ -167,6 +177,10 @@ public class GameContext
                 break;
             case TriggerType.MancheSuivante:
                 EffetsDifferes.Add((creve.Effets, victime));
+                break;
+            case TriggerType.Passif:
+                // Petit Ange : garde des dés pour le prochain Jet de Créature du porteur (appliqués maintenant).
+                victime.BonusProchainJetCreature += creve.BonusProchainJetCreature;
                 break;
         }
     }
