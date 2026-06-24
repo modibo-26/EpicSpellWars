@@ -27,6 +27,8 @@ internal sealed class Table
     // faire jouer des composants depuis la main d'un sorcier (l'ordonnanceur les retire de la main).
     public Func<Sorcier, IReadOnlyList<CarteSort>> Declaration = _ => [];
 
+    public int ProchainIndexHasard = 0;   // index renvoye par ChoisirIndexAuHasard (effets « au hasard »)
+
     public Table()
     {
         Ctx = new GameContext
@@ -43,6 +45,7 @@ internal sealed class Table
             ChoisirPayer = (_, _, _) => ProchainPaye,
             ChoisirMontant = _ => ProchainMontant,
             DeclarerSort = s => Declaration(s),
+            ChoisirIndexAuHasard = _ => ProchainIndexHasard,
         };
     }
 }

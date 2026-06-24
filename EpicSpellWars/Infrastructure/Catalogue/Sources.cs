@@ -219,8 +219,17 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-026",
-            // GAP Payez 3 : ajout d'une carte AU HASARD de la main (≠ ChoisirCartes qui est un choix).
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.PlusFort, Valeur = new ValeurFixe(2) }] }],
+            // « 2 dégâts au plus fort. Payez 3 🩸 : ajoutez 1 carte AU HASARD de votre main au sort. »
+            Effets =
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.PlusFort, Valeur = new ValeurFixe(2) }] },
+                new EffetOptionnelPayant
+                {
+                    Cout = 3,
+                    Libelle = "Ajoutez 1 carte au hasard de votre main au sort",
+                    SiPaye = [new Action { Type = TypeAction.GagnerCarteAuHasard, Cible = Cible.Soi }],
+                },
+            ],
         },
 
         new("Vishnakrax", TypeComposant.Source, Glyphe.Illusion)

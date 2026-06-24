@@ -29,6 +29,7 @@ public enum Cible
     AdversaireAuChoix, // « choisissez un adversaire » : designe par le lanceur (via ChoisirCible)
     DesigneParDe,
     ControleurDonjon,  // le sorcier qui controle le Donjon (PEUT etre le lanceur ; 0 ou 1 ; Sabruledepartoux)
+    VoisinsControleurDonjon, // les voisins directs vivants du controleur du Donjon (Sabruledepartoux paye)
     TousSorciers,      // TOUS les sorciers vivants, lanceur INCLUS (≠ TousAdversaires qui l'exclut)
     PvPair,            // chaque adversaire avec un nombre PAIR de PV (Groclonar)
     PvImpair,          // chaque adversaire avec un nombre IMPAIR de PV (Groclonar)
@@ -58,7 +59,8 @@ public enum TypeAction
     LancerDeMemorise,  // lance 1 dé et mémorise le résultat dans DernierDe (réutilisable via ValeurDernierDe)
     AjouterBonusDe,    // ajoute `montant` dé(s) aux Jets de puissance du lanceur ce tour (BonusDesJetCreature)
     Garder,            // GARDEZ la Créature en cours hors tranche (ex. Gracula « Payez 1 🩸 : GARDEZ »)
-    CreatureEncaisse   // Réaction Brademinus : une Créature du sort encaisse le coup fatal (vous ne mourez pas)
+    CreatureEncaisse,  // Réaction Brademinus : une Créature du sort encaisse le coup fatal (vous ne mourez pas)
+    GagnerCarteAuHasard // Ajoute au sort N carte(s) AU HASARD de la main (Bébéfédex payé ; ≠ GagnerCarte = choix)
 }
 
 // Ou va une carte revelee retenue par EffetRevelerPioche (Peutidardus/Cadopourrix → Sort).

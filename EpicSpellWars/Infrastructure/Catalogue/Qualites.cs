@@ -167,17 +167,37 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-057",
-            // Base + conditionnelle : le contrôleur du Donjon (ControleurDonjon, peut être le lanceur) subit 4 ;
-            // si personne de vivant ne le contrôle → TOUS les sorciers (lanceur inclus) subissent 4.
-            // GAP Payez 6 reste ouvert : « contrôleur 8 puis ses VOISINS DIRECTS 4 » — voisins relatifs au
-            // contrôleur (≠ Voisin du lanceur) non exprimables dans le modèle de ciblage actuel.
+            // Base : le contrôleur du Donjon subit 4 ; si personne de vivant ne le contrôle → TOUS subissent 4.
+            // Payez 6 🩸 (à la place) : le contrôleur subit 8 puis ses VOISINS DIRECTS 4 (Cible.VoisinsControleurDonjon).
+            // ORDRE volontaire dans la branche payée : on frappe les VOISINS D'ABORD, puis le contrôleur — si les
+            // 8 dégâts tuaient le contrôleur, le Donjon serait volé au kill et « ses voisins » désigneraient un
+            // autre sorcier. Frapper les voisins tant que le contrôleur contrôle encore garantit la bonne cible.
             Effets =
             [
-                new EffetConditionnel
+                new EffetPayantEffet
                 {
-                    Condition = ctx => ctx.ControleurDonjon is { EstVivant: true },
-                    SiVrai = [new Action { Type = TypeAction.Degats, Cible = Cible.ControleurDonjon, Valeur = new ValeurFixe(4) }],
-                    SiFaux = [new Action { Type = TypeAction.Degats, Cible = Cible.TousSorciers, Valeur = new ValeurFixe(4) }],
+                    Cout = 6,
+                    Libelle = "Le contrôleur subit 8, puis ses voisins directs subissent 4 chacun",
+                    Base =
+                    [
+                        new EffetConditionnel
+                        {
+                            Condition = ctx => ctx.ControleurDonjon is { EstVivant: true },
+                            SiVrai = [new Action { Type = TypeAction.Degats, Cible = Cible.ControleurDonjon, Valeur = new ValeurFixe(4) }],
+                            SiFaux = [new Action { Type = TypeAction.Degats, Cible = Cible.TousSorciers, Valeur = new ValeurFixe(4) }],
+                        },
+                    ],
+                    SiPaye =
+                    [
+                        new EffetSimple
+                        {
+                            Actions =
+                            [
+                                new Action { Type = TypeAction.Degats, Cible = Cible.VoisinsControleurDonjon, Valeur = new ValeurFixe(4) },
+                                new Action { Type = TypeAction.Degats, Cible = Cible.ControleurDonjon, Valeur = new ValeurFixe(8) },
+                            ],
+                        },
+                    ],
                 },
             ],
         },
@@ -218,19 +238,20 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-064",
-            // « Donnez le Donjon à un adversaire qui ne l'avait pas, puis 3 dégâts à cet adversaire » :
-            // DonnerDonjon sur SansDonjon + CibleUnique (le « prenez le Donjon » est absorbé — la cible finit avec).
-            // GAP Payez 3 : « Tuez d'abord toutes ses Créatures » = TuerCreature « TOUTES » (montant non fixe).
+            // « Donnez le Donjon à un adversaire qui ne l'avait pas, puis 3 dégâts à cet adversaire. Payez 3 🩸 :
+            // tuez d'abord TOUTES ses Créatures. » DonnerDonjon SansDonjon+CibleUnique pose DerniereCible ; la
+            // branche payée (TuerCreature MemeCible, montant = nb de Créatures de la cible = toutes) s'intercale
+            // AVANT les 3 dégâts (« d'abord »).
             Effets =
             [
-                new EffetSimple
+                new EffetSimple { Actions = [new Action { Type = TypeAction.DonnerDonjon, Cible = Cible.SansDonjon, CibleUnique = true }] },
+                new EffetOptionnelPayant
                 {
-                    Actions =
-                    [
-                        new Action { Type = TypeAction.DonnerDonjon, Cible = Cible.SansDonjon, CibleUnique = true },   // pose DerniereCible
-                        new Action { Type = TypeAction.Degats, Cible = Cible.MemeCible, Valeur = new ValeurFixe(3) },
-                    ],
+                    Cout = 3,
+                    Libelle = "Tuez d'abord toutes ses Créatures",
+                    SiPaye = [new Action { Type = TypeAction.TuerCreature, Cible = Cible.MemeCible, Valeur = new ValeurParCreature(1) }],
                 },
+                new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.MemeCible, Valeur = new ValeurFixe(3) }] },
             ],
         },
 
@@ -266,8 +287,18 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-068",
-            // GAP Payez 4 : option payante enveloppant un IEffet (EffetRevelerPioche), pas une liste d'Actions.
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerCarte, Cible = Cible.Soi, MinCartes = 1, FiltreCarte = c => c.Type == TypeComposant.Destination }] }],
+            // « Ajoutez 1 Destination de votre main au sort. Payez 4 🩸 : révélez la pioche jusqu'à une Créature
+            // et ajoutez-la au sort. » La branche payée enveloppe un IEffet (EffetRevelerPioche) → EffetPayantEffet.
+            Effets =
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerCarte, Cible = Cible.Soi, MinCartes = 1, FiltreCarte = c => c.Type == TypeComposant.Destination }] },
+                new EffetPayantEffet
+                {
+                    Cout = 4,
+                    Libelle = "Révélez la pioche jusqu'à une Créature et ajoutez-la au sort",
+                    SiPaye = [new EffetRevelerPioche { Critere = c => c.EstCreature }],
+                },
+            ],
         },
 
         new("Boulcheloux", TypeComposant.Qualite, Glyphe.Illusion)

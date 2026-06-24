@@ -69,6 +69,10 @@ public class GameContext
     // Ex. Mortalriktus (puis defausse de ce type), Foulremix (puis passage de ce type).
     public required Func<Sorcier, IReadOnlyList<TypeComposant>, TypeComposant> ChoisirTypeComposant { get; set; }
 
+    // Injection du hasard : etant donne un nombre de candidats, renvoie un index dans [0, nb). Sert aux
+    // effets « au hasard » (Bébéfédex : ajoute 1 carte au hasard de la main). Deterministe en test.
+    public required Func<int, int> ChoisirIndexAuHasard { get; set; }
+
     // Declaration du sort d'un sorcier : renvoie les composants qu'il joue ce tour DEPUIS sa main
     // (l'ordonnanceur les retire de la main et les pose en SortEnCours). La SELECTION releve de la couche
     // qui pilote la partie (Console/ASP.NET) ; l'integration Magie feroce dans la declaration viendra ici.
@@ -539,16 +543,20 @@ public class GameContext
     // Adversaires vivants du lanceur, dans l'ordre de la table.
     private IEnumerable<Sorcier> Adversaires => Sorciers.Where(s => s != Lanceur && s.EstVivant);
 
-    // Voisin vivant dans un sens donne (+1 = gauche, -1 = droite), en sautant les morts.
-    // Convention : Sorciers est dans l'ordre de table ; « gauche » = case suivante.
-    private Sorcier? Voisin(int sens)
+    // Voisin vivant du lanceur dans un sens donne (+1 = gauche, -1 = droite), en sautant les morts.
+    private Sorcier? Voisin(int sens) => Voisin(sens, Lanceur);
+
+    // Voisin vivant d'un sorcier de REFERENCE dans un sens donne (+1 = gauche, -1 = droite), en sautant les
+    // morts. Convention : Sorciers est dans l'ordre de table ; « gauche » = case suivante. Sert au ciblage
+    // relatif a un autre que le lanceur (Sabruledepartoux : voisins du controleur du Donjon).
+    private Sorcier? Voisin(int sens, Sorcier reference)
     {
         var n = Sorciers.Count;
-        var i = Sorciers.IndexOf(Lanceur);
+        var i = Sorciers.IndexOf(reference);
         for (var pas = 1; pas < n; pas++)
         {
             var v = Sorciers[((i + sens * pas) % n + n) % n];
-            if (v != Lanceur && v.EstVivant)
+            if (v != reference && v.EstVivant)
                 return v;
         }
         return null;
@@ -578,6 +586,11 @@ public class GameContext
             // Le controleur du Donjon (0 ou 1 ; peut etre le lanceur). Le filtrage vivant/non est laisse
             // a l'appelant (Sabruledepartoux branche dessus via EffetConditionnel).
             case Cible.ControleurDonjon: return Enumerable1(ControleurDonjon);
+            // Les deux voisins directs vivants du controleur du Donjon (peut inclure le lanceur). Sabruledepartoux paye.
+            case Cible.VoisinsControleurDonjon:
+                return ControleurDonjon is { } ctrl
+                    ? new[] { Voisin(+1, ctrl), Voisin(-1, ctrl) }.OfType<Sorcier>().Distinct()
+                    : [];
             case Cible.AdversaireGauche: return Enumerable1(Voisin(+1));
             case Cible.AdversaireDroite: return Enumerable1(Voisin(-1));
             case Cible.DeuxVoisins: return new[] { Voisin(+1), Voisin(-1) }.OfType<Sorcier>().Distinct();
@@ -758,6 +771,18 @@ public class GameContext
                     SortEnCours.Add(c);
                 }
                 break;
+            case TypeAction.GagnerCarteAuHasard:
+                // « Ajoutez au sort N carte(s) AU HASARD de la main » (Bébéfédex payé) : l'index est tiré par
+                // le hook (injection du hasard), ≠ GagnerCarte qui laisse le joueur CHOISIR.
+                for (var i = 0; i < montant && cible.Main.Count > 0; i++)
+                {
+                    var idx = ChoisirIndexAuHasard(cible.Main.Count);
+                    var carte = cible.Main[idx];
+                    cible.Main.RemoveAt(idx);
+                    SortEnCours.Add(carte);
+                }
+                break;
+
             case TypeAction.DefausserCartes:
                 // « Defaussez (jusqu'a) N carte(s) de votre main » (Sarabandus...). Le nombre defausse
                 // est memorise dans DerniereQuantite pour alimenter une Valeur suivante (cf. ValeurQuantiteChoisie).
