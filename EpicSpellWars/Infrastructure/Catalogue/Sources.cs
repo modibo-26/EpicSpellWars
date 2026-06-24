@@ -243,10 +243,15 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-030",
-            // GAP Réaction (tranche B faite) : « révélez la Créature du sort, elle encaisse à votre place »
-            // = prévention de mort par redirection vers une Créature présente dans le sort (sémantique encaisse
-            // + restauration des PV avant le coup létal), pas encore modélisée.
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurFixe(1) }] }],
+            // « Infligez 1 dégât à n'importe quel adversaire. Réaction : si vous mourez avant que cette carte
+            // ne soit résolue et qu'une Créature est présente dans votre sort, elle encaisse à votre place
+            // (vous ne mourez pas). » L'absorption (CreatureEncaisse) restaure les PV d'avant-coup et consomme
+            // la Créature du sort ; sans Créature, la Réaction n'empêche pas la mort.
+            Effets =
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurFixe(1) }] },
+                new EffetReaction { Actions = [new Action { Type = TypeAction.CreatureEncaisse, Cible = Cible.Soi }] },
+            ],
         },
 
         new("Multitax", TypeComposant.Source, Glyphe.Illusion)

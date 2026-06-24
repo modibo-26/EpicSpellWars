@@ -24,6 +24,13 @@ public class ReactionsTests
         Effets = [new EffetReaction { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireGauche, Valeur = new ValeurFixe(4) }] }],
     };
 
+    // Créature (Destination) à effet observable (frappe l'adversaire de gauche) : sert à vérifier qu'une
+    // Créature « encaisseuse » (Brademinus) est bien consommée AVANT de résoudre son propre effet.
+    private static CarteSort Creature() => new("Bête", TypeComposant.Destination, Glyphe.Arcane)
+    {
+        Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireGauche, Valeur = new ValeurFixe(4) }] }],
+    };
+
     // La Réaction d'un composant NON résolu se déclenche à la mort du lanceur.
     [Fact]
     public void Reaction_d_un_composant_non_resolu_se_declenche_a_la_mort()
@@ -97,5 +104,38 @@ public class ReactionsTests
 
         Assert.False(t.Merlin.EstVivant);
         Assert.Single(t.Merlin.Tresors);   // gagné via la Réaction (la mort arrête le sort : effet principal non joué)
+    }
+
+    // Brademinus : une Créature présente dans le sort encaisse le coup fatal → le lanceur survit (PV restaurés
+    // à l'avant-coup), et la Créature est consommée (ni résolution de son effet, ni GARDEZ).
+    [Fact]
+    public void Brademinus_la_creature_encaisse_et_empeche_la_mort()
+    {
+        var t = new Table();
+        t.Merlin.PointsDeVie = 3;
+        var creature = Creature();
+        // Suicide (Source) résout avant Brademinus (Source) → Brademinus non résolu quand Merlin meurt.
+        t.Ctx.SortEnCours = [Suicide(TypeComposant.Source), Source("Brademinus"), creature];
+
+        t.Ctx.ResoudreSort();
+
+        Assert.True(t.Merlin.EstVivant);
+        Assert.Equal(3, t.Merlin.PointsDeVie);          // PV d'avant-coup restaurés (« vous ne mourez pas »)
+        Assert.Equal(20, t.Gandalf.PointsDeVie);        // la Créature est consommée → son effet ne se résout pas
+        Assert.DoesNotContain(creature, t.Merlin.Creatures);   // sacrifiée, pas gardée
+    }
+
+    // Brademinus sans Créature dans le sort : la Réaction n'a rien pour encaisser → la mort tient.
+    [Fact]
+    public void Brademinus_sans_creature_ne_empeche_pas_la_mort()
+    {
+        var t = new Table();
+        t.Merlin.PointsDeVie = 3;
+        t.Ctx.SortEnCours = [Suicide(TypeComposant.Source), Source("Brademinus")];
+
+        t.Ctx.ResoudreSort();
+
+        Assert.False(t.Merlin.EstVivant);
+        Assert.Equal(0, t.Merlin.PointsDeVie);
     }
 }

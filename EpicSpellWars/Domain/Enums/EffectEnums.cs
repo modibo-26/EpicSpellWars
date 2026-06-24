@@ -57,7 +57,8 @@ public enum TypeAction
     PvAUn,
     LancerDeMemorise,  // lance 1 dé et mémorise le résultat dans DernierDe (réutilisable via ValeurDernierDe)
     AjouterBonusDe,    // ajoute `montant` dé(s) aux Jets de puissance du lanceur ce tour (BonusDesJetCreature)
-    Garder             // GARDEZ la Créature en cours hors tranche (ex. Gracula « Payez 1 🩸 : GARDEZ »)
+    Garder,            // GARDEZ la Créature en cours hors tranche (ex. Gracula « Payez 1 🩸 : GARDEZ »)
+    CreatureEncaisse   // Réaction Brademinus : une Créature du sort encaisse le coup fatal (vous ne mourez pas)
 }
 
 // Ou va une carte revelee retenue par EffetRevelerPioche (Peutidardus/Cadopourrix → Sort).

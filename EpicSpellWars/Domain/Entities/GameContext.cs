@@ -88,13 +88,13 @@ public class GameContext
         var avant = cible.PointsDeVie;
         cible.PointsDeVie = Math.Max(0, cible.PointsDeVie - montant);
         if (avant > 0 && cible.PointsDeVie == 0)
-            OnMort(cible);
+            OnMort(cible, avant);   // avant = PV d'avant-coup, pour qu'une Réaction d'absorption restaure pleinement
     }
 
     // Declencheurs a la mort d'un sorcier (pilier 2). Le TUEUR = Lanceur courant (celui dont l'effet a
     // porte le coup fatal). Suicide (victime == Lanceur) → aucune recompense (regles-sang). Branche dans
     // l'ordre : B Reactions (peuvent empecher la mort), A recompenses au kill (+ passif Tresor), E crevé.
-    private void OnMort(Sorcier victime)
+    private void OnMort(Sorcier victime, int pvAvant)
     {
         // Le TUEUR = Lanceur courant (celui dont l'effet a porte le coup fatal). Capture AVANT les Reactions :
         // une Reaction agit du point de vue de la victime (Lanceur temporairement = victime), donc on fige le
@@ -108,7 +108,7 @@ public class GameContext
         //   seuls les composants pas encore passes ; victime a deja joue ce tour → tous resolus → aucune.
         // Une Reaction peut EMPECHER la mort (Gonzofungus PV→1) → on re-teste EstVivant ensuite.
         var sortVictime = victime == Lanceur ? SortEnCours : SortsDeclares.GetValueOrDefault(victime) ?? [];
-        DeclencherReactions(sortVictime, victime, tueur);
+        DeclencherReactions(sortVictime, victime, tueur, pvAvant);
 
         if (victime.EstVivant)
             return;   // une Reaction a empeche la mort → pas de recompense au kill
@@ -167,14 +167,18 @@ public class GameContext
     // en cours de resolution est deja dans _composantsResolus → sa propre Reaction ne se declenche pas
     // (timing fin SELF : « si votre Destination vous tue, sa Reaction et celles deja resolues ne s'appliquent
     // pas »). Une Reaction ne se declenche qu'UNE fois (_reactionsDeclenchees).
-    private void DeclencherReactions(IReadOnlyList<CarteSort> sortVictime, Sorcier victime, Sorcier tueur)
+    private void DeclencherReactions(IReadOnlyList<CarteSort> sortVictime, Sorcier victime, Sorcier tueur, int pvAvant)
     {
         var ancienLanceur = Lanceur;
         var ancienTueur = _tueur;
         var ancienneCible = DerniereCible;
+        var ancienSortReaction = _sortEnReaction;
+        var ancienPvAvantMort = _pvAvantMort;
         Lanceur = victime;
         _tueur = tueur;
         DerniereCible = null;
+        _sortEnReaction = sortVictime;   // sort de la victime, pour qu'une Réaction y trouve sa Créature (Brademinus)
+        _pvAvantMort = pvAvant;          // PV d'avant-coup, pour une absorption qui annule pleinement le coup
 
         foreach (var composant in sortVictime.Where(c => !_composantsResolus.Contains(c)).ToList())
         {
@@ -195,11 +199,19 @@ public class GameContext
         Lanceur = ancienLanceur;
         _tueur = ancienTueur;
         DerniereCible = ancienneCible;
+        _sortEnReaction = ancienSortReaction;
+        _pvAvantMort = ancienPvAvantMort;
     }
 
     // Tueur courant, valide uniquement pendant la resolution d'une Reaction (cf. DeclencherReactions) ;
     // lu par Cible.Tueur. Null hors contexte de Reaction.
     private Sorcier? _tueur;
+
+    // Sort de la victime + PV d'avant-coup, valides uniquement pendant une Reaction (save/restore dans
+    // DeclencherReactions). Lus par TypeAction.CreatureEncaisse (Brademinus) : une Créature présente dans
+    // le sort encaisse le coup fatal → on restaure _pvAvantMort (« vous ne mourez pas »).
+    private IReadOnlyList<CarteSort> _sortEnReaction = [];
+    private int _pvAvantMort;
 
     // Jeton Dernier Survivant deja decerne dans la manche en cours (une bataille = un seul jeton). Reset au
     // debut de manche par ReinitialiserJetonDernierSurvivant ; garde-fou anti double-comptage en cascade (OnMort).
@@ -557,6 +569,18 @@ public class GameContext
                 break;
             case TypeAction.Garder:
                 GarderCreatureEnCours();
+                break;
+            case TypeAction.CreatureEncaisse:
+                // Réaction Brademinus : si une Créature non résolue est présente dans le sort de la victime,
+                // elle encaisse le coup fatal. On restaure les PV d'avant-coup (« vous ne mourez pas ») et la
+                // Créature est consommée (marquée résolue → ni effet de Destination ni GARDEZ ; le nettoyage de
+                // fin de tour la défausse). Sans Créature, la Réaction est sans effet → la mort tient.
+                var bouclier = _sortEnReaction.FirstOrDefault(c => c.EstCreature && !_composantsResolus.Contains(c));
+                if (bouclier is not null)
+                {
+                    cible.PointsDeVie = _pvAvantMort;
+                    _composantsResolus.Add(bouclier);
+                }
                 break;
             case TypeAction.GagnerSang:
                 cible.Sang = Math.Min(cible.SangMax, cible.Sang + montant);

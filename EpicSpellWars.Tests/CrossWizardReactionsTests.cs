@@ -13,8 +13,10 @@ namespace EpicSpellWars.Tests;
 public class CrossWizardReactionsTests
 {
     private static CarteSort Fukushimax() => Sources.Toutes().Single(c => c.Nom == "Fukushimax");
+    private static CarteSort Brademinus() => Sources.Toutes().Single(c => c.Nom == "Brademinus");
 
     private static CarteSort Filler() => new("Filler", TypeComposant.Qualite, Glyphe.Arcane);
+    private static CarteSort Creature() => new("Bête", TypeComposant.Destination, Glyphe.Arcane);
 
     private static CarteSort Tueur(Cible cible, int montant) => new("Tueur", TypeComposant.Source, Glyphe.Arcane)
     {
@@ -85,5 +87,25 @@ public class CrossWizardReactionsTests
         Assert.Equal(1, t.Saroumane.JetonsDernierSurvivant);   // UN seul jeton malgré 2 morts en cascade
         Assert.Equal(3, t.Merlin.Sang);                        // Merlin a tué Gandalf (riposte) → +3 (Sang persiste après mort)
         Assert.Equal(3, t.Gandalf.Sang);                       // Gandalf a tué Merlin → +3
+    }
+
+    // Cross-wizard : Merlin meurt pendant le tour de Gandalf, AVANT d'avoir joué ; la Créature de son sort
+    // déclaré encaisse (Brademinus) → Merlin survit, donc Gandalf ne touche AUCUNE récompense de kill.
+    [Fact]
+    public void Brademinus_la_creature_encaisse_un_kill_cross_wizard()
+    {
+        var t = new Table();
+        t.Merlin.PointsDeVie = 3;
+
+        // Gandalf (1 composant) résout AVANT Merlin (2 composants) et tue Merlin (AdversaireDroite = Merlin).
+        new OrdonnanceurDeTour().JouerTour(t.Ctx, new Dictionary<Sorcier, List<CarteSort>>
+        {
+            [t.Gandalf] = [Tueur(Cible.AdversaireDroite, 5)],
+            [t.Merlin] = [Brademinus(), Creature()],
+        });
+
+        Assert.True(t.Merlin.EstVivant);
+        Assert.Equal(3, t.Merlin.PointsDeVie);   // PV restaurés : la Créature a encaissé
+        Assert.Equal(0, t.Gandalf.Sang);         // Merlin n'est pas mort → pas de +3 au kill
     }
 }
