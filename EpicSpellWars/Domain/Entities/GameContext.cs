@@ -65,6 +65,11 @@ public class GameContext
     // Ex. Mortalriktus (puis defausse de ce type), Foulremix (puis passage de ce type).
     public required Func<Sorcier, IReadOnlyList<TypeComposant>, TypeComposant> ChoisirTypeComposant { get; set; }
 
+    // Declaration du sort d'un sorcier : renvoie les composants qu'il joue ce tour DEPUIS sa main
+    // (l'ordonnanceur les retire de la main et les pose en SortEnCours). La SELECTION releve de la couche
+    // qui pilote la partie (Console/ASP.NET) ; l'integration Magie feroce dans la declaration viendra ici.
+    public required Func<Sorcier, IReadOnlyList<CarteSort>> DeclarerSort { get; set; }
+
     // Le lanceur decide-t-il de payer ce cout en Sang ? (« Payez N 🩸 : … »). libelle = effet propose.
     public required Func<Sorcier, int, string, bool> ChoisirPayer { get; set; }
     // Montant choisi pour un cout variable « Payez X 🩸 » (sera borne au Sang dispo).
@@ -137,10 +142,12 @@ public class GameContext
         PiocherSorcierCreve(victime);
     }
 
-    // A la mort, la victime pioche le Sorcier creve du sommet de la pile. Immediat → effet tout de suite (du
-    // point de vue de la victime ; morte, mais Sang/Donjon persistent) ; MancheSuivante → differe ; Passif
-    // (Petit Ange) → simplement conserve (son modificateur s'appliquera a son moment propre, GAP BonusDesJet).
-    private void PiocherSorcierCreve(Sorcier victime)
+    // Pioche le Sorcier creve du sommet de la pile pour `victime`. Appele a la mort (OnMort) ET au debut de
+    // chaque nouveau tour pour un sorcier deja mort (rulebook : « au debut de chaque nouveau tour de jeu, ce
+    // dernier pioche une nouvelle carte Sorcier creve »). Immediat → effet tout de suite (du point de vue de
+    // la victime ; morte, mais Sang/Donjon persistent) ; MancheSuivante → differe ; Passif (Petit Ange) →
+    // simplement conserve (son modificateur s'appliquera a son moment propre, GAP BonusDesJet).
+    public void PiocherSorcierCreve(Sorcier victime)
     {
         if (PiocheSorcierCreve.Count == 0)
             return;
@@ -307,6 +314,22 @@ public class GameContext
         Lanceur.Sang -= x;
         Lanceur.ADejaPayeCeTour = true;
         return x;
+    }
+
+    // Complete la main du sorcier jusqu'a `taille` cartes en piochant le sommet de la pioche principale
+    // (s'arrete si la pioche est epuisee). Appele au debut de chaque tour ([[constantes-de-jeu]] : main = 8).
+    // TODO: pioche epuisee → remelanger la Defausse (regle de reconstitution), comme RevelerPiocheJusqua.
+    public void CompleterMain(Sorcier sorcier, int taille)
+    {
+        while (sorcier.Main.Count < taille && PiochePrincipale.Count > 0)
+        {
+            var carte = PiochePrincipale[0];
+            PiochePrincipale.RemoveAt(0);
+            if (carte is CarteSort cs)
+                sorcier.Main.Add(cs);
+            else
+                Defausse.Add(carte);   // carte non-sort (ne devrait pas figurer dans la pioche principale)
+        }
     }
 
     // Revele les cartes du sommet de la pioche principale jusqu'a en trouver une qui matche `critere`

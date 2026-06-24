@@ -77,14 +77,76 @@ public class OrdonnanceurDeTour
         return ordre;
     }
 
-    // Début de manche : le Donjon est remis au centre (personne ne le contrôle) et le compteur avance.
-    // Reset transverse ([[donjon-controle]]) ; appelé par la boucle de manche (à venir).
+    // Joue une MANCHE complète : une suite de tours jusqu'à ce qu'il ne reste qu'un seul survivant.
+    // Séquence : DebutManche (Donjon au centre, réveil des morts, effets différés) → tours (chaque tour :
+    // les vivants complètent leur main à 8 et les morts piochent un Sorcier crevé ; chacun déclare son sort ;
+    // résolution via JouerTour) → FinManche (défausse mains + Trésors + Créatures ; les crevés sont gardés).
+    // Le jeton Dernier Survivant est décerné par OnMort pendant le tour fatal. Renvoie le vainqueur (ou null).
+    public Sorcier? JouerManche(GameContext ctx, int tailleMain = 8)
+    {
+        DebutManche(ctx);
+
+        // Une manche dure « autant de tours que nécessaire pour qu'un joueur l'emporte ». Garde-fou contre une
+        // boucle infinie (pioche/mains épuisées sans mort possible) : plafond de tours au-delà duquel on sort.
+        const int plafondTours = 100;
+        var tours = 0;
+        while (ctx.Sorciers.Count(s => s.EstVivant) > 1 && tours++ < plafondTours)
+        {
+            // Début de tour : les vivants complètent leur main à 8 ; les morts piochent un nouveau crevé.
+            foreach (var s in ctx.Sorciers)
+                if (s.EstVivant)
+                    ctx.CompleterMain(s, tailleMain);
+                else
+                    ctx.PiocherSorcierCreve(s);
+
+            // Déclaration : chaque vivant choisit ses composants EN MAIN (retirés de la main → ils forment le sort).
+            var sorts = new Dictionary<Sorcier, List<CarteSort>>();
+            foreach (var s in ctx.Sorciers.Where(s => s.EstVivant))
+            {
+                var composants = ctx.DeclarerSort(s).ToList();
+                foreach (var c in composants)
+                    s.Main.Remove(c);
+                sorts[s] = composants;
+            }
+
+            JouerTour(ctx, sorts);
+        }
+
+        FinManche(ctx);
+
+        var vivants = ctx.Sorciers.Where(s => s.EstVivant).ToList();
+        return vivants.Count == 1 ? vivants[0] : null;   // null = cas improbable sans survivant (suicide final)
+    }
+
+    // Fin de manche ([[creatures-gardees]]) : chaque sorcier défausse sa main, ses Trésors et ses Créatures.
+    // Il GARDE en revanche ses cartes Sorcier crevé (et son Sang, ses jetons). Trésors remis sous leur pile.
+    private static void FinManche(GameContext ctx)
+    {
+        foreach (var s in ctx.Sorciers)
+        {
+            ctx.Defausse.AddRange(s.Main);
+            ctx.Defausse.AddRange(s.Creatures);
+            ctx.PiocheTresor.AddRange(s.Tresors);
+            s.Main.Clear();
+            s.Creatures.Clear();
+            s.Tresors.Clear();
+        }
+    }
+
+    // Début de manche : le Donjon est remis au centre (personne ne le contrôle), le compteur avance, les
+    // sorciers REVIENNENT à la vie (PV de départ ; Sang/jetons/crevés persistent) et les effets différés
+    // « au début de la prochaine manche » se déclenchent ([[donjon-controle]], tranche E).
     public void DebutManche(GameContext ctx)
     {
         ctx.ControleurDonjon = null;
         ctx.Manche++;
         ctx.ReinitialiserJetonDernierSurvivant();   // nouvelle bataille → un nouveau jeton Dernier Survivant en jeu
-        // Effets différés « au début de la prochaine manche » (Sorciers crevés MancheSuivante, etc., tranche E).
+
+        // Réveil : chaque sorcier repart à PV de départ (les morts reviennent pour la nouvelle manche).
+        foreach (var s in ctx.Sorciers)
+            s.PointsDeVie = Sorcier.PvDepart;
+
+        // Effets différés (Sorciers crevés MancheSuivante, etc.) — joués sur des sorciers désormais vivants.
         ctx.DeclencherEffetsDifferes();
     }
 

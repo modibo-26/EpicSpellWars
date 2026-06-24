@@ -23,6 +23,10 @@ internal sealed class Table
     public int ProchainMontant = 0;     // montant de ChoisirMontant (« Payez X »)
     public int ProchainOption = 0;      // index renvoye par ChoisirOptionLanceur (« choisissez une option »)
 
+    // Strategie de declaration de sort (flux de manche) : par defaut, aucun sort. Un test la surcharge pour
+    // faire jouer des composants depuis la main d'un sorcier (l'ordonnanceur les retire de la main).
+    public Func<Sorcier, IReadOnlyList<CarteSort>> Declaration = _ => [];
+
     public Table()
     {
         Ctx = new GameContext
@@ -38,6 +42,7 @@ internal sealed class Table
             ChoisirTypeComposant = (_, types) => types.Contains(ProchainType) ? ProchainType : types.First(),
             ChoisirPayer = (_, _, _) => ProchainPaye,
             ChoisirMontant = _ => ProchainMontant,
+            DeclarerSort = s => Declaration(s),
         };
     }
 }

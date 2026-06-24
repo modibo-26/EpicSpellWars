@@ -2,8 +2,11 @@ namespace EpicSpellWars.Domain.Entities;
 
 public class Sorcier(string nom)
 {
+    // PV de depart d'une manche (jeton crane sur la case 20) ; plafond = 25 ([[constantes-de-jeu]]).
+    public const int PvDepart = 20;
+
     public string Nom { get; set; } = nom;
-    public int PointsDeVie { get; set; } = 20;
+    public int PointsDeVie { get; set; } = PvDepart;
     public int PointsDeVieMax { get; } = 25;
     public int Sang { get; set; }
     public int SangMax { get; } = 25;

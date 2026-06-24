@@ -40,8 +40,8 @@ public static class SorciersCreves
         // TODO manche suivante : le vainqueur pioche 2 cartes de moins.
         new("Doigt Magique", [], TriggerType.MancheSuivante) { Id = "EP2-145", Exemplaires = 4 },
 
-        // TODO manche suivante : révéler jusqu'à une Créature et la mettre en jeu.
-        new("Ronronne en Paix", [], TriggerType.MancheSuivante) { Id = "EP2-149", Exemplaires = 3 },
+        // MancheSuivante : révéler la pioche jusqu'à une Créature et la mettre en jeu devant soi (EffetRonronne).
+        new("Ronronne en Paix", [new EffetRonronne()], TriggerType.MancheSuivante) { Id = "EP2-149", Exemplaires = 3 },
 
         // TODO manche suivante : ajouter la 1re carte de la pioche au 1er sort (gestion Magie féroce incluse).
         new("Baisse de Tension", [], TriggerType.MancheSuivante) { Id = "EP2-152", Exemplaires = 2 },
