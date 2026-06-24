@@ -55,4 +55,11 @@ public class Tresor(string nom, List<IEffet> effets, TriggerType triggerType) : 
     // Fusil à Triple Canon : +1 🩸 par série complète de 3 Glyphes identiques dans le sort (lu en fin de
     // ResoudreSort). Buffet à Volonté n'a pas de champ : son effet est l'Immediat EffetBuffet + Sorcier.SousBuffet.
     public bool SangParTroisGlyphes { get; init; }
+
+    // Redirection de ciblage (lues dans GameContext) :
+    //   InverseGaucheDroite     : Baguette Bicéphale — le porteur peut inverser gauche↔droite pour tout son sort.
+    //   RedirigeSortSeuleCible  : Dissuasion Nucléaire — si le porteur est la SEULE cible d'un sort adverse, il
+    //     peut payer 3 🩸 pour rediriger le sort vers un autre sorcier (pas le lanceur).
+    public bool InverseGaucheDroite { get; init; }
+    public bool RedirigeSortSeuleCible { get; init; }
 }

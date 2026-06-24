@@ -52,8 +52,10 @@ public static class Tresors
             TriggerType.Immediat) { Id = "EP2-157", BonusSangDonjonFinTour = 1 },
         // GAP : « égalité à l'initiative, payez 1 pour gagner » = hook de résolution d'ordre (hors pipeline de phases).
         new("Vers Pas Solitaires", [], TriggerType.Passif) { Id = "EP2-158" },
-        new("Dissuasion Nucléaire", [], TriggerType.Passif) { Id = "EP2-159" },
-        new("Baguette Bicéphale", [], TriggerType.Passif) { Id = "EP2-160" },
+        // Passif (réactif) : seule cible d'un sort adverse → Payez 3 🩸 pour rediriger le sort vers un autre sorcier.
+        new("Dissuasion Nucléaire", [], TriggerType.Passif) { Id = "EP2-159", RedirigeSortSeuleCible = true },
+        // Passif : sur VOTRE sort, inversez gauche↔droite (pour tous les effets du sort).
+        new("Baguette Bicéphale", [], TriggerType.Passif) { Id = "EP2-160", InverseGaucheDroite = true },
         // Passif (relance) : à chacun de vos tours, vous pouvez relancer le Jet entier d'une Créature (1×/tour).
         new("Manuel de Cryptozoic", [], TriggerType.Passif) { Id = "EP2-161", RelanceJetEntier = true },
         new("Pièces du Destin", [], TriggerType.Immediat) { Id = "EP2-162" },

@@ -332,6 +332,14 @@ public class GameContext
     // Rearme le jeton Dernier Survivant au debut d'une nouvelle manche (appele par OrdonnanceurDeTour.DebutManche).
     public void ReinitialiserJetonDernierSurvivant() => _jetonDernierSurvivantDecerne = false;
 
+    // Baguette Bicéphale : pour le sort en cours, inverse gauche↔droite (decide une fois au debut du sort).
+    // Portee = sort (reset par ResoudreSort) ; lu par ResoudreCible (AdversaireGauche/Droite).
+    private bool _inverserGaucheDroite;
+
+    // Dissuasion Nucléaire : redirection active pour le sort en cours — tout ce qui viserait `victime` vise
+    // `vers` a la place. Posee quand le porteur (seule cible) paie ; portee = sort (reset par ResoudreSort).
+    private (Sorcier victime, Sorcier vers)? _redirectionDissuasion;
+
     // Effets « au debut de la prochaine manche » (differes) : Sorciers creves MancheSuivante, Repos Merite/
     // Dépipax (TODO). Empiles avec leur proprietaire, vides par DeclencherEffetsDifferes (appele a DebutManche).
     public List<(List<IEffet> Effets, Sorcier Proprietaire)> EffetsDifferes { get; } = [];
@@ -455,6 +463,22 @@ public class GameContext
         if (action.CibleUnique && cibles.Count > 1)
             cibles = [ChoisirCible(cibles)];
 
+        // Dissuasion Nucléaire : si cette action ne vise QUE le porteur (un adversaire du lanceur) et que la
+        // redirection n'est pas déjà active, il peut payer 3 🩸 pour rediriger le sort vers un autre sorcier.
+        // (Simplification : « seule cible du sort » approximée par « action à cible unique = le porteur » ; une
+        // fois payée, la redirection s'applique à TOUT le reste du sort via _redirectionDissuasion.)
+        if (_redirectionDissuasion is null && cibles is [{ } victime] && victime != Lanceur
+            && victime.Tresors.Any(t => t.RedirigeSortSeuleCible))
+        {
+            var autres = Sorciers.Where(s => s != Lanceur && s != victime && s.EstVivant).ToList();
+            if (autres.Count > 0 && TenterPayerTresor(victime, 3, "Dissuasion Nucléaire : rediriger le sort"))
+                _redirectionDissuasion = (victime, ChoisirCible(autres));
+        }
+
+        // Application de la redirection (Dissuasion) : ce qui viserait la victime vise la cible choisie.
+        if (_redirectionDissuasion is { } redir)
+            cibles = cibles.Select(c => c == redir.victime ? redir.vers : c).ToList();
+
         foreach (var cible in cibles)
         {
             // Quantite par defaut = 1 (« gagnez un Tresor »...). Les effets sans quantite l'ignorent.
@@ -480,12 +504,15 @@ public class GameContext
     // Coût « Payez N 🩸 » d'une capacite activee de TRESOR. Identique a TenterPayer mais sur la limite 1x/tour
     // SEPAREE des Composants (ADejaPayeTresorCeTour) : rulebook « le cout d'un Tresor ne peut etre paye qu'une
     // fois par tour, a votre tour d'Initiative ». Decider avant de resoudre l'effet ; impossible si pas assez.
-    public bool TenterPayerTresor(int cout, string libelle)
+    public bool TenterPayerTresor(int cout, string libelle) => TenterPayerTresor(Lanceur, cout, libelle);
+
+    // Variante : un autre sorcier que le Lanceur paie (Dissuasion Nucléaire : le PORTEUR ciblé paie pour rediriger).
+    public bool TenterPayerTresor(Sorcier payeur, int cout, string libelle)
     {
-        if (Lanceur.ADejaPayeTresorCeTour || Lanceur.Sang < cout || !ChoisirPayer(Lanceur, cout, libelle))
+        if (payeur.ADejaPayeTresorCeTour || payeur.Sang < cout || !ChoisirPayer(payeur, cout, libelle))
             return false;
-        Lanceur.Sang -= cout;
-        Lanceur.ADejaPayeTresorCeTour = true;
+        payeur.Sang -= cout;
+        payeur.ADejaPayeTresorCeTour = true;
         return true;
     }
 
@@ -571,6 +598,10 @@ public class GameContext
         DerniereCible = null;
         DerniereQuantite = 0;
         DernierDe = 0;
+        _redirectionDissuasion = null;
+        // Baguette Bicéphale : le porteur décide une fois, en début de sort, d'inverser gauche↔droite pour TOUT le sort.
+        _inverserGaucheDroite = Lanceur.Tresors.Any(t => t.InverseGaucheDroite)
+                                && ChoisirOption(Lanceur, "Baguette Bicéphale : inverser gauche/droite ?");
 
         while (true)
         {
@@ -594,6 +625,7 @@ public class GameContext
         }
 
         CreatureEnCours = null;
+        _inverserGaucheDroite = false;   // portée sort : ne pas fuir vers les ResoudreCible hors-sort (clauses FinTour…)
 
         // Fusil à Triple Canon : +1 🩸 par série complète de 3 Glyphes identiques dans le sort résolu.
         if (Lanceur.Tresors.Any(t => t.SangParTroisGlyphes))
@@ -727,8 +759,9 @@ public class GameContext
                 return ControleurDonjon is { } ctrl
                     ? new[] { Voisin(+1, ctrl), Voisin(-1, ctrl) }.OfType<Sorcier>().Distinct()
                     : [];
-            case Cible.AdversaireGauche: return Enumerable1(Voisin(+1));
-            case Cible.AdversaireDroite: return Enumerable1(Voisin(-1));
+            // Baguette Bicéphale : _inverserGaucheDroite échange les sens gauche (+1) et droite (-1).
+            case Cible.AdversaireGauche: return Enumerable1(Voisin(_inverserGaucheDroite ? -1 : +1));
+            case Cible.AdversaireDroite: return Enumerable1(Voisin(_inverserGaucheDroite ? +1 : -1));
             case Cible.DeuxVoisins: return new[] { Voisin(+1), Voisin(-1) }.OfType<Sorcier>().Distinct();
 
             // Superlatifs (cible unique)
