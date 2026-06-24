@@ -22,6 +22,10 @@ public class Sorcier(string nom)
     // A deja paye un cout de Composant ce tour (regles-sang : 1x/tour). Remis a false en debut de tour.
     public bool ADejaPayeCeTour { get; set; }
 
+    // Reduction one-shot du nombre de cartes a piocher au prochain CompleterMain (Doigt Magique : le vainqueur
+    // d'une manche pioche 2 cartes de moins au debut de la suivante). Consommee (remise a 0) des qu'appliquee.
+    public int ReductionPiocheProchainTour { get; set; }
+
     public List<CarteSort> Main { get; set; } = [];
     public List<CarteSort> Creatures { get; set; } = [];
     public List<Tresor> Tresors { get; set; } = [];

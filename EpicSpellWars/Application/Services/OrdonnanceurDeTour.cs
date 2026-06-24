@@ -115,7 +115,24 @@ public class OrdonnanceurDeTour
         FinManche(ctx);
 
         var vivants = ctx.Sorciers.Where(s => s.EstVivant).ToList();
-        return vivants.Count == 1 ? vivants[0] : null;   // null = cas improbable sans survivant (suicide final)
+        // Mémorise le vainqueur pour les effets différés de la manche suivante (Doigt Magique). null = cas
+        // improbable sans survivant (un suicide qui tue le dernier adversaire ; le jeton est tout de même décerné).
+        ctx.VainqueurDerniereManche = vivants.Count == 1 ? vivants[0] : null;
+        return ctx.VainqueurDerniereManche;
+    }
+
+    // Joue une PARTIE complète : enchaîne les manches jusqu'à ce qu'un sorcier atteigne le seuil de victoire
+    // (2 jetons Dernier Survivant par défaut, [[constantes-de-jeu]]). Le Sang et les jetons persistent d'une
+    // manche à l'autre (seuls les PV sont remis à zéro par DebutManche). Renvoie le champion (ou null).
+    public Sorcier? JouerPartie(GameContext ctx, int jetonsPourGagner = 2, int tailleMain = 8)
+    {
+        // Garde-fou anti-boucle infinie (parties sans fin si personne ne peut tuer) : plafond de manches.
+        const int plafondManches = 100;
+        var manches = 0;
+        while (!ctx.Sorciers.Any(s => s.JetonsDernierSurvivant >= jetonsPourGagner) && manches++ < plafondManches)
+            JouerManche(ctx, tailleMain);
+
+        return ctx.Sorciers.FirstOrDefault(s => s.JetonsDernierSurvivant >= jetonsPourGagner);
     }
 
     // Fin de manche ([[creatures-gardees]]) : chaque sorcier défausse sa main, ses Trésors et ses Créatures.

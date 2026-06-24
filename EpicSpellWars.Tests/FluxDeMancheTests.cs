@@ -24,6 +24,13 @@ public class FluxDeMancheTests
     private static List<Carte> Remplissage(int n) =>
         [.. Enumerable.Range(0, n).Select(i => (Carte)new CarteSort($"R{i}", TypeComposant.Qualite, Glyphe.Arcane))];
 
+    // Pioche de Sources létales (25 dégâts à tous les adversaires) : qui en joue une tue tout le monde.
+    private static List<Carte> PiocheLetale(int n) =>
+        [.. Enumerable.Range(0, n).Select(i => (Carte)new CarteSort($"L{i}", TypeComposant.Source, Glyphe.Arcane)
+        {
+            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.TousAdversaires, Valeur = new ValeurFixe(25) }] }],
+        })];
+
     // Une manche se termine quand il ne reste qu'un survivant : il gagne le jeton, et la fin de manche
     // défausse mains/Trésors/Créatures (les crevés restent).
     [Fact]
@@ -102,6 +109,46 @@ public class FluxDeMancheTests
 
         Assert.Contains(creature, t.Merlin.Creatures);   // Créature mise en jeu
         Assert.Contains(source, t.Ctx.Defausse);         // carte révélée non retenue → défaussée
+    }
+
+    // Boucle de partie : on enchaîne les manches jusqu'à ce qu'un sorcier atteigne 2 jetons (victoire).
+    [Fact]
+    public void JouerPartie_se_termine_a_deux_jetons()
+    {
+        var t = new Table();
+        t.Ctx.PiochePrincipale = PiocheLetale(40);
+        // Merlin joue la 1re carte de sa main (létale) chaque manche → il remporte chaque manche.
+        t.Declaration = s => s == t.Merlin && s.Main.Count > 0 ? [s.Main[0]] : [];
+
+        var champion = new OrdonnanceurDeTour().JouerPartie(t.Ctx);
+
+        Assert.Same(t.Merlin, champion);
+        Assert.Equal(2, t.Merlin.JetonsDernierSurvivant);
+        Assert.Equal(2, t.Ctx.Manche);   // exactement 2 manches jouées
+    }
+
+    // Doigt Magique (crevé MancheSuivante) : le VAINQUEUR de la manche pioche 2 cartes de moins au début de
+    // la suivante (et non le propriétaire du crevé, un mort). Réduction one-shot consommée au 1er remplissage.
+    [Fact]
+    public void Doigt_magique_le_vainqueur_pioche_deux_de_moins_la_manche_suivante()
+    {
+        var t = new Table();
+        t.Ctx.PiocheSorcierCreve = [Creve("Doigt Magique")];
+        t.Ctx.PiochePrincipale = Remplissage(20);
+        t.Saroumane.PointsDeVie = 2;
+
+        // Saroumane meurt → pioche Doigt Magique (MancheSuivante → différé).
+        t.Ctx.Lanceur = t.Saroumane;
+        t.Ctx.Appliquer(new Action { Type = TypeAction.AutoDegats, Cible = Cible.Soi, Valeur = new ValeurFixe(5) });
+        Assert.Single(t.Ctx.EffetsDifferes);
+
+        t.Ctx.VainqueurDerniereManche = t.Merlin;   // Merlin a remporté la manche
+        new OrdonnanceurDeTour().DebutManche(t.Ctx);
+        Assert.Equal(2, t.Merlin.ReductionPiocheProchainTour);   // posée par l'effet différé
+
+        t.Ctx.CompleterMain(t.Merlin, 8);
+        Assert.Equal(6, t.Merlin.Main.Count);                    // 2 cartes de moins
+        Assert.Equal(0, t.Merlin.ReductionPiocheProchainTour);   // réduction consommée
     }
 
     // DebutManche réveille les sorciers morts (PV → départ) et déclenche les effets différés.

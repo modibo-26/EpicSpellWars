@@ -37,8 +37,8 @@ public static class SorciersCreves
             [new EffetSimple { Actions = [new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurParJeton(1) }] }],
             TriggerType.Immediat) { Id = "EP2-144", Exemplaires = 4 },
 
-        // TODO manche suivante : le vainqueur pioche 2 cartes de moins.
-        new("Doigt Magique", [], TriggerType.MancheSuivante) { Id = "EP2-145", Exemplaires = 4 },
+        // MancheSuivante : le vainqueur de la manche pioche 2 cartes de moins au début de la suivante (EffetDoigtMagique).
+        new("Doigt Magique", [new EffetDoigtMagique()], TriggerType.MancheSuivante) { Id = "EP2-145", Exemplaires = 4 },
 
         // MancheSuivante : révéler la pioche jusqu'à une Créature et la mettre en jeu devant soi (EffetRonronne).
         new("Ronronne en Paix", [new EffetRonronne()], TriggerType.MancheSuivante) { Id = "EP2-149", Exemplaires = 3 },

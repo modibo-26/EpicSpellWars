@@ -21,6 +21,10 @@ public class GameContext
     public int Manche { get; set; }
     public int Tour { get; set; }
 
+    // Vainqueur (dernier survivant) de la manche qui vient de s'achever. Renseigne par OrdonnanceurDeTour en
+    // fin de JouerManche ; lu par les effets differes qui ciblent « le vainqueur de cette manche » (Doigt Magique).
+    public Sorcier? VainqueurDerniereManche { get; set; }
+
     // Sort en cours de resolution (composants du lanceur ce tour) et creature en cours.
     public List<CarteSort> SortEnCours { get; set; } = [];
     public CarteSort? CreatureEnCours { get; set; }
@@ -321,7 +325,11 @@ public class GameContext
     // TODO: pioche epuisee → remelanger la Defausse (regle de reconstitution), comme RevelerPiocheJusqua.
     public void CompleterMain(Sorcier sorcier, int taille)
     {
-        while (sorcier.Main.Count < taille && PiochePrincipale.Count > 0)
+        // Reduction one-shot (Doigt Magique) : on vise `taille - reduction`, puis on consomme la reduction.
+        var cible = Math.Max(0, taille - sorcier.ReductionPiocheProchainTour);
+        sorcier.ReductionPiocheProchainTour = 0;
+
+        while (sorcier.Main.Count < cible && PiochePrincipale.Count > 0)
         {
             var carte = PiochePrincipale[0];
             PiochePrincipale.RemoveAt(0);
