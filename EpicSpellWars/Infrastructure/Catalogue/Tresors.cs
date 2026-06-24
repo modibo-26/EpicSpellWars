@@ -57,7 +57,8 @@ public static class Tresors
         // Passif (relance) : à chacun de vos tours, vous pouvez relancer le Jet entier d'une Créature (1×/tour).
         new("Manuel de Cryptozoic", [], TriggerType.Passif) { Id = "EP2-161", RelanceJetEntier = true },
         new("Pièces du Destin", [], TriggerType.Immediat) { Id = "EP2-162" },
-        new("Buffet à Volonté", [], TriggerType.Passif) { Id = "EP2-163" },
+        // Immediat : glissez 1 Composant de votre main sous ce Trésor ; son Glyphe compte dans chacun de vos sorts.
+        new("Buffet à Volonté", [new EffetBuffet()], TriggerType.Immediat) { Id = "EP2-163" },
         // Capacité activée : Payez 3 🩸 → soignez-vous de 2 PV.
         new("Nachos de la Rage", [], TriggerType.Passif)
         {
@@ -116,7 +117,8 @@ public static class Tresors
                 },
             ],
         },
-        new("Fusil à Triple Canon", [], TriggerType.Passif) { Id = "EP2-171" },
+        // Passif : +1 🩸 par série complète de 3 Glyphes identiques dans votre sort (évalué en fin de résolution).
+        new("Fusil à Triple Canon", [], TriggerType.Passif) { Id = "EP2-171", SangParTroisGlyphes = true },
         // Immediat : placez une prime au milieu + gagnez un autre Trésor ; le prochain tueur gagne 3 🩸 (OnMort).
         new("Avis de Recherche", [new EffetAvisDeRecherche()], TriggerType.Immediat) { Id = "EP2-172" },
         // GAP : « si premier à jouer, échangez CE Trésor contre un Trésor adverse » = besoin de l'identité du

@@ -107,10 +107,11 @@ public class GameContext
     // Montant choisi pour un cout variable « Payez X 🩸 » (sera borne au Sang dispo).
     public required Func<Sorcier, int> ChoisirMontant { get; set; }
 
-    // Nb de cartes du sort en cours (+ creatures gardees) portant ce Glyphe.
+    // Nb de cartes du sort en cours (+ creatures gardees + cartes sous Buffet à Volonté) portant ce Glyphe.
     public int CompterGlyphes(Glyphe glyphe) =>
         SortEnCours.Count(c => c.Glyphe == glyphe)
-        + Lanceur.Creatures.Count(c => c.Glyphe == glyphe);
+        + Lanceur.Creatures.Count(c => c.Glyphe == glyphe)
+        + Lanceur.SousBuffet.Count(c => c.Glyphe == glyphe);
 
     // Des ajoutes a CE Jet de puissance par les modificateurs actifs : BonusDesJetCreature (Shub-Niggurath
     // paye, portee tour) + le bonus garde du Lanceur (Petit Ange, Passif). Tous les Jets de puissance sont
@@ -593,6 +594,16 @@ public class GameContext
         }
 
         CreatureEnCours = null;
+
+        // Fusil à Triple Canon : +1 🩸 par série complète de 3 Glyphes identiques dans le sort résolu.
+        if (Lanceur.Tresors.Any(t => t.SangParTroisGlyphes))
+        {
+            var series = SortEnCours
+                .Where(c => c.Glyphe != Glyphe.Aucun)
+                .GroupBy(c => c.Glyphe)
+                .Sum(g => g.Count() / 3);
+            Lanceur.Sang = Math.Min(Lanceur.SangMax, Lanceur.Sang + series);
+        }
     }
 
     // Resout un composant : execute ses Effets. Pour une Destination-Creature, pose CreatureEnCours

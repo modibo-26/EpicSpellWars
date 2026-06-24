@@ -51,4 +51,8 @@ public class Tresor(string nom, List<IEffet> effets, TriggerType triggerType) : 
     public bool RelanceLesUns { get; init; }
     public bool RelanceJetEntier { get; init; }
     public bool RelanceUnDePayant { get; init; }
+
+    // Fusil à Triple Canon : +1 🩸 par série complète de 3 Glyphes identiques dans le sort (lu en fin de
+    // ResoudreSort). Buffet à Volonté n'a pas de champ : son effet est l'Immediat EffetBuffet + Sorcier.SousBuffet.
+    public bool SangParTroisGlyphes { get; init; }
 }

@@ -177,9 +177,11 @@ public class OrdonnanceurDeTour
         {
             ctx.Defausse.AddRange(s.Main);
             ctx.Defausse.AddRange(s.Creatures);
+            ctx.Defausse.AddRange(s.SousBuffet);
             ctx.PiocheTresor.AddRange(s.Tresors);
             s.Main.Clear();
             s.Creatures.Clear();
+            s.SousBuffet.Clear();
             s.Tresors.Clear();
         }
     }

@@ -49,6 +49,10 @@ public class Sorcier(string nom)
     public List<CarteSort> Creatures { get; set; } = [];
     public List<Tresor> Tresors { get; set; } = [];
 
+    // Cartes glissées sous « Buffet à Volonté » : leur Glyphe compte dans chacun de vos sorts (CompterGlyphes).
+    // Défaussées en fin de manche avec les Trésors.
+    public List<CarteSort> SousBuffet { get; set; } = [];
+
     // Cartes Sorcier creve piochees a la mort (consolation du mort, tenues devant soi).
     public List<SorcierCreve> SorciersCreves { get; set; } = [];
 }
