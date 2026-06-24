@@ -29,6 +29,10 @@ internal sealed class Table
 
     public int ProchainIndexHasard = 0;   // index renvoye par ChoisirIndexAuHasard (effets « au hasard »)
 
+    // Strategie d'activation des Tresors (tour d'Initiative) : par defaut, aucune activation. Un test la
+    // surcharge (ex. activer le 1er Tresor activable).
+    public Func<Sorcier, IReadOnlyList<Tresor>, Tresor?> ActivationTresor = (_, _) => null;
+
     public Table()
     {
         Ctx = new GameContext
@@ -46,6 +50,7 @@ internal sealed class Table
             ChoisirMontant = _ => ProchainMontant,
             DeclarerSort = s => Declaration(s),
             ChoisirIndexAuHasard = _ => ProchainIndexHasard,
+            ChoisirActivationTresor = (s, ts) => ActivationTresor(s, ts),
         };
     }
 }

@@ -22,6 +22,7 @@ public class OrdonnanceurDeTour
         {
             s.ADejaJoueCeTour = false;
             s.ADejaPayeCeTour = false;
+            s.ADejaPayeTresorCeTour = false;
         }
 
         // Memorise les sorts declares + reset de l'etat de resolution a portee tour (Reactions cross-wizard).
@@ -54,6 +55,12 @@ public class OrdonnanceurDeTour
             // ils se brancheront à leur place propre (cf. GAP tranche D).
             foreach (var tresor in lanceur.Tresors.Where(t => t.TriggerType == TriggerType.SurInitiative).ToList())
                 ctx.DeclencherTresor(tresor, lanceur);
+
+            // Phase d'activation des Trésors (tour d'Initiative) : le porteur peut activer UNE capacité
+            // « Payez X 🩸 » (paiement Trésor 1×/tour). Le choix (quel Trésor, ou aucun) est délégué au hook.
+            var activables = lanceur.Tresors.Where(t => t.Activation is not null).ToList();
+            if (activables.Count > 0)
+                ctx.ChoisirActivationTresor(lanceur, activables)?.Activation!.Execute(ctx);
 
             ctx.SortEnCours = [..sorts[lanceur]];   // copie : ResoudreSort/nettoyage ne touchent pas l'entree
 

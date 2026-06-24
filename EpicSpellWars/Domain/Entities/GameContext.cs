@@ -73,6 +73,10 @@ public class GameContext
     // effets « au hasard » (Bébéfédex : ajoute 1 carte au hasard de la main). Deterministe en test.
     public required Func<int, int> ChoisirIndexAuHasard { get; set; }
 
+    // Au tour d'Initiative d'un porteur, quelle capacite de Tresor activer (ou null = aucune) parmi ses
+    // Tresors activables. Une seule activation PAYANTE par tour ([[tresors-effets-speciaux]]).
+    public required Func<Sorcier, IReadOnlyList<Tresor>, Tresor?> ChoisirActivationTresor { get; set; }
+
     // Declaration du sort d'un sorcier : renvoie les composants qu'il joue ce tour DEPUIS sa main
     // (l'ordonnanceur les retire de la main et les pose en SortEnCours). La SELECTION releve de la couche
     // qui pilote la partie (Console/ASP.NET) ; l'integration Magie feroce dans la declaration viendra ici.
@@ -368,6 +372,18 @@ public class GameContext
             return false;
         Lanceur.Sang -= cout;
         Lanceur.ADejaPayeCeTour = true;
+        return true;
+    }
+
+    // Coût « Payez N 🩸 » d'une capacite activee de TRESOR. Identique a TenterPayer mais sur la limite 1x/tour
+    // SEPAREE des Composants (ADejaPayeTresorCeTour) : rulebook « le cout d'un Tresor ne peut etre paye qu'une
+    // fois par tour, a votre tour d'Initiative ». Decider avant de resoudre l'effet ; impossible si pas assez.
+    public bool TenterPayerTresor(int cout, string libelle)
+    {
+        if (Lanceur.ADejaPayeTresorCeTour || Lanceur.Sang < cout || !ChoisirPayer(Lanceur, cout, libelle))
+            return false;
+        Lanceur.Sang -= cout;
+        Lanceur.ADejaPayeTresorCeTour = true;
         return true;
     }
 

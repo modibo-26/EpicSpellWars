@@ -27,6 +27,12 @@ public class ValeurParCreature(int parUnite) : IValeur
     public int Calculer(GameContext context, Sorcier cible) => parUnite * cible.Creatures.Count;
 }
 
+// « n par tranche COMPLÈTE de `tranche` PV de la cible » (Gang du Gong : 1 par tranche de 5 → 14 PV = 2).
+public class ValeurParTrancheDePv(int parUnite, int tranche) : IValeur
+{
+    public int Calculer(GameContext context, Sorcier cible) => parUnite * (cible.PointsDeVie / tranche);
+}
+
 // « n par sorcier mort »
 public class ValeurParMort(int parUnite) : IValeur
 {

@@ -21,7 +21,17 @@ public static class Tresors
         new("Braguette de Cthulhu",
             [new EffetSimple { Actions = [new Action { Type = TypeAction.VolerSang, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurFixe(1) }] }],
             TriggerType.SurInitiative) { Id = "EP2-146" },
-        new("Gang du Gong", [], TriggerType.Passif) { Id = "EP2-154" },
+        // Capacité activée : Payez 2 🩸 → 1 dégât à un ennemi par tranche complète de 5 PV qu'il possède.
+        new("Gang du Gong", [], TriggerType.Passif)
+        {
+            Id = "EP2-154",
+            Activation = new EffetActivationTresor
+            {
+                Cout = 2,
+                Libelle = "1 dégât par tranche de 5 PV de la cible",
+                SiPaye = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurParTrancheDePv(1, 5) }],
+            },
+        },
         new("Divan le Terrible", [], TriggerType.Passif) { Id = "EP2-155" },
         new("Dés Pipés", [], TriggerType.Passif) { Id = "EP2-156" },
         new("Chalisman", [], TriggerType.Passif) { Id = "EP2-157" },
@@ -31,18 +41,48 @@ public static class Tresors
         new("Manuel de Cryptozoic", [], TriggerType.SurInitiative) { Id = "EP2-161" },
         new("Pièces du Destin", [], TriggerType.Immediat) { Id = "EP2-162" },
         new("Buffet à Volonté", [], TriggerType.Passif) { Id = "EP2-163" },
-        new("Nachos de la Rage", [], TriggerType.Passif) { Id = "EP2-164" },
+        // Capacité activée : Payez 3 🩸 → soignez-vous de 2 PV.
+        new("Nachos de la Rage", [], TriggerType.Passif)
+        {
+            Id = "EP2-164",
+            Activation = new EffetActivationTresor
+            {
+                Cout = 3,
+                Libelle = "Soignez-vous de 2 PV",
+                SiPaye = [new Action { Type = TypeAction.Soin, Cible = Cible.Soi, Valeur = new ValeurFixe(2) }],
+            },
+        },
         new("Bœuf aux Hormones", [], TriggerType.Passif) { Id = "EP2-165" },
-        new("Coupe du Tocard", [], TriggerType.Passif) { Id = "EP2-167" },
+        // Capacité activée : Payez 1 🩸 → soignez-vous de 1 PV (1×/tour, assuré par la limite de paiement
+        // Trésor). GAP : la clause « si votre mort met fin à la manche, +3 🩸 » = déclencheur de mort (à part).
+        new("Coupe du Tocard", [], TriggerType.Passif)
+        {
+            Id = "EP2-167",
+            Activation = new EffetActivationTresor
+            {
+                Cout = 1,
+                Libelle = "Soignez-vous de 1 PV",
+                SiPaye = [new Action { Type = TypeAction.Soin, Cible = Cible.Soi, Valeur = new ValeurFixe(1) }],
+            },
+        },
         // Immediat (partie one-shot) : 1 dégât à chaque sorcier (soi inclus), puis +2 🩸 par sorcier à 5 PV
-        // ou moins. GAP : capacité activée « Payez 4 🩸 : 2 dégâts » (pas de phase d'activation des Trésors).
+        // ou moins. Capacité activée : Payez 4 🩸 → 2 dégâts à n'importe quel adversaire.
         new("Bébé Monstre",
             [new EffetSimple { Actions =
             [
                 new Action { Type = TypeAction.Degats, Cible = Cible.TousSorciers, Valeur = new ValeurFixe(1) },
                 new Action { Type = TypeAction.GagnerSang, Cible = Cible.Soi, Valeur = new ValeurParSorcierFaible(2, 5) },
             ] }],
-            TriggerType.Immediat) { Id = "EP2-168" },
+            TriggerType.Immediat)
+        {
+            Id = "EP2-168",
+            Activation = new EffetActivationTresor
+            {
+                Cout = 4,
+                Libelle = "2 dégâts à n'importe quel adversaire",
+                SiPaye = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurFixe(2) }],
+            },
+        },
         new("Menottes d'Avarice", [], TriggerType.SurInitiative) { Id = "EP2-169" },
         new("Fusil à Triple Canon", [], TriggerType.Passif) { Id = "EP2-171" },
         new("Avis de Recherche", [], TriggerType.Immediat) { Id = "EP2-172" },

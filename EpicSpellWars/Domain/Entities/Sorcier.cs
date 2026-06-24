@@ -22,6 +22,10 @@ public class Sorcier(string nom)
     // A deja paye un cout de Composant ce tour (regles-sang : 1x/tour). Remis a false en debut de tour.
     public bool ADejaPayeCeTour { get; set; }
 
+    // A deja paye un cout de TRESOR ce tour (capacite activee). Limite 1x/tour SEPAREE des Composants
+    // (rulebook : « le cout d'un Tresor ne peut etre paye qu'une fois par tour, a votre tour d'Initiative »).
+    public bool ADejaPayeTresorCeTour { get; set; }
+
     // Reduction one-shot du nombre de cartes a piocher au prochain CompleterMain (Doigt Magique : le vainqueur
     // d'une manche pioche 2 cartes de moins au debut de la suivante). Consommee (remise a 0) des qu'appliquee.
     public int ReductionPiocheProchainTour { get; set; }
