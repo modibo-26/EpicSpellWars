@@ -61,6 +61,10 @@ public class GameContext
     // Portee = tour du lanceur : remis a 0 par l'ordonnanceur au debut de chaque resolution de sort.
     public int BonusDesJetCreature { get; set; }
 
+    // Bonus ajoute a CHAQUE instance de degats appliquee pendant les Actions d'un Jet de puissance (Granoloup).
+    // Arme par EffetJetDePuissance avant la tranche, remis a 0 apres ; 0 hors d'un jet (n'affecte rien d'autre).
+    public int BonusDegatsJet { get; set; }
+
     // Hooks de decision (injectes par la couche qui pilote la partie)
     public required Func<IEnumerable<Sorcier>, Sorcier> ChoisirCible { get; set; }
     public required Func<int> LancerDe { get; set; }
@@ -116,6 +120,15 @@ public class GameContext
         var bonus = BonusDesJetCreature + Lanceur.BonusProchainJetCreature;
         Lanceur.BonusProchainJetCreature = 0;
         return bonus;
+    }
+
+    // Apres le tirage d'un Jet de puissance : Tresors du lanceur qui octroient du 🩸 sur un resultat eleve
+    // (Chipodada : +1 🩸 si le resultat atteint SeuilBonusSangJet). Appele par EffetJetDePuissance.
+    public void ApresJetDePuissance(int somme)
+    {
+        foreach (var tresor in Lanceur.Tresors)
+            if (tresor.SeuilBonusSangJet > 0 && somme >= tresor.SeuilBonusSangJet)
+                Lanceur.Sang = Math.Min(Lanceur.SangMax, Lanceur.Sang + 1);
     }
 
     // GOULOT UNIQUE de tous les degats du jeu : inflige `montant` a `cible` (borne a 0) et detecte la
@@ -726,7 +739,8 @@ public class GameContext
         switch (action.Type)
         {
             case TypeAction.Degats:
-                InfligerDegats(cible, montant);
+                // BonusDegatsJet (Granoloup) = 0 hors d'un Jet de puissance → sans effet ailleurs.
+                InfligerDegats(cible, montant + BonusDegatsJet);
                 break;
             case TypeAction.AutoDegats:
                 InfligerDegats(Lanceur, montant);

@@ -120,8 +120,10 @@ public static class Tresors
         new("Mains Poisseuses !", [], TriggerType.Passif) { Id = "EP2-173" },
         // Passif data-driven : +1 🩸 (en plus des +3) à chaque kill du porteur — lu dans OnMort.
         new("Liste du Père Fouettard", [], TriggerType.Passif) { Id = "EP2-174", BonusSangParKill = 1 },
-        new("Chipodada", [], TriggerType.Passif) { Id = "EP2-175" },
-        new("Granoloup", [], TriggerType.Passif) { Id = "EP2-176" },
+        // Passif (hook de Jet) : +1 🩸 à chaque fois que vous obtenez 13 ou plus à un Jet de puissance.
+        new("Chipodada", [], TriggerType.Passif) { Id = "EP2-175", SeuilBonusSangJet = 13 },
+        // Passif (hook de Jet) : +1 aux dégâts qu'une de vos Créatures inflige à la suite d'un Jet de puissance.
+        new("Granoloup", [], TriggerType.Passif) { Id = "EP2-176", BonusDegatsCreatureJet = 1 },
         // Passif : à chaque fois qu'un adversaire pioche un crevé, lancez un dé ; 5-6 → soin 1 PV (PiocherSorcierCreve).
         new("Bouclier Anti-Fiente", [], TriggerType.Passif) { Id = "EP2-177", SoigneSurPiocheCreveAdverse = true },
         new("Globe Sacrificiel", [], TriggerType.Passif) { Id = "EP2-178" },

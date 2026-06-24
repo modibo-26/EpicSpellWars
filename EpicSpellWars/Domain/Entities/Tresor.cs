@@ -30,4 +30,10 @@ public class Tresor(string nom, List<IEffet> effets, TriggerType triggerType) : 
     // Passif data-driven : à chaque fois qu'un ADVERSAIRE du porteur pioche un Sorcier crevé, le porteur lance
     // un dé et se soigne de 1 PV sur 5-6 (Bouclier Anti-Fiente). Lu dans GameContext.PiocherSorcierCreve.
     public bool SoigneSurPiocheCreveAdverse { get; init; }
+
+    // Passif data-driven (hooks de Jet de puissance, lus par EffetJetDePuissance) :
+    //   SeuilBonusSangJet     : +1 🩸 si le résultat du Jet atteint ce seuil (Chipodada = 13). 0 = pas de bonus.
+    //   BonusDegatsCreatureJet : +n à chaque instance de dégâts d'un Jet du porteur (Granoloup = 1).
+    public int SeuilBonusSangJet { get; init; }
+    public int BonusDegatsCreatureJet { get; init; }
 }
