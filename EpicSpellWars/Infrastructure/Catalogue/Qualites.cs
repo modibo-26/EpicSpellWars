@@ -59,7 +59,7 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-045",
-            // TODO Donjon (même effet sur le voisin de droite).
+            // « L'adversaire de gauche donne 1 carte Arcane, sinon 1 Trésor. Donjon : même effet au voisin de droite. »
             Effets =
             [
                 new EffetProposition
@@ -68,6 +68,20 @@ public static class Qualites
                     Proposition = "Donner 1 carte Arcane ? (sinon 1 Trésor)",
                     SiAccepte = [new Action { Type = TypeAction.PasserCartes, Cible = Cible.MemeCible, MinCartes = 1, FiltreCarte = c => c.Glyphe == Glyphe.Arcane }],
                     SiRefuse = [new Action { Type = TypeAction.VolerTresor, Cible = Cible.MemeCible }],
+                },
+                new EffetSiCondition
+                {
+                    Condition = ctx => ctx.LanceurControleDonjon,
+                    Effets =
+                    [
+                        new EffetProposition
+                        {
+                            Cible = Cible.AdversaireDroite,
+                            Proposition = "Donner 1 carte Arcane ? (sinon 1 Trésor)",
+                            SiAccepte = [new Action { Type = TypeAction.PasserCartes, Cible = Cible.MemeCible, MinCartes = 1, FiltreCarte = c => c.Glyphe == Glyphe.Arcane }],
+                            SiRefuse = [new Action { Type = TypeAction.VolerTresor, Cible = Cible.MemeCible }],
+                        },
+                    ],
                 },
             ],
         },
@@ -225,12 +239,12 @@ public static class Qualites
             Exemplaires = 2,
             Id = "EP2-065",
             // « Choisissez : (A) 2 dégâts à chaque adversaire avec un nb PAIR de PV, ou (B) 3 dégâts à chaque
-            // adversaire avec un nb IMPAIR de PV. » Clause « Donjon : faites les deux (pair puis impair) » =
-            // bonus Donjon → pilier 2 (déclencheurs), TODO.
+            // adversaire avec un nb IMPAIR de PV. Donjon : faites les deux (pair puis impair). »
             Effets =
             [
                 new EffetChoixLanceur
                 {
+                    ConditionTout = ctx => ctx.LanceurControleDonjon,   // Donjon : faites les deux options dans l'ordre
                     Options =
                     [
                         new OptionLanceur

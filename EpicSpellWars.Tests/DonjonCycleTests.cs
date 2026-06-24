@@ -151,4 +151,56 @@ public class DonjonCycleTests
         Assert.Equal(1, t.Gandalf.Sang);             // +1 🩸
         Assert.Equal(18, t.Saroumane.PointsDeVie);   // autre (Donjon) : 20 - 2
     }
+
+    // Roulépélax « Donjon : » applique aussi la proposition au voisin de DROITE (les deux voisins donnent).
+    [Fact]
+    public void Roulepelax_donjon_applique_l_effet_aux_deux_voisins()
+    {
+        var t = new Table();   // ProchainChoix = true par défaut → chaque voisin accepte de donner sa carte Arcane
+        t.Ctx.ControleurDonjon = t.Merlin;
+        var gauche = new CarteSort("AG", TypeComposant.Source, Glyphe.Arcane);
+        var droite = new CarteSort("AD", TypeComposant.Source, Glyphe.Arcane);
+        t.Gandalf.Main = [gauche];
+        t.Saroumane.Main = [droite];
+        t.Ctx.SortEnCours = [Carte("Roulepélax")];
+
+        t.Ctx.ResoudreSort();
+
+        Assert.Contains(gauche, t.Merlin.Main);   // voisin de gauche
+        Assert.Contains(droite, t.Merlin.Main);   // voisin de droite (Donjon)
+    }
+
+    // Roulépélax sans Donjon : seul le voisin de gauche est affecté.
+    [Fact]
+    public void Roulepelax_sans_donjon_n_affecte_que_la_gauche()
+    {
+        var t = new Table();
+        var gauche = new CarteSort("AG", TypeComposant.Source, Glyphe.Arcane);
+        var droite = new CarteSort("AD", TypeComposant.Source, Glyphe.Arcane);
+        t.Gandalf.Main = [gauche];
+        t.Saroumane.Main = [droite];
+        t.Ctx.SortEnCours = [Carte("Roulepélax")];
+
+        t.Ctx.ResoudreSort();
+
+        Assert.Contains(gauche, t.Merlin.Main);
+        Assert.DoesNotContain(droite, t.Merlin.Main);
+        Assert.Contains(droite, t.Saroumane.Main);   // gardé : la droite n'est pas touchée
+    }
+
+    // Groclonar « Donjon : » fait les DEUX options (pair puis impair) au lieu d'en choisir une.
+    [Fact]
+    public void Groclonar_donjon_fait_les_deux_options()
+    {
+        var t = new Table();
+        t.Ctx.ControleurDonjon = t.Merlin;
+        t.Gandalf.PointsDeVie = 20;    // pair
+        t.Saroumane.PointsDeVie = 15;  // impair
+        t.Ctx.SortEnCours = [Carte("Groclonar")];
+
+        t.Ctx.ResoudreSort();
+
+        Assert.Equal(18, t.Gandalf.PointsDeVie);     // pair → -2
+        Assert.Equal(12, t.Saroumane.PointsDeVie);   // impair → -3
+    }
 }
