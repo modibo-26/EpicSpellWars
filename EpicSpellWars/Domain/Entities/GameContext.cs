@@ -267,6 +267,53 @@ public class GameContext
     public CarteSort? ResoudreMagieFeroce(MagieFeroce joker) =>
         joker.TypeRemplace is { } type ? RevelerPiocheJusqua(c => c.Type == type) : null;
 
+    // À la déclaration ([[magie-feroce]]) : remplace IN PLACE chaque joker Magie féroce du sort par une vraie
+    // carte révélée de la pioche (du type déclaré), et défausse le joker. Pioche épuisée / type non déclaré →
+    // le joker disparaît sans remplacement. Appelé avant la résolution, pour que l'ordre du tour et le Jet
+    // portent sur de vraies cartes. NB : la nuance « joker en Destination = Initiative 0 » n'est pas modélisée
+    // (l'ordre utilise l'Initiative de la carte révélée) — simplification assumée.
+    public void ResoudreJokersDuSort(List<CarteSort> sort)
+    {
+        for (var i = 0; i < sort.Count; i++)
+            if (sort[i] is MagieFeroce joker)
+            {
+                var reelle = ResoudreMagieFeroce(joker);
+                Defausse.Add(joker);
+                if (reelle is not null)
+                    sort[i] = reelle;
+                else
+                    sort.RemoveAt(i--);
+            }
+    }
+
+    // Baisse de Tension : ajoute la 1re carte de la pioche principale au sort. Si c'est un joker Magie féroce,
+    // le proprietaire la PREND EN MAIN et c'est la carte SUIVANTE de la pioche qui rejoint le sort.
+    public void AugmenterSortDepuisPioche(List<CarteSort> sort, Sorcier proprietaire)
+    {
+        if (PiochePrincipale.Count == 0)
+            return;
+
+        var premiere = PiochePrincipale[0];
+        PiochePrincipale.RemoveAt(0);
+
+        if (premiere is MagieFeroce joker)
+        {
+            proprietaire.Main.Add(joker);   // « prenez-la en main »
+            if (PiochePrincipale.Count == 0)
+                return;
+            var suivante = PiochePrincipale[0];
+            PiochePrincipale.RemoveAt(0);
+            if (suivante is CarteSort cs)
+                sort.Add(cs);
+            else
+                Defausse.Add(suivante);
+        }
+        else if (premiere is CarteSort carte)
+        {
+            sort.Add(carte);
+        }
+    }
+
     // Garde la creature en cours en jeu (resultat GARDEZ d'un Jet de puissance).
     public void GarderCreatureEnCours()
     {

@@ -26,6 +26,10 @@ public class Sorcier(string nom)
     // d'une manche pioche 2 cartes de moins au debut de la suivante). Consommee (remise a 0) des qu'appliquee.
     public int ReductionPiocheProchainTour { get; set; }
 
+    // Armé par Baisse de Tension (crevé MancheSuivante) : le PREMIER sort joué la manche suivante est augmenté
+    // de la 1re carte de la pioche. Consommé (remis a false) des que ce premier sort est declare.
+    public bool AugmenterPremierSort { get; set; }
+
     public List<CarteSort> Main { get; set; } = [];
     public List<CarteSort> Creatures { get; set; } = [];
     public List<Tresor> Tresors { get; set; } = [];

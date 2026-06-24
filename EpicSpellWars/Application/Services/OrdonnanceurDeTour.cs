@@ -106,6 +106,17 @@ public class OrdonnanceurDeTour
                 var composants = ctx.DeclarerSort(s).ToList();
                 foreach (var c in composants)
                     s.Main.Remove(c);
+
+                // Baisse de Tension : augmente le PREMIER sort (non vide) de la manche avec la 1re carte de la pioche.
+                if (s.AugmenterPremierSort && composants.Count > 0)
+                {
+                    ctx.AugmenterSortDepuisPioche(composants, s);
+                    s.AugmenterPremierSort = false;
+                }
+
+                // Magie féroce : remplace les jokers du sort par de vraies cartes révélées de la pioche.
+                ctx.ResoudreJokersDuSort(composants);
+
                 sorts[s] = composants;
             }
 

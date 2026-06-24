@@ -43,7 +43,8 @@ public static class SorciersCreves
         // MancheSuivante : révéler la pioche jusqu'à une Créature et la mettre en jeu devant soi (EffetRonronne).
         new("Ronronne en Paix", [new EffetRonronne()], TriggerType.MancheSuivante) { Id = "EP2-149", Exemplaires = 3 },
 
-        // TODO manche suivante : ajouter la 1re carte de la pioche au 1er sort (gestion Magie féroce incluse).
-        new("Baisse de Tension", [], TriggerType.MancheSuivante) { Id = "EP2-152", Exemplaires = 2 },
+        // MancheSuivante : arme l'augmentation du 1er sort de la manche suivante (1re carte de pioche, gestion
+        // Magie féroce incluse côté ordonnanceur via AugmenterSortDepuisPioche). Voir EffetBaisseDeTension.
+        new("Baisse de Tension", [new EffetBaisseDeTension()], TriggerType.MancheSuivante) { Id = "EP2-152", Exemplaires = 2 },
     ];
 }
