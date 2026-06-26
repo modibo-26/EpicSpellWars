@@ -9,15 +9,24 @@ public class EffetBranchement : IEffet
     public int NbDes { get; set; } = 1;
     public List<Tranche> Tranches { get; set; } = [];
 
-    public void Execute(GameContext context)
+    public virtual void Execute(GameContext context) => ResoudreSomme(LancerEtAjuster(context), context);
+
+    // Tire les dés (nb selon CalculerNbDes) puis applique le hook de RELANCE (Dés Pipés / Manuel / Globe ;
+    // no-op hors Jet de puissance). Renvoie les dés finalisés — partagé avec les variantes par-dé (Gaztoxicus).
+    protected List<int> LancerEtAjuster(GameContext context)
     {
         var nbDes = CalculerNbDes(context);
         var des = new List<int>(nbDes);
         for (var i = 0; i < nbDes; i++)
             des.Add(context.LancerDe());
 
-        AjusterDes(des, context);   // hook de RELANCE (Dés Pipés / Manuel / Globe) ; no-op hors Jet de puissance
+        AjusterDes(des, context);
+        return des;
+    }
 
+    // Résolution normale : somme des dés → la seule Tranche correspondante.
+    protected void ResoudreSomme(List<int> des, GameContext context)
+    {
         var somme = des.Sum();
         ApresLancer(somme, context);   // hook sur le RÉSULTAT du jet (Chipodada : 🩸 si >= 13)
 

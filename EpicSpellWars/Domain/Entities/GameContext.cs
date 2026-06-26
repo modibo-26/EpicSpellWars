@@ -830,9 +830,12 @@ public class GameContext
             case Cible.ADejaJoue: return Adversaires.Where(s => s.ADejaJoueCeTour);
             case Cible.NaPasJoue: return Adversaires.Where(s => !s.ADejaJoueCeTour);
 
-            // Designation par de : a brancher plus tard (necessite le tirage du de en amont).
+            // « Adversaire designe par le de » : cible aleatoire. La repartition de→siege du rulebook n'est pas
+            // specifiee a 4+ joueurs, mais elle equivaut fonctionnellement a un tirage uniforme parmi les
+            // adversaires. Hasard injecte via le hook ChoisirIndexAuHasard (deterministe en test).
             case Cible.DesigneParDe:
-                throw new NotImplementedException($"Cible {cible} : designation par de a brancher.");
+                var parDe = Adversaires.ToList();
+                return parDe.Count == 0 ? [] : [parDe[ChoisirIndexAuHasard(parDe.Count)]];
 
             default:
                 throw new NotImplementedException($"Cible {cible} non geree.");

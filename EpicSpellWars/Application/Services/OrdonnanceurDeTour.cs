@@ -220,7 +220,7 @@ public class OrdonnanceurDeTour
         // Effets différés (Sorciers crevés MancheSuivante, etc.) — joués sur des sorciers désormais vivants.
         ctx.DeclencherEffetsDifferes();
     }
-
+    
     // Initiative du sort = celle de sa Destination ; 0 sans Destination.
     // TODO: Magie feroce en Destination = Initiative 0 (a affiner avec le type Magie feroce).
     private static int InitiativeDe(List<CarteSort> sort) =>

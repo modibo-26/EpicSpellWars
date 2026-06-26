@@ -230,8 +230,22 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-061",
-            // GAP : Cible.DesigneParDe non implémentée (le tirage désigne la cible). + Donjon.
-            Effets = [],
+            // « Infligez 1 dé de dégâts à un adversaire désigné par le dé. Donjon : Infligez ensuite 2 dégâts à
+            // un autre adversaire. » « Désigné par le dé » = cible aléatoire (Cible.DesigneParDe). Le 1er Degats
+            // pose DerniereCible → la clause Donjon (EffetConditionnel) frappe « un autre adversaire » via
+            // AutreAdversaire (= un adversaire ≠ DerniereCible).
+            Effets =
+            [
+                new EffetSimple
+                {
+                    Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.DesigneParDe, Valeur = new ValeurDe(1) }],
+                },
+                new EffetConditionnel
+                {
+                    Condition = ctx => ctx.LanceurControleDonjon,
+                    SiVrai = [new Action { Type = TypeAction.Degats, Cible = Cible.AutreAdversaire, Valeur = new ValeurFixe(2) }],
+                },
+            ],
         },
 
         new("Fourchétix", TypeComposant.Qualite, Glyphe.Elementaire)

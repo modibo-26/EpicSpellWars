@@ -357,12 +357,12 @@ public static class Destinations
         {
             Exemplaires = 2,
             Id = "EP2-106",
-            // Cible « Adversaire qui a déjà joué » = ADejaJoue + CibleUnique. FAIT.
-            // GAP paiement : « Payez 2 🩸 : résoudre chaque dé de ce Jet individuellement contre des adversaires
-            //       différents » = dés du Jet utilisés SEPAREMENT + ciblage par dé (cf. Castoramax / Coupéhendus).
+            // Cible « Adversaire qui a déjà joué » = ADejaJoue + CibleUnique.
+            // « Payez 2 🩸 : résoudre chaque dé de ce Jet individuellement contre des adversaires différents »
+            //       = EffetGaztoxicus (variante par-dé du Jet ; cf. EffetGaztoxicus pour le détail).
             Effets =
             [
-                new EffetJetDePuissance
+                new EffetGaztoxicus
                 {
                     Glyphe = Glyphe.Illusion,
                     Tranches =
