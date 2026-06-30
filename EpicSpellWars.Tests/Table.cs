@@ -29,6 +29,10 @@ internal sealed class Table
 
     public int ProchainIndexHasard = 0;   // index renvoye par ChoisirIndexAuHasard (effets « au hasard »)
 
+    // Hasard SEEDE (Fisher-Yates) pour Melanger : l'ordre est reellement brasse (fidele) ET reproductible
+    // (rejouable) — JAMAIS l'identite ([[pioche-non-melangee]]). Graine fixe → tests deterministes.
+    private readonly Random _rng = new(20260630);
+
     // Strategie d'activation des Tresors (tour d'Initiative) : par defaut, aucune activation. Un test la
     // surcharge (ex. activer le 1er Tresor activable).
     public Func<Sorcier, IReadOnlyList<Tresor>, Tresor?> ActivationTresor = (_, _) => null;
@@ -51,6 +55,19 @@ internal sealed class Table
             DeclarerSort = s => Declaration(s),
             ChoisirIndexAuHasard = _ => ProchainIndexHasard,
             ChoisirActivationTresor = (s, ts) => ActivationTresor(s, ts),
+            Melanger = cartes => MelangerSeed(cartes, _rng),
         };
+    }
+
+    // Fisher-Yates seede : brassage reel et reproductible (cf. _rng).
+    private static List<Carte> MelangerSeed(IReadOnlyList<Carte> cartes, Random rng)
+    {
+        var liste = cartes.ToList();
+        for (var i = liste.Count - 1; i > 0; i--)
+        {
+            var j = rng.Next(i + 1);
+            (liste[i], liste[j]) = (liste[j], liste[i]);
+        }
+        return liste;
     }
 }

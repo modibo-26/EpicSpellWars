@@ -105,6 +105,13 @@ public class GameContext
     // Tresors activables. Une seule activation PAYANTE par tour ([[tresors-effets-speciaux]]).
     public required Func<Sorcier, IReadOnlyList<Tresor>, Tresor?> ChoisirActivationTresor { get; set; }
 
+    // Melange d'une pile de cartes (injection du hasard). Recoit la pile a brasser, renvoie une NOUVELLE
+    // liste melangee. Sert au melange initial (setup de partie, MelangerPioche) ET au remelange de la
+    // Defausse quand la pioche s'epuise. Type = Carte (la pile contient aussi les jokers MagieFeroce, qui
+    // ne sont pas des CarteSort). Prod : Fisher-Yates / OrderBy(Random.Shared.Next()). Test : new Random(seed)
+    // — fidele (l'ordre est reellement brasse) ET reproductible ; JAMAIS l'identite ([[pioche-non-melangee]]).
+    public required Func<IReadOnlyList<Carte>, List<Carte>> Melanger { get; set; }
+
     // Declaration du sort d'un sorcier : renvoie les composants qu'il joue ce tour DEPUIS sa main
     // (l'ordonnanceur les retire de la main et les pose en SortEnCours). La SELECTION releve de la couche
     // qui pilote la partie (Console/ASP.NET) ; l'integration Magie feroce dans la declaration viendra ici.
@@ -443,11 +450,27 @@ public class GameContext
             }
     }
 
+    // Melange initial de la pioche principale (setup de partie). À appeler UNE fois avant la 1re manche
+    // (PAS dans Catalogue.PiochePrincipale() qui reste deterministe). Utilise le hook Melanger injecte.
+    public void MelangerPioche() => PiochePrincipale = Melanger(PiochePrincipale);
+
+    // Pioche vide → reconstitue la pioche en melangeant la Defausse (regle de reconstitution,
+    // [[pioche-non-melangee]]). Renvoie true s'il reste au moins une carte a piocher (false = tout est epuise).
+    private bool ReapprovisionnerPioche()
+    {
+        if (PiochePrincipale.Count == 0 && Defausse.Count > 0)
+        {
+            PiochePrincipale = Melanger(Defausse);
+            Defausse = [];
+        }
+        return PiochePrincipale.Count > 0;
+    }
+
     // Baisse de Tension : ajoute la 1re carte de la pioche principale au sort. Si c'est un joker Magie féroce,
     // le proprietaire la PREND EN MAIN et c'est la carte SUIVANTE de la pioche qui rejoint le sort.
     public void AugmenterSortDepuisPioche(List<CarteSort> sort, Sorcier proprietaire)
     {
-        if (PiochePrincipale.Count == 0)
+        if (!ReapprovisionnerPioche())
             return;
 
         var premiere = PiochePrincipale[0];
@@ -456,7 +479,7 @@ public class GameContext
         if (premiere is MagieFeroce joker)
         {
             proprietaire.Main.Add(joker);   // « prenez-la en main »
-            if (PiochePrincipale.Count == 0)
+            if (!ReapprovisionnerPioche())
                 return;
             var suivante = PiochePrincipale[0];
             PiochePrincipale.RemoveAt(0);
@@ -556,15 +579,15 @@ public class GameContext
     }
 
     // Complete la main du sorcier jusqu'a `taille` cartes en piochant le sommet de la pioche principale
-    // (s'arrete si la pioche est epuisee). Appele au debut de chaque tour ([[constantes-de-jeu]] : main = 8).
-    // TODO: pioche epuisee → remelanger la Defausse (regle de reconstitution), comme RevelerPiocheJusqua.
+    // (s'arrete si pioche ET Defausse sont epuisees). Appele au debut de chaque tour ([[constantes-de-jeu]] :
+    // main = 8). Pioche vide → remelange de la Defausse (ReapprovisionnerPioche).
     public void CompleterMain(Sorcier sorcier, int taille)
     {
         // Reduction one-shot (Doigt Magique) : on vise `taille - reduction`, puis on consomme la reduction.
         var cible = Math.Max(0, taille - sorcier.ReductionPiocheProchainTour);
         sorcier.ReductionPiocheProchainTour = 0;
 
-        while (sorcier.Main.Count < cible && PiochePrincipale.Count > 0)
+        while (sorcier.Main.Count < cible && ReapprovisionnerPioche())
         {
             var carte = PiochePrincipale[0];
             PiochePrincipale.RemoveAt(0);
@@ -579,10 +602,10 @@ public class GameContext
     // (ou pioche epuisee). Les cartes revelees NON retenues vont a la Defausse ; la carte trouvee est
     // retiree de la pioche et RENVOYEE (l'appelant la place : sort, main...). null si rien trouve.
     // Routine automatique (Peutidardus, Cadopourrix paye, Magie Feroce...) — pas un choix de main.
-    // TODO: pioche epuisee → remelanger la Defausse (regle de reconstitution) ; ici on s'arrete.
+    // Pioche vide → remelange de la Defausse (ReapprovisionnerPioche) ; s'arrete si tout est epuise.
     public CarteSort? RevelerPiocheJusqua(Predicate<CarteSort> critere)
     {
-        while (PiochePrincipale.Count > 0)
+        while (ReapprovisionnerPioche())
         {
             var carte = PiochePrincipale[0];
             PiochePrincipale.RemoveAt(0);

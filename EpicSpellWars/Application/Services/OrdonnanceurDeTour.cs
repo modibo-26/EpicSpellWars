@@ -172,6 +172,8 @@ public class OrdonnanceurDeTour
     // manche à l'autre (seuls les PV sont remis à zéro par DebutManche). Renvoie le champion (ou null).
     public Sorcier? JouerPartie(GameContext ctx, int jetonsPourGagner = 2, int tailleMain = 8)
     {
+        ctx.MelangerPioche();   // setup de partie : melange initial de la pioche (une seule fois)
+
         // Garde-fou anti-boucle infinie (parties sans fin si personne ne peut tuer) : plafond de manches.
         const int plafondManches = 100;
         var manches = 0;
