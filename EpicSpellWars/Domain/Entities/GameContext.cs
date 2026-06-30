@@ -426,11 +426,11 @@ public class GameContext
     public CarteSort? ResoudreMagieFeroce(MagieFeroce joker) =>
         joker.TypeRemplace is { } type ? RevelerPiocheJusqua(c => c.Type == type) : null;
 
-    // À la déclaration ([[magie-feroce]]) : remplace IN PLACE chaque joker Magie féroce du sort par une vraie
-    // carte révélée de la pioche (du type déclaré), et défausse le joker. Pioche épuisée / type non déclaré →
-    // le joker disparaît sans remplacement. Appelé avant la résolution, pour que l'ordre du tour et le Jet
-    // portent sur de vraies cartes. NB : la nuance « joker en Destination = Initiative 0 » n'est pas modélisée
-    // (l'ordre utilise l'Initiative de la carte révélée) — simplification assumée.
+    // À la « révélation » du sort ([[magie-feroce]]) : remplace IN PLACE chaque carte Magie féroce du sort par
+    // une vraie carte révélée de la pioche (du type déclaré), et la défausse. Pioche épuisée / type non
+    // déclaré → la Magie féroce disparaît sans remplacement. Appelé À LA RÉSOLUTION du sort (JouerTour), APRÈS
+    // l'ordonnancement : ainsi l'ordre du tour voit encore la Magie féroce (en Destination = Initiative 0,
+    // rulebook pages 6/16) tandis que le Jet de puissance, lui, porte sur la vraie carte révélée.
     // `proprietaire` = le sorcier qui déclare le sort (ses Trésors modifient la résolution : Divan le Terrible
     // → 2 cartes révélées par joker au lieu d'1).
     public void ResoudreJokersDuSort(List<CarteSort> sort, Sorcier proprietaire)

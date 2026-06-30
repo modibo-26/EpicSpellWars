@@ -74,7 +74,11 @@ public class OrdonnanceurDeTour
             if (activables.Count > 0)
                 ctx.ChoisirActivationTresor(lanceur, activables)?.Activation!.Execute(ctx);
 
-            // Phase SORT : résolution du sort déclaré.
+            // Phase SORT : « révélation » du sort → on remplace MAINTENANT (à la résolution, dans l'ordre du
+            // tour) les Magie féroce par de vraies cartes révélées de la pioche. Fait ici et non à la
+            // déclaration pour que l'ordonnancement ci-dessus ait bien vu une Magie féroce (Initiative 0).
+            ctx.ResoudreJokersDuSort(sorts[lanceur], lanceur);
+
             ctx.SortEnCours = [..sorts[lanceur]];   // copie : ResoudreSort/nettoyage ne touchent pas l'entree
 
             ctx.ResoudreSort();
@@ -149,9 +153,10 @@ public class OrdonnanceurDeTour
                     s.AugmenterPremierSort = false;
                 }
 
-                // Magie féroce : remplace les jokers du sort par de vraies cartes révélées de la pioche.
-                ctx.ResoudreJokersDuSort(composants, s);
-
+                // NB : les Magie féroce NE sont PAS résolues ici. Le rulebook impose qu'une Magie féroce en
+                // emplacement Destination vaille Initiative 0 pour l'ordre du tour, et qu'elle ne soit remplacée
+                // par une vraie carte qu'« au moment où le sort est révélé » (= à sa résolution). Le remplacement
+                // est donc fait dans JouerTour, après l'ordonnancement et dans l'ordre du tour.
                 sorts[s] = composants;
             }
 
@@ -223,8 +228,10 @@ public class OrdonnanceurDeTour
         ctx.DeclencherEffetsDifferes();
     }
     
-    // Initiative du sort = celle de sa Destination ; 0 sans Destination.
-    // TODO: Magie feroce en Destination = Initiative 0 (a affiner avec le type Magie feroce).
+    // Initiative du sort = celle de sa Destination ; 0 sans Destination. Une Magie féroce a Type == null :
+    // elle n'est jamais reconnue comme Destination, donc une Magie féroce en emplacement Destination (aucune
+    // vraie Destination dans le sort) tombe sur le ?? 0 → Initiative 0, conforme au rulebook (pages 6 et 16).
+    // C'est pour cela que l'ordonnancement précède le remplacement des Magie féroce (cf. JouerTour / JouerManche).
     private static int InitiativeDe(List<CarteSort> sort) =>
         sort.FirstOrDefault(c => c.Type == TypeComposant.Destination)?.Initiative ?? 0;
 }

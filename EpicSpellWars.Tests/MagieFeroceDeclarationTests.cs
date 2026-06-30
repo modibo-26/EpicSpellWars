@@ -111,22 +111,45 @@ public class MagieFeroceDeclarationTests
         Assert.False(t.Merlin.AugmenterPremierSort);    // drapeau consommé
     }
 
-    // Intégration : un joker déclaré dans un sort est résolu en vraie carte puis joué pendant la manche.
+    // Intégration : une Magie féroce déclarée dans un sort est résolue en vraie carte puis jouée pendant la manche.
     [Fact]
-    public void Joker_declare_est_resolu_et_joue_pendant_la_manche()
+    public void Magie_feroce_declaree_est_resolue_et_jouee_pendant_la_manche()
     {
         var t = new Table();
-        var joker = new MagieFeroce { TypeRemplace = TypeComposant.Source };
+        var magieFeroce = new MagieFeroce { TypeRemplace = TypeComposant.Source };
         var letale = Frappe(Cible.TousAdversaires, 25);   // vraie Source létale dans la pioche
-        t.Merlin.Main = [joker, .. Fillers(7)];
+        t.Merlin.Main = [magieFeroce, .. Fillers(7)];
         t.Gandalf.Main = Fillers(8);
         t.Saroumane.Main = Fillers(8);
         t.Ctx.PiochePrincipale = [letale];
-        t.Declaration = s => s == t.Merlin ? [joker] : [];
+        t.Declaration = s => s == t.Merlin ? [magieFeroce] : [];
 
         var vainqueur = new OrdonnanceurDeTour().JouerManche(t.Ctx);
 
-        Assert.Same(t.Merlin, vainqueur);            // le joker → Source létale → kill
-        Assert.Contains(joker, t.Ctx.Defausse);      // joker défaussé
+        Assert.Same(t.Merlin, vainqueur);                  // la Magie féroce → Source létale → kill
+        Assert.Contains(magieFeroce, t.Ctx.Defausse);      // Magie féroce défaussée
+    }
+
+    // Rulebook (pages 6 et 16) : une Magie féroce en emplacement Destination vaut Initiative 0 pour l'ordre du
+    // tour. Donc à nombre de Composants égal, elle joue APRÈS une vraie Destination à forte Initiative — et
+    // n'est remplacée par une vraie carte (ici Initiative 99) qu'À sa résolution, ce qui n'influe donc PAS sur
+    // l'ordre déjà calculé.
+    [Fact]
+    public void Magie_feroce_en_destination_vaut_initiative_zero_pour_l_ordre_du_tour()
+    {
+        var t = new Table();
+        var magieFeroce = new MagieFeroce { TypeRemplace = TypeComposant.Destination };
+        var vraieDest = new CarteSort("Dest", TypeComposant.Destination, Glyphe.Arcane, initiative: 10);
+        var revelee = new CarteSort("Révélée", TypeComposant.Destination, Glyphe.Arcane, initiative: 99);
+        t.Ctx.PiochePrincipale = [revelee];   // ce que la Magie féroce révélera à la résolution
+
+        var ordre = new OrdonnanceurDeTour().JouerTour(t.Ctx, new Dictionary<Sorcier, List<CarteSort>>
+        {
+            [t.Merlin] = [magieFeroce],   // Magie féroce en Destination → Initiative 0
+            [t.Gandalf] = [vraieDest],    // vraie Destination Initiative 10
+        });
+
+        Assert.Equal([t.Gandalf, t.Merlin], ordre);      // Gandalf (10) joue AVANT Merlin (Magie féroce = 0)
+        Assert.Contains(magieFeroce, t.Ctx.Defausse);    // Magie féroce bien remplacée à la résolution
     }
 }
