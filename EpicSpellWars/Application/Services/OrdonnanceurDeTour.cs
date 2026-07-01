@@ -64,6 +64,10 @@ public class OrdonnanceurDeTour
             ctx.CreatureEnCours = null;
             ctx.BonusDesJetCreature = 0;   // bonus de dés (Shub payé) à portée du tour du lanceur
 
+            // Créatures gardées des tours PRÉCÉDENTS (snapshot AVANT résolution) : elles réattaqueront après le
+            // sort. Snapshot ici pour exclure une Créature gardée CE tour (elle vient d'attaquer comme Destination).
+            var creaturesAReattaquer = lanceur.Creatures.ToList();
+
             // Phase DEBUT DE TOUR : clauses « début de votre tour » des Trésors du porteur (Braguette de
             // Cthulhu, Mains Poisseuses « si premier à jouer »...).
             ctx.DeclencherClausesPhase(PhaseTour.DebutTour, [lanceur]);
@@ -88,6 +92,10 @@ public class OrdonnanceurDeTour
             foreach (var composant in ctx.SortEnCours.Where(composant => !lanceur.Creatures.Contains(composant)))
                 ctx.Defausse.Add(composant);
             ctx.SortEnCours = [];
+
+            // Réattaque forcée des Créatures gardées des tours précédents, APRÈS le sort déclaré (et hors
+            // SortEnCours → leur Jet ne compte que les Glyphes des Créatures gardées). GARDEZ → reste ; sinon défaussée.
+            ctx.ReattaquerCreaturesGardees(creaturesAReattaquer);
 
             lanceur.ADejaJoueCeTour = true;
         }

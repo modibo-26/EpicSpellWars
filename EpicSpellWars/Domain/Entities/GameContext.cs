@@ -516,11 +516,46 @@ public class GameContext
         }
     }
 
-    // Garde la creature en cours en jeu (resultat GARDEZ d'un Jet de puissance).
+    // Ce Jet de puissance a-t-il produit un GARDEZ ? Posé par GarderCreatureEnCours, lu par la réattaque
+    // (ReattaquerCreaturesGardees) pour décider garde-ou-défausse. Sans intérêt lors du 1er jet (personne ne le lit).
+    private bool _gardeReussie;
+
+    // Garde la creature en cours en jeu (resultat GARDEZ d'un Jet de puissance). Pose aussi le signal _gardeReussie
+    // (utile en réattaque : la Créature est déjà dans Creatures, seul le signal indique qu'elle reste).
     public void GarderCreatureEnCours()
     {
-        if (CreatureEnCours is not null && !Lanceur.Creatures.Contains(CreatureEnCours))
+        if (CreatureEnCours is null)
+            return;
+        _gardeReussie = true;
+        if (!Lanceur.Creatures.Contains(CreatureEnCours))
             Lanceur.Creatures.Add(CreatureEnCours);
+    }
+
+    // Réattaque forcée des Créatures gardées de tours PRÉCÉDENTS (rulebook p.10 : « vous serez obligé »). Appelée
+    // par l'ordonnanceur APRÈS la résolution du sort déclaré et son nettoyage (SortEnCours vidé) → le Jet de chaque
+    // Créature ne compte QUE les Glyphes des Créatures gardées (pas de double-comptage avec le sort de ce tour).
+    // Chaque Créature refait son Jet (ResoudreComposant) ; si le résultat n'est PAS GARDEZ, elle est défaussée.
+    // `creatures` = snapshot pris AVANT la résolution du sort (exclut une Créature gardée CE tour, déjà résolue).
+    public void ReattaquerCreaturesGardees(IReadOnlyList<CarteSort> creatures)
+    {
+        foreach (var creature in creatures)
+        {
+            if (!Lanceur.EstVivant)
+                break;                                   // auto-dégât fatal en réattaque → on arrête
+            if (!Lanceur.Creatures.Contains(creature))
+                continue;                                // sacrifiée / retirée entre-temps
+
+            DerniereCible = null;                        // portée « ce sort » = cette réattaque isolée
+            DerniereQuantite = 0;
+            DernierDe = 0;
+            _gardeReussie = false;
+            CreatureEnCours = creature;
+            ResoudreComposant(creature);                 // relance le Jet + réapplique l'effet ; GARDEZ → re-add + signal
+            CreatureEnCours = null;
+
+            if (!_gardeReussie && Lanceur.Creatures.Remove(creature))
+                Defausse.Add(creature);                  // pas de GARDEZ → défaussée
+        }
     }
 
     // Applique une Action : resolution de la Cible, du montant (Valeur) puis de l'effet (TypeAction).
