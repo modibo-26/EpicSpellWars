@@ -1,6 +1,6 @@
 [
   {
-    "id": "EP2-146",
+    "id": "EP2-166",
     "nom": "Braguette de Cthulhu",
     "type": "Trésor",
     "exemplaires": 1,
@@ -161,14 +161,14 @@
     "texte": "À chaque fois qu'un adversaire pioche une carte Sorcier crevé, lancez un dé. Si vous obtenez 5 ou 6, soignez-vous de 1 PV."
   },
   {
-    "id": "EP2-178",
+    "id": "EP2-170",
     "nom": "Globe Sacrificiel",
     "type": "Trésor",
     "exemplaires": 1,
     "texte": "Payez 2 🩸 : Relancez un dé."
   },
   {
-    "id": "EP2-179",
+    "id": "EP2-178",
     "nom": "Smoking de Location",
     "type": "Trésor",
     "exemplaires": 1,

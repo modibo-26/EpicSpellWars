@@ -7,7 +7,7 @@ using Action = EpicSpellWars.Domain.Entities.Action;
 namespace EpicSpellWars.Tests;
 
 // Pilier 2, tranche E : Sorciers crevés piochés à la mort (Immediat tout de suite / MancheSuivante différé)
-// + joker Magie féroce (révèle la pioche jusqu'au type remplacé).
+// + Magie féroce (révèle la pioche jusqu'au type remplacé).
 public class SorciersCrevesEtMagieFeroceTests
 {
     private static SorcierCreve Creve(string nom) => SorciersCreves.Toutes().Single(c => c.Nom == nom);
@@ -82,16 +82,16 @@ public class SorciersCrevesEtMagieFeroceTests
         Assert.Empty(t.Merlin.SorciersCreves);
     }
 
-    // Joker Magie féroce : révèle la pioche jusqu'à une carte du type remplacé et la renvoie.
+    // Magie féroce : révèle la pioche jusqu'à une carte du type remplacé et la renvoie.
     [Fact]
     public void Magie_feroce_revele_jusqu_au_type_remplace()
     {
         var t = new Table();
         var qualite = Simple("Q", TypeComposant.Qualite);
         t.Ctx.PiochePrincipale = [Simple("S1", TypeComposant.Source), Simple("S2", TypeComposant.Source), qualite, Simple("D", TypeComposant.Destination)];
-        var joker = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
+        var magieFeroce = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
 
-        var trouvee = t.Ctx.ResoudreMagieFeroce(joker);
+        var trouvee = t.Ctx.ResoudreMagieFeroce(magieFeroce);
 
         Assert.Same(qualite, trouvee);                 // 1re Qualité de la pioche
         Assert.Equal(2, t.Ctx.Defausse.Count);         // les 2 Sources révélées et défaussées

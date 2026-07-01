@@ -6,9 +6,9 @@ using Action = EpicSpellWars.Domain.Entities.Action;
 
 namespace EpicSpellWars.Tests;
 
-// Flux de manche — tranche F4 : intégration de la Magie féroce dans la déclaration (les jokers d'un sort
-// déclaré sont remplacés par de vraies cartes révélées de la pioche) + Baisse de Tension (crevé MancheSuivante
-// qui augmente le 1er sort de la manche suivante avec la 1re carte de la pioche, joker pris en main).
+// Flux de manche — tranche F4 : intégration de la Magie féroce dans la déclaration (les Magie féroce d'un sort
+// déclaré sont remplacées par de vraies cartes révélées de la pioche) + Baisse de Tension (crevé MancheSuivante
+// qui augmente le 1er sort de la manche suivante avec la 1re carte de la pioche, Magie féroce prise en main).
 public class MagieFeroceDeclarationTests
 {
     private static SorcierCreve Creve(string nom) => SorciersCreves.Toutes().Single(c => c.Nom == nom);
@@ -22,22 +22,22 @@ public class MagieFeroceDeclarationTests
     private static List<CarteSort> Fillers(int n) =>
         [.. Enumerable.Range(0, n).Select(i => new CarteSort($"F{i}", TypeComposant.Qualite, Glyphe.Arcane))];
 
-    // ResoudreJokersDuSort : un joker est remplacé in place par la 1re carte du type déclaré, et défaussé.
+    // ResoudreMagieFeroceDuSort : une Magie féroce est remplacée in place par la 1re carte du type déclaré, et défaussée.
     [Fact]
-    public void Joker_est_remplace_par_une_vraie_carte_et_defausse()
+    public void Magie_feroce_est_remplacee_par_une_vraie_carte_et_defaussee()
     {
         var t = new Table();
         var source = new CarteSort("S", TypeComposant.Source, Glyphe.Arcane);
         var qualite = new CarteSort("Q", TypeComposant.Qualite, Glyphe.Arcane);
         t.Ctx.PiochePrincipale = [source, qualite];
-        var joker = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
-        var sort = new List<CarteSort> { joker };
+        var magieFeroce = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
+        var sort = new List<CarteSort> { magieFeroce };
 
-        t.Ctx.ResoudreJokersDuSort(sort, t.Merlin);
+        t.Ctx.ResoudreMagieFeroceDuSort(sort, t.Merlin);
 
-        Assert.Equal([qualite], sort);              // joker → 1re Qualité révélée
-        Assert.Contains(joker, t.Ctx.Defausse);     // joker défaussé
-        Assert.Contains(source, t.Ctx.Defausse);    // Source révélée non retenue défaussée
+        Assert.Equal([qualite], sort);                // Magie féroce → 1re Qualité révélée
+        Assert.Contains(magieFeroce, t.Ctx.Defausse); // Magie féroce défaussée
+        Assert.Contains(source, t.Ctx.Defausse);      // Source révélée non retenue défaussée
     }
 
     // AugmenterSortDepuisPioche : la 1re carte (normale) de la pioche rejoint le sort.
@@ -55,21 +55,21 @@ public class MagieFeroceDeclarationTests
         Assert.Equal(2, sort.Count);
     }
 
-    // AugmenterSortDepuisPioche : si la 1re carte est un joker, il est PRIS EN MAIN et la carte suivante
-    // rejoint le sort.
+    // AugmenterSortDepuisPioche : si la 1re carte est une Magie féroce, elle est PRISE EN MAIN et la carte
+    // suivante rejoint le sort.
     [Fact]
-    public void Augmenter_joker_pris_en_main_et_carte_suivante_au_sort()
+    public void Augmenter_magie_feroce_prise_en_main_et_carte_suivante_au_sort()
     {
         var t = new Table();
-        var joker = new MagieFeroce();
+        var magieFeroce = new MagieFeroce();
         var suivante = new CarteSort("Suiv", TypeComposant.Qualite, Glyphe.Arcane);
-        t.Ctx.PiochePrincipale = [joker, suivante];
+        t.Ctx.PiochePrincipale = [magieFeroce, suivante];
         var sort = new List<CarteSort>();
 
         t.Ctx.AugmenterSortDepuisPioche(sort, t.Merlin);
 
-        Assert.Contains(joker, t.Merlin.Main);   // joker pris en main
-        Assert.Equal([suivante], sort);          // carte suivante ajoutée au sort
+        Assert.Contains(magieFeroce, t.Merlin.Main);   // Magie féroce prise en main
+        Assert.Equal([suivante], sort);                // carte suivante ajoutée au sort
     }
 
     // Baisse de Tension (crevé MancheSuivante) : pioché à la mort, puis au début de la manche suivante il ARME

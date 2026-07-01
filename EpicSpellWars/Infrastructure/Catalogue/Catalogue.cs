@@ -25,7 +25,7 @@ public static class Catalogue
             .ToList();
     }
 
-    // Piles SEPAREES de la pioche principale (permanents / pioche de mort / joker). Meme schema :
+    // Piles SEPAREES de la pioche principale (permanents / pioche de mort / Magie feroce). Meme schema :
     // texte rattache par Id, puis exemplaires tires.
     public static List<Tresor> PiocheTresor() => AvecTextePuisExemplaires(Tresors.Toutes());
 

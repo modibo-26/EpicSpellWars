@@ -10,10 +10,10 @@ namespace EpicSpellWars.Infrastructure.Catalogue;
 //   Activation (Tresor.Activation) = capacite payante « Payez X 🩸 » au tour d'Initiative (phase Standby).
 //   Clauses (Tresor.Clauses) = clauses de PHASE DebutTour / FinTour (pipeline de l'ordonnanceur).
 //   Passif data-driven       = champ lu au goulot concerne (BonusSangParKill dans OnMort, BonusSangDonjonFinTour).
-// ENCODES : Braguette (DebutTour), Gang du Gong/Nachos/Bébé Monstre/Coupe du Tocard (Activation), Bébé Monstre
-// (Immediat), Liste du Père Fouettard + Chalisman (passifs), Menottes d'Avarice + Smoking de Location (FinTour).
-// Restent Effets=[] : mecaniques non construites (relance de des, redirection, Magie feroce, prediction,
-// modif de Glyphes, hooks de Jet, declencheurs mort/kill, Mains Poisseuses/Vers Pas Solitaires).
+// Les 25 sont ENCODES (audit 3 voies 2026-06-30 : conformes photo/JSON/C#) via Immediat, Activation, Clauses
+// DebutTour/FinTour et passifs data-driven lus au goulot concerne (BonusSangParKill, RelanceLesUns,
+// BonusDegatsCreatureJet, InverseGaucheDroite, MagieFeroceTrouveDeux, SeuilBonusSangJet, RelanceUnDePayant,
+// RemporteEgaliteInitiativePayant, RedirigeSortSeuleCible...). Effets=[] = la mecanique vit hors flux de sort.
 public static class Tresors
 {
     public static List<Tresor> Toutes() =>
@@ -21,7 +21,7 @@ public static class Tresors
         // DebutTour : au début de chacun de vos tours, volez 1 🩸 à n'importe quel adversaire.
         new("Braguette de Cthulhu", [], TriggerType.Passif)
         {
-            Id = "EP2-146",
+            Id = "EP2-166",
             Clauses =
             [
                 new ClausePhase
@@ -42,8 +42,8 @@ public static class Tresors
                 SiPaye = [new Action { Type = TypeAction.Degats, Cible = Cible.AdversaireAuChoix, Valeur = new ValeurParTrancheDePv(1, 5) }],
             },
         },
-        // Passif (Magie féroce) : un joker révèle 2 cartes du type cherché au lieu d'1, ajoutées au sort.
-        new("Divan le Terrible", [], TriggerType.Passif) { Id = "EP2-155", JokerTrouveDeux = true },
+        // Passif (Magie féroce) : une Magie féroce révèle 2 cartes du type cherché au lieu d'1, ajoutées au sort.
+        new("Divan le Terrible", [], TriggerType.Passif) { Id = "EP2-155", MagieFeroceTrouveDeux = true },
         // Passif (relance) : relancez tous les 1 obtenus lors de vos Jets de puissance.
         new("Dés Pipés", [], TriggerType.Passif) { Id = "EP2-156", RelanceLesUns = true },
         // Immediat : Prenez le Donjon. Passif : +1 🩸 supplémentaire au gain « Donjon » de fin de tour (BonusSangDonjonFinTour).
@@ -148,11 +148,11 @@ public static class Tresors
         // Passif : à chaque fois qu'un adversaire pioche un crevé, lancez un dé ; 5-6 → soin 1 PV (PiocherSorcierCreve).
         new("Bouclier Anti-Fiente", [], TriggerType.Passif) { Id = "EP2-177", SoigneSurPiocheCreveAdverse = true },
         // Passif (relance) : Payez 2 🩸 → relancez un dé (le plus petit, par politique du moteur).
-        new("Globe Sacrificiel", [], TriggerType.Passif) { Id = "EP2-178", RelanceUnDePayant = true },
+        new("Globe Sacrificiel", [], TriggerType.Passif) { Id = "EP2-170", RelanceUnDePayant = true },
         // FinTour : si vous êtes (à égalité) le sorcier le plus faible en fin de tour, soin 2 PV + gagnez un Trésor.
         new("Smoking de Location", [], TriggerType.Passif)
         {
-            Id = "EP2-179",
+            Id = "EP2-178",
             Clauses =
             [
                 new ClausePhase

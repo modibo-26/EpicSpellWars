@@ -5,7 +5,7 @@ using Action = EpicSpellWars.Domain.Entities.Action;
 
 namespace EpicSpellWars.Tests;
 
-// Trésors « courts » : Divan le Terrible (un joker Magie féroce révèle 2 cartes au lieu d'1) et Bœuf aux
+// Trésors « courts » : Divan le Terrible (une Magie féroce révèle 2 cartes au lieu d'1) et Bœuf aux
 // Hormones (Payez 3 après une Créature pour la GARDER).
 public class DivanEtBoeufTests
 {
@@ -17,9 +17,9 @@ public class DivanEtBoeufTests
             Effets = [new EffetJetDePuissance { Glyphe = Glyphe.Arcane, Tranches = [new TrancheJetDePuissance { Seuil = seuil, PeutGarder = peutGarder, Actions = [] }] }],
         };
 
-    // Divan le Terrible : le joker révèle 2 cartes du type cherché (les deux rejoignent le sort).
+    // Divan le Terrible : la Magie féroce révèle 2 cartes du type cherché (les deux rejoignent le sort).
     [Fact]
-    public void Divan_le_terrible_joker_revele_deux_cartes()
+    public void Divan_le_terrible_magie_feroce_revele_deux_cartes()
     {
         var t = new Table();
         t.Merlin.Tresors.Add(Tresor("Divan le Terrible"));
@@ -27,29 +27,29 @@ public class DivanEtBoeufTests
         var src = new CarteSort("S", TypeComposant.Source, Glyphe.Arcane);
         var q2 = new CarteSort("Q2", TypeComposant.Qualite, Glyphe.Arcane);
         t.Ctx.PiochePrincipale = [q1, src, q2];
-        var joker = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
-        var sort = new List<CarteSort> { joker };
+        var magieFeroce = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
+        var sort = new List<CarteSort> { magieFeroce };
 
-        t.Ctx.ResoudreJokersDuSort(sort, t.Merlin);
+        t.Ctx.ResoudreMagieFeroceDuSort(sort, t.Merlin);
 
         Assert.Equal([q1, q2], sort);              // 2 Qualités ajoutées
-        Assert.Contains(joker, t.Ctx.Defausse);
+        Assert.Contains(magieFeroce, t.Ctx.Defausse);
         Assert.Contains(src, t.Ctx.Defausse);      // révélée entre les deux, non retenue
     }
 
-    // Sans Divan : le joker ne révèle qu'une seule carte.
+    // Sans Divan : la Magie féroce ne révèle qu'une seule carte.
     [Fact]
-    public void Sans_divan_joker_revele_une_seule_carte()
+    public void Sans_divan_magie_feroce_revele_une_seule_carte()
     {
         var t = new Table();
         var q1 = new CarteSort("Q1", TypeComposant.Qualite, Glyphe.Arcane);
         var src = new CarteSort("S", TypeComposant.Source, Glyphe.Arcane);
         var q2 = new CarteSort("Q2", TypeComposant.Qualite, Glyphe.Arcane);
         t.Ctx.PiochePrincipale = [q1, src, q2];
-        var joker = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
-        var sort = new List<CarteSort> { joker };
+        var magieFeroce = new MagieFeroce { TypeRemplace = TypeComposant.Qualite };
+        var sort = new List<CarteSort> { magieFeroce };
 
-        t.Ctx.ResoudreJokersDuSort(sort, t.Merlin);
+        t.Ctx.ResoudreMagieFeroceDuSort(sort, t.Merlin);
 
         Assert.Equal([q1], sort);                  // 1 seule
         Assert.Equal(2, t.Ctx.PiochePrincipale.Count);   // src et q2 restent

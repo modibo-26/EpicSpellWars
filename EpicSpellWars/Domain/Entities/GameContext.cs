@@ -107,7 +107,7 @@ public class GameContext
 
     // Melange d'une pile de cartes (injection du hasard). Recoit la pile a brasser, renvoie une NOUVELLE
     // liste melangee. Sert au melange initial (setup de partie, MelangerPioche) ET au remelange de la
-    // Defausse quand la pioche s'epuise. Type = Carte (la pile contient aussi les jokers MagieFeroce, qui
+    // Defausse quand la pioche s'epuise. Type = Carte (la pile contient aussi les Magie feroce (MagieFeroce), qui
     // ne sont pas des CarteSort). Prod : Fisher-Yates / OrderBy(Random.Shared.Next()). Test : new Random(seed)
     // — fidele (l'ordre est reellement brasse) ET reproductible ; JAMAIS l'identite ([[pioche-non-melangee]]).
     public required Func<IReadOnlyList<Carte>, List<Carte>> Melanger { get; set; }
@@ -265,7 +265,7 @@ public class GameContext
     // chaque nouveau tour pour un sorcier deja mort (rulebook : « au debut de chaque nouveau tour de jeu, ce
     // dernier pioche une nouvelle carte Sorcier creve »). Immediat → effet tout de suite (du point de vue de
     // la victime ; morte, mais Sang/Donjon persistent) ; MancheSuivante → differe ; Passif (Petit Ange) →
-    // simplement conserve (son modificateur s'appliquera a son moment propre, GAP BonusDesJet).
+    // pose BonusProchainJetCreature, consomme au prochain Jet de Creature du porteur (via BonusDesJet).
     public void PiocherSorcierCreve(Sorcier victime)
     {
         if (PiocheSorcierCreve.Count == 0)
@@ -420,11 +420,11 @@ public class GameContext
         EffetsDifferes.Clear();
     }
 
-    // Joker Magie feroce ([[magie-feroce]]) : revele la pioche principale jusqu'a trouver une carte du TYPE
-    // remplace par le joker ; cette carte rejoint le sort (l'appelant la place), le joker et les revelees non
-    // retenues sont defaussees (RevelerPiocheJusqua s'en charge). null si type non declare / pioche epuisee.
-    public CarteSort? ResoudreMagieFeroce(MagieFeroce joker) =>
-        joker.TypeRemplace is { } type ? RevelerPiocheJusqua(c => c.Type == type) : null;
+    // Magie feroce ([[magie-feroce]]) : revele la pioche principale jusqu'a trouver une carte du TYPE
+    // remplace par la Magie feroce ; cette carte rejoint le sort (l'appelant la place), la Magie feroce et les
+    // revelees non retenues sont defaussees (RevelerPiocheJusqua s'en charge). null si type non declare / pioche epuisee.
+    public CarteSort? ResoudreMagieFeroce(MagieFeroce magieFeroce) =>
+        magieFeroce.TypeRemplace is { } type ? RevelerPiocheJusqua(c => c.Type == type) : null;
 
     // À la « révélation » du sort ([[magie-feroce]]) : remplace IN PLACE chaque carte Magie féroce du sort par
     // une vraie carte révélée de la pioche (du type déclaré), et la défausse. Pioche épuisée / type non
@@ -432,21 +432,21 @@ public class GameContext
     // l'ordonnancement : ainsi l'ordre du tour voit encore la Magie féroce (en Destination = Initiative 0,
     // rulebook pages 6/16) tandis que le Jet de puissance, lui, porte sur la vraie carte révélée.
     // `proprietaire` = le sorcier qui déclare le sort (ses Trésors modifient la résolution : Divan le Terrible
-    // → 2 cartes révélées par joker au lieu d'1).
-    public void ResoudreJokersDuSort(List<CarteSort> sort, Sorcier proprietaire)
+    // → 2 cartes révélées par Magie féroce au lieu d'1).
+    public void ResoudreMagieFeroceDuSort(List<CarteSort> sort, Sorcier proprietaire)
     {
-        var nombre = proprietaire.Tresors.Any(t => t.JokerTrouveDeux) ? 2 : 1;   // Divan le Terrible
+        var nombre = proprietaire.Tresors.Any(t => t.MagieFeroceTrouveDeux) ? 2 : 1;   // Divan le Terrible
         for (var i = 0; i < sort.Count; i++)
-            if (sort[i] is MagieFeroce joker)
+            if (sort[i] is MagieFeroce magieFeroce)
             {
-                Defausse.Add(joker);
+                Defausse.Add(magieFeroce);
                 var trouvees = new List<CarteSort>();
                 for (var n = 0; n < nombre; n++)
-                    if (ResoudreMagieFeroce(joker) is { } reelle)
+                    if (ResoudreMagieFeroce(magieFeroce) is { } reelle)
                         trouvees.Add(reelle);
                 sort.RemoveAt(i);
                 sort.InsertRange(i, trouvees);
-                i += trouvees.Count - 1;   // sauter les cartes insérées (déjà résolues, non-jokers)
+                i += trouvees.Count - 1;   // sauter les cartes insérées (déjà résolues, non-Magie féroce)
             }
     }
 
@@ -466,7 +466,7 @@ public class GameContext
         return PiochePrincipale.Count > 0;
     }
 
-    // Baisse de Tension : ajoute la 1re carte de la pioche principale au sort. Si c'est un joker Magie féroce,
+    // Baisse de Tension : ajoute la 1re carte de la pioche principale au sort. Si c'est une Magie féroce,
     // le proprietaire la PREND EN MAIN et c'est la carte SUIVANTE de la pioche qui rejoint le sort.
     public void AugmenterSortDepuisPioche(List<CarteSort> sort, Sorcier proprietaire)
     {
@@ -476,9 +476,9 @@ public class GameContext
         var premiere = PiochePrincipale[0];
         PiochePrincipale.RemoveAt(0);
 
-        if (premiere is MagieFeroce joker)
+        if (premiere is MagieFeroce magieFeroce)
         {
-            proprietaire.Main.Add(joker);   // « prenez-la en main »
+            proprietaire.Main.Add(magieFeroce);   // « prenez-la en main »
             if (!ReapprovisionnerPioche())
                 return;
             var suivante = PiochePrincipale[0];

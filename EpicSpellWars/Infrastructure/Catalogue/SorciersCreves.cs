@@ -7,9 +7,8 @@ namespace EpicSpellWars.Infrastructure.Catalogue;
 // Les 8 Sorciers crevés (piochés à la mort ; exemplaires variables). Texte = data/sorciers_creves.json
 // (TexteLoader, jointure Id). DÉCLENCHEUR « pioché à la mort » CÂBLÉ (tranche E, GameContext.PiocherSorcierCreve) :
 // Immediat = effet tout de suite (du point de vue du mort) ; MancheSuivante = différé à DebutManche ;
-// Passif (Petit Ange) = conservé. Les 4 Immédiat à Actions pures sont actifs ; conditionnelles/différés en GAP.
-//   // GAP   = clause conditionnelle / valeur pas encore exprimable.
-//   // TODO  = effet « manche suivante » dépendant du flux de manche (vainqueur, mise en jeu), Effets vides.
+// Passif (Petit Ange) = BonusProchainJetCreature. Les 8 sont ENTIÈREMENT encodés, conditionnelles incluses
+// (premier-tué, Donjon-mort en fin de tour, 0 jeton → Trésor différé) ; audit 3 voies 2026-06-30 : conformes photo/JSON/C#.
 public static class SorciersCreves
 {
     public static List<SorcierCreve> Toutes() =>

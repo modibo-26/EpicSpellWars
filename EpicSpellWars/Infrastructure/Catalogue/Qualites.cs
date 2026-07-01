@@ -143,7 +143,7 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-053",
-            // TODO Donjon : « chaque autre adversaire subit aussi autant de dégâts que son résultat ».
+            // Clause Donjon (« chaque autre adversaire subit aussi son résultat ») gérée DANS EffetChancedecocus.
             Effets = [new EffetChancedecocus()],
         },
 

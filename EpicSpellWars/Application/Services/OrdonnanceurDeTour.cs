@@ -77,7 +77,7 @@ public class OrdonnanceurDeTour
             // Phase SORT : « révélation » du sort → on remplace MAINTENANT (à la résolution, dans l'ordre du
             // tour) les Magie féroce par de vraies cartes révélées de la pioche. Fait ici et non à la
             // déclaration pour que l'ordonnancement ci-dessus ait bien vu une Magie féroce (Initiative 0).
-            ctx.ResoudreJokersDuSort(sorts[lanceur], lanceur);
+            ctx.ResoudreMagieFeroceDuSort(sorts[lanceur], lanceur);
 
             ctx.SortEnCours = [..sorts[lanceur]];   // copie : ResoudreSort/nettoyage ne touchent pas l'entree
 

@@ -27,7 +27,7 @@ public enum Cible
     MemeCible,         // la derniere cible affectee ce sort (« cet adversaire »)
     Tueur,             // le sorcier qui a porte le coup fatal (contexte Reaction a la mort ; Fukushimax)
     AdversaireAuChoix, // « choisissez un adversaire » : designe par le lanceur (via ChoisirCible)
-    DesigneParDe,
+    DesigneParDe,      // « Designe par le » : Simple random (Oulacécho et Gaztoxicus)
     ControleurDonjon,  // le sorcier qui controle le Donjon (PEUT etre le lanceur ; 0 ou 1 ; Sabruledepartoux)
     VoisinsControleurDonjon, // les voisins directs vivants du controleur du Donjon (Sabruledepartoux paye)
     TousSorciers,      // TOUS les sorciers vivants, lanceur INCLUS (≠ TousAdversaires qui l'exclut)

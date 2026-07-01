@@ -7,3 +7,6 @@ riderModule.iml
 .DS_Store
 .idea/
 *.user
+
+# Photos des cartes
+data/photos/
