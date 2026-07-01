@@ -104,4 +104,47 @@ public class MortEtKillTests
         Assert.Equal(1, t.Gandalf.JetonsDernierSurvivant);
         Assert.Equal(0, t.Merlin.Sang);   // suicide → pas de Sang
     }
+
+    // Nettoyage à la mort (rulebook p.10/11) : un mort défausse sa main + ses Créatures, et rend ses Trésors
+    // sous leur pile. Il ne garde que ses crevés (+ Sang/jetons). Fait dès OnMort, pas seulement au FinManche.
+    [Fact]
+    public void Un_mort_defausse_main_creatures_et_rend_ses_tresors()
+    {
+        var t = new Table();
+        t.Gandalf.PointsDeVie = 3;
+        var carteMain = new CarteSort("M", TypeComposant.Source, Glyphe.Arcane);
+        var creature = new CarteSort("Bête", TypeComposant.Destination, Glyphe.Arcane);
+        var tresor = new Tresor("T", [], TriggerType.Passif);
+        t.Gandalf.Main = [carteMain];
+        t.Gandalf.Creatures = [creature];
+        t.Gandalf.Tresors = [tresor];
+
+        t.Ctx.Appliquer(Degats(Cible.AdversaireGauche, 5));   // Merlin tue Gandalf
+
+        Assert.False(t.Gandalf.EstVivant);
+        Assert.Empty(t.Gandalf.Main);
+        Assert.Empty(t.Gandalf.Creatures);        // invariant pour Q3 : un mort n'a plus de Créatures
+        Assert.Empty(t.Gandalf.Tresors);
+        Assert.Contains(carteMain, t.Ctx.Defausse);
+        Assert.Contains(creature, t.Ctx.Defausse);
+        Assert.Contains(tresor, t.Ctx.PiocheTresor);   // Trésor remis sous sa pile (comme FinManche)
+    }
+
+    // Le nettoyage vaut aussi pour un suicide (la mort est confirmée quel que soit le tueur).
+    [Fact]
+    public void Un_suicide_defausse_aussi_les_biens_du_mort()
+    {
+        var t = new Table();
+        t.Merlin.PointsDeVie = 2;
+        var tresor = new Tresor("T", [], TriggerType.Passif);
+        t.Merlin.Main = [new CarteSort("M", TypeComposant.Source, Glyphe.Arcane)];
+        t.Merlin.Tresors = [tresor];
+
+        t.Ctx.Appliquer(new Action { Type = TypeAction.AutoDegats, Cible = Cible.Soi, Valeur = new ValeurFixe(5) });
+
+        Assert.False(t.Merlin.EstVivant);
+        Assert.Empty(t.Merlin.Main);
+        Assert.Empty(t.Merlin.Tresors);
+        Assert.Contains(tresor, t.Ctx.PiocheTresor);
+    }
 }

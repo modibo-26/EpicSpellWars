@@ -17,8 +17,8 @@ public enum Cible
     PlusDeSang,
     ACreature,
     SansCreature,
-    PlusDeCreatures,
-    ADonjon,
+    PlusDeCreatures,    
+    ADonjon,           // « Adversaire ayant le Donjon » Exclu le lanceur lui meme. 
     SansDonjon,
     AJetonDernierSurvivant,
     TousAdversaires,

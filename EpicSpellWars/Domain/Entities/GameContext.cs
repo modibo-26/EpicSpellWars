@@ -203,6 +203,14 @@ public class GameContext
         //   victime pas encore jouee → aucun resolu → toutes ses Reactions ; victime == lanceur en cours →
         //   seuls les composants pas encore passes ; victime a deja joue ce tour → tous resolus → aucune.
         // Une Reaction peut EMPECHER la mort (Gonzofungus PV→1) → on re-teste EstVivant ensuite.
+        // Snapshot des biens de la victime AVANT les Réactions : à sa mort elle défausse ce qu'elle POSSÉDAIT
+        // (main, Créatures, cartes sous Buffet, Trésors). Une Réaction (Dépipax) peut lui accorder un Trésor de
+        // consolation APRÈS ce point — hors snapshot, il n'est donc PAS balayé par sa propre mort.
+        var mainMorte = victime.Main.ToList();
+        var creaturesMortes = victime.Creatures.ToList();
+        var sousBuffetMort = victime.SousBuffet.ToList();
+        var tresorsMorts = victime.Tresors.ToList();
+
         var sortVictime = victime == Lanceur ? SortEnCours : SortsDeclares.GetValueOrDefault(victime) ?? [];
         DeclencherReactions(sortVictime, victime, tueur, pvAvant);
 
@@ -256,6 +264,20 @@ public class GameContext
                 pred.Devin.Sang = Math.Min(pred.Devin.SangMax, pred.Devin.Sang + 2);
             Prediction = null;
         }
+
+        // Nettoyage à la mort (rulebook p.10/11) : la victime défausse sa main, ses Créatures et ses cartes sous
+        // Buffet, et rend ses Trésors sous leur pile — elle ne garde que ses crevés (+ Sang/jetons). On défausse
+        // le SNAPSHOT (ce qu'elle possédait en mourant), PAS l'état courant : un Trésor de consolation accordé par
+        // une Réaction (Dépipax) survit. Fait ici (pas seulement au FinManche) pour ne pas laisser traîner les
+        // Trésors/Créatures d'un mort (comptes « le plus de… », vols, passifs, réattaque Q3). Avant la pioche du crevé.
+        Defausse.AddRange(mainMorte);
+        Defausse.AddRange(creaturesMortes);
+        Defausse.AddRange(sousBuffetMort);
+        PiocheTresor.AddRange(tresorsMorts);
+        victime.Main.RemoveAll(mainMorte.Contains);
+        victime.Creatures.RemoveAll(creaturesMortes.Contains);
+        victime.SousBuffet.RemoveAll(sousBuffetMort.Contains);
+        victime.Tresors.RemoveAll(tresorsMorts.Contains);
 
         // Tranche E : la victime pioche un Sorcier creve (consolation du mort).
         PiocherSorcierCreve(victime);
