@@ -91,9 +91,10 @@ public class ReactionsTests
         Assert.Equal(1, t.Merlin.PointsDeVie);   // PV → 1, « vous ne mourez pas »
     }
 
-    // Dépipax : sa Réaction fait gagner 1 Trésor (partie immédiate ; le « jouez-le manche suivante » est différé).
+    // Dépipax : sa Réaction REPORTE le gain d'1 Trésor au début de la prochaine manche (un mort défausse tout,
+    // donc pas de gain immédiat). L'effet différé est empilé dans EffetsDifferes, résolu à DebutManche.
     [Fact]
-    public void Depipax_gagne_un_tresor_en_reaction()
+    public void Depipax_reporte_le_gain_de_tresor_a_la_manche_suivante()
     {
         var t = new Table();
         t.Merlin.PointsDeVie = 3;
@@ -103,7 +104,30 @@ public class ReactionsTests
         t.Ctx.ResoudreSort();
 
         Assert.False(t.Merlin.EstVivant);
-        Assert.Single(t.Merlin.Tresors);   // gagné via la Réaction (la mort arrête le sort : effet principal non joué)
+        Assert.Empty(t.Merlin.Tresors);          // rien tout de suite (un mort ne garde pas de Trésor)
+        Assert.Single(t.Ctx.EffetsDifferes);     // gain reporté à la prochaine manche
+
+        // Au début de la manche suivante, l'effet différé se résout → Merlin gagne enfin son Trésor.
+        new EpicSpellWars.Application.Services.OrdonnanceurDeTour().DebutManche(t.Ctx);
+        Assert.Single(t.Merlin.Tresors);
+        Assert.Empty(t.Ctx.EffetsDifferes);
+    }
+
+    // Momidisis : sa Réaction fait piocher 2 crevés SUPPLÉMENTAIRES (en plus du crevé de consolation d'OnMort),
+    // soit 3 au total à la mort avant résolution.
+    [Fact]
+    public void Momidisis_pioche_deux_creves_supplementaires_en_reaction()
+    {
+        var t = new Table();
+        t.Merlin.PointsDeVie = 3;
+        // 3 crevés Passif neutres disponibles (2 de la Réaction + 1 de consolation).
+        t.Ctx.PiocheSorcierCreve = [.. Enumerable.Range(0, 3).Select(i => new SorcierCreve($"C{i}", [], TriggerType.Passif))];
+        t.Ctx.SortEnCours = [Suicide(TypeComposant.Source), Source("Momidisis")];
+
+        t.Ctx.ResoudreSort();
+
+        Assert.False(t.Merlin.EstVivant);
+        Assert.Equal(3, t.Merlin.SorciersCreves.Count);   // 2 (Réaction) + 1 (consolation OnMort)
     }
 
     // Brademinus : une Créature présente dans le sort encaisse le coup fatal → le lanceur survit (PV restaurés

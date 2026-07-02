@@ -60,7 +60,8 @@ public enum TypeAction
     AjouterBonusDe,    // ajoute `montant` dé(s) aux Jets de puissance du lanceur ce tour (BonusDesJetCreature)
     Garder,            // GARDEZ la Créature en cours hors tranche (ex. Gracula « Payez 1 🩸 : GARDEZ »)
     CreatureEncaisse,  // Réaction Brademinus : une Créature du sort encaisse le coup fatal (vous ne mourez pas)
-    GagnerCarteAuHasard // Ajoute au sort N carte(s) AU HASARD de la main (Bébéfédex payé ; ≠ GagnerCarte = choix)
+    GagnerCarteAuHasard, // Ajoute au sort N carte(s) AU HASARD de la main (Bébéfédex payé ; ≠ GagnerCarte = choix)
+    PiocherCreve       // La cible pioche `montant` carte(s) Sorcier crevé (Réaction Momidisis : 2 supplémentaires)
 }
 
 // Ou va une carte revelee retenue par EffetRevelerPioche (Peutidardus/Cadopourrix → Sort).

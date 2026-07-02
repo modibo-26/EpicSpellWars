@@ -56,8 +56,8 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-008",
-            // Branchement par dé ; Réaction : si vous mourez avant résolution, gagnez 1 Trésor (immédiat).
-            // GAP : « et jouez-le au début de la prochaine manche » = effet différé MancheSuivante (non couvert).
+            // Branchement par dé ; Réaction : si vous mourez avant résolution, gagnez 1 Trésor REPORTÉ au début
+            // de la prochaine manche (ActionsDifferees : un mort défausse tout, donc le gain immédiat serait perdu).
             Effets =
             [
                 new EffetBranchement
@@ -78,7 +78,7 @@ public static class Sources
                         },
                     ],
                 },
-                new EffetReaction { Actions = [new Action { Type = TypeAction.GagnerTresor, Cible = Cible.Soi }] },
+                new EffetReaction { ActionsDifferees = [new Action { Type = TypeAction.GagnerTresor, Cible = Cible.Soi }] },
             ],
         },
 
@@ -108,9 +108,13 @@ public static class Sources
         {
             Exemplaires = 2,
             Id = "EP2-014",
-            // GAP Réaction (tranche B faite) : « piochez 2 Sorcier crevé supplémentaires » dépend du système
-            // de pioche de Sorciers crevés à la mort (tranche E).
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(2) }] }],
+            // 2 dégâts à chaque adversaire déjà joué ; Réaction : à la mort avant résolution, piochez 2 crevés
+            // supplémentaires (PiocherCreve ×2 sur Soi = la victime pendant la Réaction).
+            Effets =
+            [
+                new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.ADejaJoue, Valeur = new ValeurFixe(2) }] },
+                new EffetReaction { Actions = [new Action { Type = TypeAction.PiocherCreve, Cible = Cible.Soi, Valeur = new ValeurFixe(2) }] },
+            ],
         },
 
         new("Nyarlaprizdetep", TypeComposant.Source, Glyphe.Tenebres)

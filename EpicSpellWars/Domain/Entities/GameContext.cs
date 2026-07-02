@@ -1106,6 +1106,13 @@ public class GameContext
                 }
                 break;
 
+            case TypeAction.PiocherCreve:
+                // La cible pioche `montant` Sorcier crevé (Réaction Momidisis : 2 supplémentaires, EN PLUS du
+                // crevé de consolation tiré en fin d'OnMort). Chaque pioche déclenche l'Immédiat / le différé du crevé.
+                for (var i = 0; i < montant; i++)
+                    PiocherSorcierCreve(cible);
+                break;
+
             default:
                 throw new NotImplementedException($"TypeAction {action.Type} non geree.");
         }
