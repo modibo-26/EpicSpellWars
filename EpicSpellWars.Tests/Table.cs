@@ -40,6 +40,12 @@ internal sealed class Table
     // Sacrifice anti-degats : par defaut personne ne sacrifie (encaisse). Un test surcharge pour sacrifier.
     public Func<Sorcier, int, IReadOnlyList<CarteSort>, CarteSort?> SacrificeCreature = (_, _, _) => null;
 
+    // Choix d'un Tresor : par defaut le 1er (comportement historique). Un test surcharge (ex. « le meilleur »).
+    public Func<Sorcier, IReadOnlyList<Tresor>, Tresor> ChoixTresor = (_, ts) => ts[0];
+
+    // Ordre des Composants même-type ex aequo : par defaut le 1er (= ordre de SortEnCours). Un test surcharge.
+    public Func<Sorcier, IReadOnlyList<CarteSort>, CarteSort> ChoixComposant = (_, cs) => cs[0];
+
     public Table()
     {
         Ctx = new GameContext
@@ -59,6 +65,8 @@ internal sealed class Table
             ChoisirIndexAuHasard = _ => ProchainIndexHasard,
             ChoisirActivationTresor = (s, ts) => ActivationTresor(s, ts),
             ChoisirSacrificeCreature = (s, m, cs) => SacrificeCreature(s, m, cs),
+            ChoisirTresor = (s, ts) => ChoixTresor(s, ts),
+            ChoisirComposant = (s, cs) => ChoixComposant(s, cs),
             Melanger = cartes => MelangerSeed(cartes, _rng),
         };
     }

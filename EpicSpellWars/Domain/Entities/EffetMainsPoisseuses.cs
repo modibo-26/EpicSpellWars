@@ -4,7 +4,7 @@ namespace EpicSpellWars.Domain.Entities;
 
 // « Mains Poisseuses ! » (clause DebutTour, si premier à jouer) : échangez CE Trésor contre n'importe quel
 // Trésor d'un adversaire. Le porteur donne Mains Poisseuses (TresorClauseEnCours) à un adversaire et prend l'un
-// de ses Trésors. Simplification : on prend le 1er Trésor de l'adversaire choisi (comme VolerTresor).
+// de ses Trésors — « n'importe quel » → c'est le porteur (voleur) qui choisit lequel (ChoisirTresor).
 public class EffetMainsPoisseuses : IEffet
 {
     public void Execute(GameContext context)
@@ -18,7 +18,7 @@ public class EffetMainsPoisseuses : IEffet
             return;
 
         var cible = context.ChoisirCible(adversaires);
-        var convoite = cible.Tresors[0];   // TODO choix réel ; 1er Trésor (cf. VolerTresor)
+        var convoite = context.ChoisirTresor(porteur, cible.Tresors);   // le porteur choisit le Trésor convoité
 
         cible.Tresors.Remove(convoite);
         porteur.Tresors.Remove(cetteCarte);

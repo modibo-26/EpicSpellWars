@@ -105,6 +105,16 @@ public class GameContext
     // Tresors activables. Une seule activation PAYANTE par tour ([[tresors-effets-speciaux]]).
     public required Func<Sorcier, IReadOnlyList<Tresor>, Tresor?> ChoisirActivationTresor { get; set; }
 
+    // Ordre de résolution entre plusieurs Composants NON résolus du MÊME type (rulebook p.8 : « vous les résolvez
+    // dans l'ordre de VOTRE choix »). Le lanceur choisit lequel résoudre d'abord. Ne survient que via cartes
+    // ajoutées en cours de sort (Divan le Terrible, GagnerCarte...). Défaut naturel = ordre de SortEnCours.
+    public required Func<Sorcier, IReadOnlyList<CarteSort>, CarteSort> ChoisirComposant { get; set; }
+
+    // Choix d'UN Tresor parmi une liste, par un acteur donne. Router selon le sens : VOL → le voleur (Lanceur)
+    // choisit parmi les Tresors de la victime (Tentaculax, Mains Poisseuses « n'importe quel ») ; DÉFAUSSE/DON de
+    // SES propres Tresors → le PROPRIETAIRE choisit (Écrabouillax/Gromago « doit défausser 1 de SES Trésors »).
+    public required Func<Sorcier, IReadOnlyList<Tresor>, Tresor> ChoisirTresor { get; set; }
+
     // Sacrifice anti-degats ([[creatures-gardees]], rulebook p.9) : quand un DEFENSEUR va subir des degats d'un
     // adversaire, il peut defausser une de ses Creatures gardees pour absorber l'instance ENTIERE. Recoit
     // (defenseur, montant de l'instance, ses Creatures gardees) → la Creature sacrifiee, ou null pour encaisser.
@@ -734,14 +744,15 @@ public class GameContext
 
         while (true)
         {
-            // Egalite de rang (plusieurs non resolus du meme type) : ordre de SortEnCours.
-            // TODO: laisser le joueur ordonner (hook) ; ne survient que via cartes ajoutees.
-            var composant = SortEnCours
-                .Where(c => !_composantsResolus.Contains(c))
-                .OrderBy(RangType)
-                .FirstOrDefault();
-            if (composant is null)
+            // Prochain composant : plus petit rang de type non résolu (Source → Qualité → Destination).
+            var nonResolus = SortEnCours.Where(c => !_composantsResolus.Contains(c)).ToList();
+            if (nonResolus.Count == 0)
                 break;
+            // Égalité de rang (plusieurs non résolus du MÊME type, via cartes ajoutées) : le lanceur choisit
+            // l'ordre (rulebook p.8). Sinon, le seul composant de plus petit rang.
+            var rangMin = nonResolus.Min(RangType);
+            var exAequo = nonResolus.Where(c => RangType(c) == rangMin).ToList();
+            var composant = exAequo.Count == 1 ? exAequo[0] : ChoisirComposant(Lanceur, exAequo);
 
             _composantsResolus.Add(composant);
             ResoudreComposant(composant);
@@ -1026,26 +1037,22 @@ public class GameContext
                 }
                 break;
             case TypeAction.VolerTresor:
-                // Vole `montant` Tresors de la cible vers le lanceur.
-                // TODO choix : pour l'instant on prend le 1er ; le voleur devrait pouvoir choisir.
+                // Vole `montant` Tresors de la cible vers le lanceur. Le VOLEUR (Lanceur) choisit lesquels.
                 for (var i = 0; i < montant && cible.Tresors.Count > 0; i++)
                 {
-                    var t = cible.Tresors[0];
-                    cible.Tresors.RemoveAt(0);
+                    var t = ChoisirTresor(Lanceur, cible.Tresors);
+                    cible.Tresors.Remove(t);
                     Lanceur.Tresors.Add(t);
                 }
                 break;
             case TypeAction.DefausserTresor:
-                // La cible defausse `montant` Tresors (remis sous la pioche Tresor).
-                // TODO choix : la cible devrait choisir lesquels ; pour l'instant le 1er.
+                // La cible defausse `montant` Tresors (remis sous la pioche Tresor). Le PROPRIETAIRE (cible) choisit.
                 for (var i = 0; i < montant && cible.Tresors.Count > 0; i++)
                 {
-                    var t = cible.Tresors[0];
-                    cible.Tresors.RemoveAt(0);
+                    var t = ChoisirTresor(cible, cible.Tresors);
+                    cible.Tresors.Remove(t);
                     PiocheTresor.Add(t);
                 }
-                
-                
                 break;
 
             case TypeAction.TuerCreature:
