@@ -135,8 +135,8 @@ public static class Qualites
         {
             Exemplaires = 2,
             Id = "EP2-051",
-            // TODO Réaction au blocage (gagnez 1 🩸 si une Créature encaisse) — pilier déclencheurs.
-            Effets = [new EffetSimple { Actions = [new Action { Type = TypeAction.Degats, Cible = Cible.PlusFort, Valeur = new ValeurFixe(3) }] }],
+            // 3 dégâts au plus fort ; +1 🩸 s'il bloque avec une Créature (sacrifice) — cf. EffetOeilcrevax.
+            Effets = [new EffetOeilcrevax()],
         },
 
         new("Chancedecocus", TypeComposant.Qualite, Glyphe.Tenebres)

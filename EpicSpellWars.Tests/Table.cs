@@ -37,6 +37,9 @@ internal sealed class Table
     // surcharge (ex. activer le 1er Tresor activable).
     public Func<Sorcier, IReadOnlyList<Tresor>, Tresor?> ActivationTresor = (_, _) => null;
 
+    // Sacrifice anti-degats : par defaut personne ne sacrifie (encaisse). Un test surcharge pour sacrifier.
+    public Func<Sorcier, int, IReadOnlyList<CarteSort>, CarteSort?> SacrificeCreature = (_, _, _) => null;
+
     public Table()
     {
         Ctx = new GameContext
@@ -55,6 +58,7 @@ internal sealed class Table
             DeclarerSort = s => Declaration(s),
             ChoisirIndexAuHasard = _ => ProchainIndexHasard,
             ChoisirActivationTresor = (s, ts) => ActivationTresor(s, ts),
+            ChoisirSacrificeCreature = (s, m, cs) => SacrificeCreature(s, m, cs),
             Melanger = cartes => MelangerSeed(cartes, _rng),
         };
     }

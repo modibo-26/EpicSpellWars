@@ -105,6 +105,12 @@ public class GameContext
     // Tresors activables. Une seule activation PAYANTE par tour ([[tresors-effets-speciaux]]).
     public required Func<Sorcier, IReadOnlyList<Tresor>, Tresor?> ChoisirActivationTresor { get; set; }
 
+    // Sacrifice anti-degats ([[creatures-gardees]], rulebook p.9) : quand un DEFENSEUR va subir des degats d'un
+    // adversaire, il peut defausser une de ses Creatures gardees pour absorber l'instance ENTIERE. Recoit
+    // (defenseur, montant de l'instance, ses Creatures gardees) → la Creature sacrifiee, ou null pour encaisser.
+    // La decision peut suivre le resultat du de (montant deja connu ici). Injecte par la couche qui pilote la partie.
+    public required Func<Sorcier, int, IReadOnlyList<CarteSort>, CarteSort?> ChoisirSacrificeCreature { get; set; }
+
     // Melange d'une pile de cartes (injection du hasard). Recoit la pile a brasser, renvoie une NOUVELLE
     // liste melangee. Sert au melange initial (setup de partie, MelangerPioche) ET au remelange de la
     // Defausse quand la pioche s'epuise. Type = Carte (la pile contient aussi les Magie feroce (MagieFeroce), qui
@@ -179,8 +185,26 @@ public class GameContext
     // transition vivant→mort. Toutes les sources de degats passent ici (Actions Degats/AutoDegats + effets
     // sur-mesure Spiralex/Foulremix/Chancedecocus), pour que les declencheurs (recompenses au kill, et plus
     // tard Reactions/Tresors/Sorciers creves) se branchent en UN seul endroit (OnMort).
+    // Une instance de degats a-t-elle ete bloquee par un sacrifice de Creature depuis le dernier reset ? Arme
+    // par InfligerDegats, lu par les effets qui reagissent au blocage (Oeilcrevax « gagnez 1🩸 si une Creature bloque »).
+    public bool DerniereInstanceBloquee { get; set; }
+
     public void InfligerDegats(Sorcier cible, int montant)
     {
+        // Sacrifice anti-degats (rulebook p.9) : le defenseur (un adversaire du Lanceur courant = la source) peut
+        // defausser une Creature gardee pour absorber CETTE instance entiere. « 1 Creature bloque 1 instance » est
+        // garanti car le resolveur ne somme jamais les degats ([[degats-instances-creature]]). Simplification : la
+        // regle « une Creature ne bloque pas les degats qu'elle inflige elle-meme » n'est pas modelisee finement ;
+        // l'auto-degat vise le Lanceur (cible == Lanceur) donc est deja exclu ici.
+        if (montant > 0 && cible.EstVivant && cible != Lanceur && cible.Creatures.Count > 0
+            && ChoisirSacrificeCreature(cible, montant, cible.Creatures) is { } sacrifiee
+            && cible.Creatures.Remove(sacrifiee))
+        {
+            Defausse.Add(sacrifiee);
+            DerniereInstanceBloquee = true;
+            return;   // instance entierement absorbee : aucun PV perdu
+        }
+
         var avant = cible.PointsDeVie;
         cible.PointsDeVie = Math.Max(0, cible.PointsDeVie - montant);
         if (avant > 0 && cible.PointsDeVie == 0)

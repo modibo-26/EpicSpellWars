@@ -94,4 +94,33 @@ public class QualitesCatalogueTests
         Assert.Contains(creature, t.Ctx.SortEnCours);
         Assert.Single(t.Ctx.PiochePrincipale);   // « Carte-reste » seule restante
     }
+
+    // Oeilcrevax — 3 dégâts au plus fort ; s'il bloque avec une Créature (sacrifice), le lanceur gagne 1 🩸.
+    [Fact]
+    public void Oeilcrevax_gagne_du_sang_si_la_cible_bloque_avec_une_creature()
+    {
+        var t = new Table();
+        t.Gandalf.PointsDeVie = 25;   // le plus fort (Merlin/Saroumane à 20)
+        t.Gandalf.Creatures = [new CarteSort("Bête", TypeComposant.Destination, Glyphe.Arcane)];
+        t.SacrificeCreature = (_, _, cs) => cs[0];   // Gandalf bloque
+
+        Jouer(t, Qualite("Oeilcrevax"));
+
+        Assert.Equal(25, t.Gandalf.PointsDeVie);   // dégâts absorbés par le sacrifice
+        Assert.Empty(t.Gandalf.Creatures);
+        Assert.Equal(1, t.Merlin.Sang);            // +1 🩸 car la cible a bloqué
+    }
+
+    // Oeilcrevax — sans blocage : les 3 dégâts passent et le lanceur ne gagne pas de Sang.
+    [Fact]
+    public void Oeilcrevax_sans_blocage_inflige_et_ne_donne_pas_de_sang()
+    {
+        var t = new Table();
+        t.Gandalf.PointsDeVie = 25;   // le plus fort
+
+        Jouer(t, Qualite("Oeilcrevax"));
+
+        Assert.Equal(22, t.Gandalf.PointsDeVie);   // 3 dégâts encaissés
+        Assert.Equal(0, t.Merlin.Sang);
+    }
 }
